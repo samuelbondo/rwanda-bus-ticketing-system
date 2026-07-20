@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
-import { Save, Globe, Phone, Bot, Wrench, Share2 } from 'lucide-react'
+import { Save, Globe, Phone, Bot, Wrench, Share2, Eye, EyeOff } from 'lucide-react'
 import { settingsService, type FullSettings } from '@/services/settingsService'
 
 const schema = z.object({
@@ -53,6 +53,7 @@ const inputCls = 'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 te
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [showKey, setShowKey] = useState(false)
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -149,7 +150,12 @@ export default function SettingsPage() {
           </label>
         </div>
         <Field label="Gemini API Key" error={errors.geminiApiKey?.message}>
-          <input {...register('geminiApiKey')} type="password" placeholder="AQ.Ab8RN6..." className={inputCls} />
+          <div className="relative">
+            <input {...register('geminiApiKey')} type={showKey ? 'text' : 'password'} placeholder="AQ.Ab8RN6..." className={`${inputCls} pr-10`} />
+            <button type="button" onClick={() => setShowKey((v) => !v)} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+              {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
         </Field>
         <Field label="AI Model" error={errors.aiModel?.message}>
           <input {...register('aiModel')} placeholder="gemini-1.5-flash" className={inputCls} />
