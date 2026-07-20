@@ -40,52 +40,40 @@ function ScheduleCard({ s, onBook }: { s: Schedule; onBook: () => void }) {
   const cancelled = s.status === 'CANCELLED'
 
   return (
-    <div className={`rounded-xl border bg-white p-4 sm:p-5 shadow-sm transition hover:shadow-md dark:bg-gray-800 ${cancelled ? 'border-red-200 dark:border-red-900 opacity-60' : 'border-gray-200 dark:border-gray-700'}`}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          {/* Route */}
-          <div className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
-            <MapPin className="h-4 w-4 shrink-0 text-primary-600" />
-            <span className="truncate text-sm sm:text-base">
-              {s.route.origin} → {s.route.destination}
-            </span>
-          </div>
-          {/* Meta row */}
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
-            <span className="flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5 shrink-0" />
-              {timeStr} · {dateStr}
-            </span>
-            <span className="flex items-center gap-1">
-              <Bus className="h-3.5 w-3.5 shrink-0" />
-              {s.bus.name}
-            </span>
-            <span className="flex items-center gap-1">
-              <Users className="h-3.5 w-3.5 shrink-0" />
-              {full ? <span className="text-red-500 font-medium">Full</span> : <>{s.availableSeats} seats left</>}
-            </span>
-          </div>
-        </div>
-        {/* Price + action */}
-        <div className="flex shrink-0 flex-col items-end gap-2">
-          <span className="text-base sm:text-lg font-bold text-primary-600">
-            RWF {Number(s.price).toLocaleString()}
-          </span>
-          {cancelled ? (
-            <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-600 dark:bg-red-900/30 dark:text-red-400">
-              Cancelled
-            </span>
-          ) : (
-            <Button
-              size="sm"
-              disabled={full}
-              onClick={onBook}
-              className="text-xs"
-            >
-              {full ? 'Full' : 'Book'}
-            </Button>
-          )}
-        </div>
+    <div className={`flex flex-col rounded-xl border bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-gray-800 ${
+      cancelled ? 'border-red-200 opacity-60 dark:border-red-900' : 'border-gray-200 dark:border-gray-700'
+    }`}>
+      {/* Route */}
+      <div className="flex items-center gap-1.5 font-semibold text-gray-900 dark:text-white">
+        <MapPin className="h-3.5 w-3.5 shrink-0 text-primary-600" />
+        <span className="truncate text-sm">{s.route.origin} → {s.route.destination}</span>
+      </div>
+
+      {/* Time & date */}
+      <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+        <Clock className="h-3.5 w-3.5 shrink-0" />
+        <span className="font-medium text-gray-800 dark:text-gray-200">{timeStr}</span>
+        <span>·</span>
+        <span>{dateStr}</span>
+      </div>
+
+      {/* Bus & seats */}
+      <div className="mt-1.5 flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+        <span className="flex items-center gap-1"><Bus className="h-3.5 w-3.5 shrink-0" />{s.bus.name}</span>
+        <span className="flex items-center gap-1">
+          <Users className="h-3.5 w-3.5 shrink-0" />
+          {full ? <span className="text-red-500 font-medium">Full</span> : <>{s.availableSeats} left</>}
+        </span>
+      </div>
+
+      {/* Price + action */}
+      <div className="mt-4 flex items-center justify-between">
+        <span className="text-base font-bold text-primary-600">RWF {Number(s.price).toLocaleString()}</span>
+        {cancelled ? (
+          <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-600 dark:bg-red-900/30 dark:text-red-400">Cancelled</span>
+        ) : (
+          <Button size="sm" disabled={full} onClick={onBook}>{full ? 'Full' : 'Book'}</Button>
+        )}
       </div>
     </div>
   )
@@ -231,15 +219,11 @@ export default function HomePage() {
 
       {/* ── LIVE DEPARTURES ───────────────────────────────────────────────── */}
       <section className="bg-gray-50 dark:bg-gray-950 py-14 sm:py-16">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
-                Upcoming Departures
-              </h2>
-              <p className="mt-0.5 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                Today and tomorrow — live from our system
-              </p>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Upcoming Departures</h2>
+              <p className="mt-0.5 text-xs sm:text-sm text-gray-500 dark:text-gray-400">Next available trips — live from our system</p>
             </div>
             <button
               onClick={() => navigate('/search')}
@@ -250,8 +234,8 @@ export default function HomePage() {
           </div>
 
           {loading && (
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}
+            <div className="grid gap-4 sm:grid-cols-3">
+              {[1, 2, 3].map((i) => <Skeleton key={i} className="h-36 w-full rounded-xl" />)}
             </div>
           )}
 
@@ -259,30 +243,30 @@ export default function HomePage() {
             <div className="rounded-xl border border-dashed border-gray-300 bg-white py-12 text-center dark:border-gray-700 dark:bg-gray-800">
               <Bus className="mx-auto mb-3 h-8 w-8 text-gray-300 dark:text-gray-600" />
               <p className="text-sm text-gray-500 dark:text-gray-400">No departures scheduled for today or tomorrow.</p>
-              <button onClick={() => navigate('/search')} className="mt-3 text-sm font-medium text-primary-600 hover:underline">
-                Search other dates
-              </button>
+              <button onClick={() => navigate('/search')} className="mt-3 text-sm font-medium text-primary-600 hover:underline">Search other dates</button>
             </div>
           )}
 
           {!loading && allSchedules.length > 0 && (
-            <div className="space-y-3">
-              {allSchedules.map((s) => (
-                <ScheduleCard
-                  key={s.id}
-                  s={s}
-                  onBook={() => user
+            <>
+              <div className="grid gap-4 sm:grid-cols-3">
+                {allSchedules.map((s) => (
+                  <ScheduleCard
+                    key={s.id}
+                    s={s}
+                    onBook={() => user
                       ? navigate(`/book/${s.id}`)
                       : navigate('/login', { state: { scheduleId: s.id } })
-                  }
-                />
-              ))}
-              <div className="pt-2 text-center">
+                    }
+                  />
+                ))}
+              </div>
+              <div className="mt-6 text-center">
                 <Button variant="secondary" onClick={() => navigate('/search')}>
                   See all schedules <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
               </div>
-            </div>
+            </>
           )}
         </div>
       </section>
