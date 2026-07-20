@@ -19,6 +19,7 @@ import reportRoutes from './routes/report.routes.js'
 import auditRoutes from './routes/audit.routes.js'
 
 import uploadRoutes from './routes/upload.routes.js'
+import slideshowRoutes from './routes/slideshow.routes.js'
 
 const app = express()
 
@@ -61,6 +62,7 @@ app.use('/api/verify', verifyRoutes)
 app.use('/api/reports', reportRoutes)
 app.use('/api/audit-logs', auditRoutes)
 app.use('/api/upload', uploadRoutes)
+app.use('/api/slideshow', slideshowRoutes)
 
 app.use(notFound)
 app.use(errorHandler)

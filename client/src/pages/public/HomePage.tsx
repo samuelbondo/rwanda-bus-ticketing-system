@@ -11,6 +11,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Button, Skeleton } from '@/components/ui'
 import type { Schedule } from '@/types'
 
+import HeroSlideshow from '@/components/HeroSlideshow'
+
 // ── Today's date helpers ──────────────────────────────────────────────────────
 const today = new Date().toISOString().split('T')[0]
 const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
@@ -118,6 +120,8 @@ export default function HomePage() {
 
       {/* ── HERO ──────────────────────────────────────────────────────────── */}
       <section className="relative bg-gradient-to-br from-[#0f2d6b] via-[#1a4db8] to-[#2563eb] overflow-hidden">
+        {/* Background slideshow */}
+        <HeroSlideshow />
         {/* Background texture */}
         <div className="pointer-events-none absolute inset-0 opacity-10"
           style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '60px 60px' }} />

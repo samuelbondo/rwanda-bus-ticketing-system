@@ -36,6 +36,7 @@ import ReportsPage from '@/pages/admin/ReportsPage'
 import AuditLogsPage from '@/pages/admin/AuditLogsPage'
 
 import AdminProfilePage from '@/pages/admin/AdminProfilePage'
+import SlideshowPage from '@/pages/admin/SlideshowPage'
 
 import NotFoundPage from '@/pages/public/NotFoundPage'
 
@@ -122,6 +123,7 @@ export default function AppRoutes() {
         <Route path="/admin/schedules" element={<SchedulesPage />} />
         <Route path="/admin/bookings" element={<BookingsPage />} />
         <Route path="/admin/reports" element={<ReportsPage />} />
+        <Route path="/admin/slideshow" element={<SlideshowPage />} />
         <Route path="/admin/profile" element={<AdminProfilePage />} />
         <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
       </Route>
