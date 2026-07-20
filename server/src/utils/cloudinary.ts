@@ -22,7 +22,10 @@ export async function uploadImage(
 
     cloudinary.uploader
       .upload_stream(options, (err, result) => {
-        if (err || !result) return reject(err)
+        if (err || !result) {
+          console.error('[cloudinary] upload error:', err)
+          return reject(err ?? new Error('Cloudinary returned no result'))
+        }
         resolve({ url: result.secure_url, publicId: result.public_id })
       })
       .end(fileBuffer)
