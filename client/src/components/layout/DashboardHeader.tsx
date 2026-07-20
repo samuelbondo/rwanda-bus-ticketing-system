@@ -69,8 +69,11 @@ export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="flex items-center gap-2 rounded-lg border border-gray-200 px-2.5 py-1.5 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
               >
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-600 text-xs font-bold text-white">
-                  {user.name.charAt(0).toUpperCase()}
+                <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full">
+                  {user.avatarUrl
+                    ? <img src={user.avatarUrl} alt={user.name} className="h-full w-full object-cover" />
+                    : <div className="flex h-full w-full items-center justify-center bg-primary-600 text-xs font-bold text-white">{user.name.charAt(0).toUpperCase()}</div>
+                  }
                 </div>
                 <div className="text-left">
                   <p className="max-w-[120px] truncate text-sm font-medium text-gray-900 dark:text-white">

@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
-import { LayoutDashboard, QrCode, CalendarDays } from 'lucide-react'
+import { LayoutDashboard, QrCode, CalendarDays, UserCircle } from 'lucide-react'
 import DashboardHeader from '@/components/layout/DashboardHeader'
 import Sidebar from '@/components/layout/Sidebar'
 
 const items = [
-  { label: 'Dashboard',     to: '/agent',        icon: LayoutDashboard },
-  { label: "Today's Trips", to: '/agent/trips',  icon: CalendarDays },
-  { label: 'Verify Ticket', to: '/agent/verify', icon: QrCode },
+  { label: 'Dashboard',     to: '/agent',          icon: LayoutDashboard },
+  { label: "Today's Trips", to: '/agent/trips',    icon: CalendarDays },
+  { label: 'Verify Ticket', to: '/agent/verify',   icon: QrCode },
+  { label: 'My Profile',    to: '/agent/profile',  icon: UserCircle },
 ]
 
 export default function AgentLayout() {

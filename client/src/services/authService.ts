@@ -31,7 +31,7 @@ export const authService = {
     return data.data
   },
 
-  async updateProfile(payload: Partial<User>): Promise<User> {
+  async updateProfile(payload: { name?: string; phone?: string; avatarUrl?: string }): Promise<User> {
     const { data } = await api.put('/auth/profile', payload)
     return data.data
   },

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -27,6 +28,7 @@ type PasswordData = z.infer<typeof passwordSchema>
 
 export default function ProfilePage() {
   const { user, updateUser } = useAuth()
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl ?? '')
 
   const profileForm = useForm<ProfileData>({
     resolver: zodResolver(profileSchema),
@@ -39,7 +41,7 @@ export default function ProfilePage() {
 
   async function onProfileSubmit(data: ProfileData) {
     try {
-      const updated = await authService.updateProfile(data)
+      const updated = await authService.updateProfile({ ...data, avatarUrl: avatarUrl || undefined })
       updateUser(updated)
       toast.success('Profile updated')
     } catch {
@@ -71,8 +73,8 @@ export default function ProfilePage() {
         <CardBody>
           <div className="flex items-center gap-4">
             <div className="shrink-0">
-              {user?.avatarUrl ? (
-                <img src={user.avatarUrl} alt={user.name} className="h-16 w-16 rounded-2xl object-cover" />
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={user?.name} className="h-16 w-16 rounded-2xl object-cover" />
               ) : (
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-600 text-2xl font-bold text-white">
                   {user?.name.charAt(0).toUpperCase()}
@@ -92,16 +94,13 @@ export default function ProfilePage() {
           </div>
           <div className="mt-5 grid gap-3 sm:grid-cols-2 border-t border-gray-100 dark:border-gray-700 pt-5">
             <div className="flex items-center gap-2.5 text-sm text-gray-500 dark:text-gray-400">
-              <Mail className="h-4 w-4 shrink-0 text-gray-400" />
-              {user?.email}
+              <Mail className="h-4 w-4 shrink-0 text-gray-400" />{user?.email}
             </div>
             <div className="flex items-center gap-2.5 text-sm text-gray-500 dark:text-gray-400">
-              <Phone className="h-4 w-4 shrink-0 text-gray-400" />
-              {user?.phone || 'No phone added'}
+              <Phone className="h-4 w-4 shrink-0 text-gray-400" />{user?.phone || 'No phone added'}
             </div>
             <div className="flex items-center gap-2.5 text-sm text-gray-500 dark:text-gray-400">
-              <Shield className="h-4 w-4 shrink-0 text-gray-400" />
-              Customer account
+              <Shield className="h-4 w-4 shrink-0 text-gray-400" />Customer account
             </div>
             <div className="flex items-center gap-2.5 text-sm text-gray-500 dark:text-gray-400">
               <Calendar className="h-4 w-4 shrink-0 text-gray-400" />
@@ -144,11 +143,8 @@ export default function ProfilePage() {
               label="Profile Photo"
               folder="avatars"
               shape="circle"
-              value={user?.avatarUrl}
-              onChange={async (url) => {
-                const updated = await authService.updateProfile({ avatarUrl: url } as never)
-                updateUser(updated)
-              }}
+              value={avatarUrl}
+              onChange={(url) => setAvatarUrl(url)}
             />
             <div className="flex justify-end">
               <Button type="submit" loading={profileForm.formState.isSubmitting}>

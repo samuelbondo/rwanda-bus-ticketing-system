@@ -29,12 +29,12 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
 }
 
 // ── Avatar helper ───────────────────────────────────────────────────────────
-function Avatar({ user, size = 8 }: { user: User; size?: number }) {
-  const cls = `h-${size} w-${size} rounded-full object-cover`
+function Avatar({ user, size = 'md' }: { user: User; size?: 'sm' | 'md' | 'lg' }) {
+  const sizeClass = size === 'sm' ? 'h-7 w-7 text-xs' : size === 'lg' ? 'h-12 w-12 text-lg' : 'h-9 w-9 text-sm'
   return user.avatarUrl
-    ? <img src={user.avatarUrl} alt={user.name} className={cls} />
+    ? <img src={user.avatarUrl} alt={user.name} className={`${sizeClass} rounded-full object-cover shrink-0`} />
     : (
-      <div className={`flex h-${size} w-${size} shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700 dark:bg-primary-900/30 dark:text-primary-400`}>
+      <div className={`${sizeClass} flex shrink-0 items-center justify-center rounded-full bg-primary-100 font-bold text-primary-700 dark:bg-primary-900/30 dark:text-primary-400`}>
         {user.name.charAt(0).toUpperCase()}
       </div>
     )
@@ -287,7 +287,7 @@ export default function UsersPage() {
                     <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
-                          <Avatar user={u} size={8} />
+                          <Avatar user={u} size="md" />
                           <span className="font-medium text-gray-900 dark:text-white">{u.name}</span>
                         </div>
                       </td>

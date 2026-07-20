@@ -23,6 +23,7 @@ import ProfilePage from '@/pages/customer/ProfilePage'
 import AgentDashboard from '@/pages/agent/AgentDashboard'
 import VerifyTicketPage from '@/pages/agent/VerifyTicketPage'
 import TodaysTripsPage from '@/pages/agent/TodaysTripsPage'
+import AgentProfilePage from '@/pages/agent/AgentProfilePage'
 
 // Admin pages
 import AdminDashboard from '@/pages/admin/AdminDashboard'
@@ -103,6 +104,7 @@ export default function AppRoutes() {
         <Route path="/agent" element={<AgentDashboard />} />
         <Route path="/agent/verify" element={<VerifyTicketPage />} />
         <Route path="/agent/trips" element={<TodaysTripsPage />} />
+        <Route path="/agent/profile" element={<AgentProfilePage />} />
       </Route>
 
       {/* Admin */}

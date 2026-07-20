@@ -26,7 +26,7 @@ const passwordSchema = z.object({
 type ProfileData = z.infer<typeof profileSchema>
 type PasswordData = z.infer<typeof passwordSchema>
 
-export default function AdminProfilePage() {
+export default function AgentProfilePage() {
   const { user, updateUser } = useAuth()
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl ?? '')
 
@@ -68,7 +68,6 @@ export default function AdminProfilePage() {
         <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Manage your account information and security</p>
       </div>
 
-      {/* Account overview */}
       <Card>
         <CardBody>
           <div className="flex items-center gap-4">
@@ -84,7 +83,7 @@ export default function AdminProfilePage() {
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <p className="text-lg font-bold text-gray-900 dark:text-white">{user?.name}</p>
-                <Badge variant="info">{user?.role}</Badge>
+                <Badge variant="warning">Agent</Badge>
                 <Badge variant={user?.isActive ? 'success' : 'danger'}>
                   {user?.isActive ? 'Active' : 'Inactive'}
                 </Badge>
@@ -100,8 +99,7 @@ export default function AdminProfilePage() {
               <Phone className="h-4 w-4 shrink-0 text-gray-400" />{user?.phone || 'No phone added'}
             </div>
             <div className="flex items-center gap-2.5 text-sm text-gray-500 dark:text-gray-400">
-              <Shield className="h-4 w-4 shrink-0 text-gray-400" />
-              Role: {user ? user.role.charAt(0) + user.role.slice(1).toLowerCase() : '—'}
+              <Shield className="h-4 w-4 shrink-0 text-gray-400" />Agent account
             </div>
             <div className="flex items-center gap-2.5 text-sm text-gray-500 dark:text-gray-400">
               <Calendar className="h-4 w-4 shrink-0 text-gray-400" />
@@ -111,7 +109,6 @@ export default function AdminProfilePage() {
         </CardBody>
       </Card>
 
-      {/* Edit profile */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -156,7 +153,6 @@ export default function AdminProfilePage() {
         </CardBody>
       </Card>
 
-      {/* Change password */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
