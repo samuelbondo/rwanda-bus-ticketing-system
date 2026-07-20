@@ -4,7 +4,9 @@ import type { User } from '@/types'
 export const authService = {
   async login(email: string, password: string): Promise<{ user: User }> {
     const { data } = await api.post('/auth/login', { email, password })
-    return data
+    const { user, token } = data.data
+    localStorage.setItem('token', token)
+    return { user }
   },
 
   async register(payload: {
@@ -14,11 +16,14 @@ export const authService = {
     phone?: string
   }): Promise<{ user: User }> {
     const { data } = await api.post('/auth/register', payload)
-    return data
+    const { user, token } = data.data
+    localStorage.setItem('token', token)
+    return { user }
   },
 
   async logout(): Promise<void> {
     await api.post('/auth/logout')
+    localStorage.removeItem('token')
   },
 
   async getProfile(): Promise<User> {
