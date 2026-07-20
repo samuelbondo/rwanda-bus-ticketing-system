@@ -1,4 +1,4 @@
-import { CreditCard, Smartphone, Banknote } from 'lucide-react'
+import { CreditCard, Smartphone } from 'lucide-react'
 import { Card, CardBody, Button } from '@/components/ui'
 
 type PaymentMethod = 'MOMO' | 'CARD' | 'CASH'
@@ -6,7 +6,6 @@ type PaymentMethod = 'MOMO' | 'CARD' | 'CASH'
 const METHODS: { value: PaymentMethod; label: string; icon: React.ElementType }[] = [
   { value: 'MOMO', label: 'Mobile Money (MoMo)', icon: Smartphone },
   { value: 'CARD', label: 'Bank Card', icon: CreditCard },
-  { value: 'CASH', label: 'Cash at Office', icon: Banknote },
 ]
 
 interface PaymentStepProps {
@@ -60,13 +59,6 @@ export default function PaymentStep({
               value={reference}
               onChange={(e) => onReferenceChange(e.target.value)}
             />
-          </div>
-        )}
-
-        {method === 'CASH' && (
-          <div className="rounded-lg bg-yellow-50 border border-yellow-200 px-4 py-3 text-sm text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-300">
-            Visit any Rwanda Bus Ticketing office and quote ticket{' '}
-            <strong>{pendingBookingId.slice(0, 8).toUpperCase()}</strong> to complete payment before departure.
           </div>
         )}
 
