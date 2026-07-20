@@ -11,6 +11,7 @@ import HomePage from '@/pages/public/HomePage'
 import SearchPage from '@/pages/public/SearchPage'
 import LoginPage from '@/pages/public/LoginPage'
 import RegisterPage from '@/pages/public/RegisterPage'
+import ResetPasswordPage from '@/pages/public/ResetPasswordPage'
 
 // Customer pages
 import CustomerDashboard from '@/pages/customer/CustomerDashboard'
@@ -77,6 +78,7 @@ export default function AppRoutes() {
         <Route path="/search" element={<SearchPage />} />
         <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
         <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
+        <Route path="/reset-password" element={<GuestRoute><ResetPasswordPage /></GuestRoute>} />
       </Route>
 
       {/* Customer */}

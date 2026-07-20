@@ -141,7 +141,18 @@ export async function sendAccountSuspendedEmail(to: string, name: string) {
   await send({ to, subject: 'Account Suspended', html: baseTemplate('Account Suspended', body) })
 }
 
-export async function sendPasswordResetByAdminEmail(to: string, name: string, newPassword: string) {
+export async function sendPasswordResetEmail(to: string, name: string, resetUrl: string) {
+  const body = `
+    <p>Hi <strong>${name}</strong>,</p>
+    <p>We received a request to reset your password. Click the button below to set a new password:</p>
+    <p style="margin:24px 0;">
+      <a href="${resetUrl}" style="background:#1d4ed8;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;">Reset Password</a>
+    </p>
+    <p style="font-size:13px;color:#6b7280;">This link expires in <strong>15 minutes</strong>. If you did not request a password reset, you can safely ignore this email.</p>`
+  await send({ to, subject: 'Reset Your Password — Rwanda Bus Ticketing', html: baseTemplate('Password Reset Request 🔐', body) })
+}
+
+(to: string, name: string, newPassword: string) {
   const body = `
     <p>Hi <strong>${name}</strong>,</p>
     <p>An administrator has reset your password. Your new temporary password is:</p>
