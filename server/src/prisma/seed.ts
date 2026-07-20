@@ -123,6 +123,7 @@ async function main() {
 
   const customer = await prisma.user.findUnique({ where: { email: 'customer@rwandabus.rw' } })
   if (!customer) throw new Error('Customer user not found')
+  const customerId = customer.id
 
   const seats1 = await prisma.seat.findMany({ where: { busId: bus.id } })
   const seats2 = await prisma.seat.findMany({ where: { busId: bus2.id } })
@@ -160,7 +161,7 @@ async function main() {
 
     const booking = await prisma.booking.create({
       data: {
-        userId: customer.id,
+        userId: customerId,
         scheduleId: schedule.id,
         seatId: seats[seatIndex % seats.length].id,
         ticketNumber: `TKT-SEED-${ticketSuffix}`,
