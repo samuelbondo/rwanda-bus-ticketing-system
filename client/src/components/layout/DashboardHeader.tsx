@@ -113,14 +113,24 @@ export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
             </div>
           )}
 
-          {/* Mobile hamburger — triggers sidebar drawer */}
-          <button
-            className="rounded-lg p-2 text-gray-500 hover:bg-muted dark:text-gray-400 md:hidden"
-            onClick={onMenuClick}
-            aria-label="Open menu"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
+          {/* Mobile: avatar + hamburger */}
+          <div className="flex items-center gap-2 md:hidden">
+            {user && (
+              <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full">
+                {user.avatarUrl
+                  ? <img src={user.avatarUrl} alt={user.name} className="h-full w-full object-cover" />
+                  : <div className="flex h-full w-full items-center justify-center bg-primary-600 text-xs font-bold text-white">{user.name.charAt(0).toUpperCase()}</div>
+                }
+              </div>
+            )}
+            <button
+              className="rounded-lg p-2 text-gray-500 hover:bg-muted dark:text-gray-400"
+              onClick={onMenuClick}
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       </div>
 
