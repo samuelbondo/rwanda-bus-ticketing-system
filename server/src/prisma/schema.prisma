@@ -165,6 +165,7 @@ model Payment {
   amount    Decimal
   method    PaymentMethod
   status    PaymentStatus @default(PENDING)
+  reference String?
   paidAt    DateTime?
   createdAt DateTime      @default(now())
 

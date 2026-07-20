@@ -90,3 +90,22 @@ export async function updateProfile(req: AuthRequest, res: Response) {
   })
   res.json({ data: user })
 }
+
+export async function changePassword(req: AuthRequest, res: Response) {
+  const { currentPassword, newPassword } = req.body
+  if (!currentPassword || !newPassword) {
+    res.status(400).json({ message: 'currentPassword and newPassword are required' })
+    return
+  }
+  if (newPassword.length < 8) {
+    res.status(400).json({ message: 'New password must be at least 8 characters' })
+    return
+  }
+  const user = await prisma.user.findUnique({ where: { id: req.user!.id } })
+  if (!user) { res.status(404).json({ message: 'User not found' }); return }
+  const valid = await bcrypt.compare(currentPassword, user.password)
+  if (!valid) { res.status(401).json({ message: 'Current password is incorrect' }); return }
+  const hashed = await bcrypt.hash(newPassword, 12)
+  await prisma.user.update({ where: { id: req.user!.id }, data: { password: hashed } })
+  res.json({ message: 'Password changed successfully' })
+}

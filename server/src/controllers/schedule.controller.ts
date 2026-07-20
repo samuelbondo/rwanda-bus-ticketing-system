@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { prisma } from '../config/prisma.js'
 import { createScheduleSchema, updateScheduleSchema } from '../validators/schedule.validator.js'
 import { sendScheduleCancellationNotice } from '../utils/email.js'
+import type { AuthRequest } from '../middlewares/auth.middleware.js'
 
 export async function getSchedules(req: Request, res: Response) {
   const { origin, date } = req.query
@@ -57,7 +58,7 @@ export async function updateSchedule(req: Request, res: Response) {
   res.json({ data: schedule })
 }
 
-export async function deleteSchedule(req: Request, res: Response) {
+export async function deleteSchedule(req: AuthRequest, res: Response) {
   const schedule = await prisma.schedule.findUnique({
     where: { id: req.params.id as string },
     include: {
@@ -81,7 +82,7 @@ export async function deleteSchedule(req: Request, res: Response) {
       .filter((b) => b.payment?.status === 'COMPLETED')
       .map((b) => prisma.payment.update({ where: { bookingId: b.id }, data: { status: 'REFUNDED' } })),
     ...schedule.bookings.map((b) =>
-      prisma.cancellation.create({ data: { bookingId: b.id, cancelledBy: req.params.id, reason: 'Schedule cancelled by operator' } })
+      prisma.cancellation.create({ data: { bookingId: b.id, cancelledBy: req.user!.id, reason: 'Schedule cancelled by operator' } })
     ),
     prisma.schedule.update({ where: { id: schedule.id }, data: { availableSeats: 0 } }),
   ]

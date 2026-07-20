@@ -48,11 +48,12 @@ export default function ProfilePage() {
 
   async function onPasswordSubmit(data: PasswordData) {
     try {
-      await authService.updateProfile({ password: data.newPassword } as never)
+      await authService.changePassword(data.currentPassword, data.newPassword)
       toast.success('Password changed')
       passwordForm.reset()
-    } catch {
-      toast.error('Failed to change password')
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Failed to change password'
+      toast.error(msg)
     }
   }
 
