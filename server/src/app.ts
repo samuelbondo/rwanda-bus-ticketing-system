@@ -34,7 +34,7 @@ app.use(helmet({
   },
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }))
-app.use(cors({ origin: env.CLIENT_URL, credentials: true }))
+app.use(cors({ origin: env.CLIENT_URL, credentials: true, exposedHeaders: ['Content-Disposition'] }))
 app.use(express.json())
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'))
 

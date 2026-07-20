@@ -71,6 +71,10 @@ export default function ReportsPage() {
   })
 
   async function handleExport(format: 'pdf' | 'csv') {
+    if (isCustom && (!from || !to)) {
+      toast.error('Please select both From and To dates before exporting.')
+      return
+    }
     setExporting(format)
     try {
       const blob = await reportService.export(period, format, queryFrom, queryTo)
@@ -129,7 +133,7 @@ export default function ReportsPage() {
             size="sm"
             onClick={() => handleExport('csv')}
             loading={exporting === 'csv'}
-            disabled={!data || !!exporting}
+            disabled={!!exporting}
           >
             <Download className="mr-1.5 h-4 w-4" />
             CSV
@@ -138,7 +142,7 @@ export default function ReportsPage() {
             size="sm"
             onClick={() => handleExport('pdf')}
             loading={exporting === 'pdf'}
-            disabled={!data || !!exporting}
+            disabled={!!exporting}
           >
             <FileText className="mr-1.5 h-4 w-4" />
             PDF Report
