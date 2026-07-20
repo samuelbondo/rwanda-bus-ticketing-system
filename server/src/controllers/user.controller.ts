@@ -15,7 +15,7 @@ export async function getUsers(_req: AuthRequest, res: Response) {
 }
 
 export async function getUserById(req: AuthRequest, res: Response) {
-  const user = await prisma.user.findUnique({ where: { id: req.params.id }, select: userSelect })
+  const user = await prisma.user.findUnique({ where: { id: req.params.id as string }, select: userSelect })
   if (!user) { res.status(404).json({ message: 'User not found' }); return }
   res.json({ data: user })
 }
@@ -25,11 +25,11 @@ export async function createUser(req: AuthRequest, res: Response) {
   if (!name || !email || !password) {
     res.status(400).json({ message: 'name, email and password are required' }); return
   }
-  const existing = await prisma.user.findUnique({ where: { email } })
+  const existing = await prisma.user.findUnique({ where: { email: email as string } })
   if (existing) { res.status(409).json({ message: 'Email already registered' }); return }
-  const hashed = await bcrypt.hash(password, 12)
+  const hashed = await bcrypt.hash(password as string, 12)
   const user = await prisma.user.create({
-    data: { name, email, password: hashed, phone, role: role ?? 'CUSTOMER' },
+    data: { name: name as string, email: email as string, password: hashed, phone: phone as string | undefined, role: role ?? 'CUSTOMER' },
     select: userSelect,
   })
   res.status(201).json({ data: user })
@@ -38,7 +38,7 @@ export async function createUser(req: AuthRequest, res: Response) {
 export async function updateUser(req: AuthRequest, res: Response) {
   const { name, email, phone, role, isActive, avatarUrl } = req.body
   const user = await prisma.user.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: { name, email, phone, role, isActive, avatarUrl },
     select: userSelect,
   })
@@ -47,7 +47,7 @@ export async function updateUser(req: AuthRequest, res: Response) {
 
 export async function deleteUser(req: AuthRequest, res: Response) {
   const user = await prisma.user.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: { isActive: false },
     select: { name: true, email: true },
   })
@@ -60,8 +60,8 @@ export async function resetPasswordManual(req: AuthRequest, res: Response) {
   if (!newPassword || newPassword.length < 8) {
     res.status(400).json({ message: 'newPassword must be at least 8 characters' }); return
   }
-  const hashed = await bcrypt.hash(newPassword, 12)
-  await prisma.user.update({ where: { id: req.params.id }, data: { password: hashed } })
+  const hashed = await bcrypt.hash(newPassword as string, 12)
+  await prisma.user.update({ where: { id: req.params.id as string }, data: { password: hashed } })
   res.json({ message: 'Password reset successfully' })
 }
 
@@ -70,9 +70,9 @@ export async function sendPasswordReset(req: AuthRequest, res: Response) {
   if (!newPassword || newPassword.length < 8) {
     res.status(400).json({ message: 'newPassword must be at least 8 characters' }); return
   }
-  const hashed = await bcrypt.hash(newPassword, 12)
+  const hashed = await bcrypt.hash(newPassword as string, 12)
   const user = await prisma.user.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: { password: hashed },
     select: { name: true, email: true },
   })
