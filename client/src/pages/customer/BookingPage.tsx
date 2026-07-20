@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { MapPin, Clock, Bus, Users, CheckCircle } from 'lucide-react'
+import { MapPin, Clock, Bus, Users, CheckCircle, CreditCard, Smartphone, Banknote } from 'lucide-react'
 import { toast } from 'sonner'
 import { scheduleService } from '@/services/scheduleService'
 import { bookingService } from '@/services/bookingService'
@@ -9,10 +9,23 @@ import { seatService } from '@/services/seatService'
 import { Button, Card, CardBody, Skeleton } from '@/components/ui'
 import type { Seat } from '@/types'
 
+type PaymentMethod = 'MOMO' | 'CARD' | 'CASH'
+type Step = 'seat' | 'payment'
+
+const PAYMENT_METHODS: { value: PaymentMethod; label: string; icon: React.ElementType; hint: string }[] = [
+  { value: 'MOMO', label: 'Mobile Money (MoMo)', icon: Smartphone, hint: 'Enter your MoMo number' },
+  { value: 'CARD', label: 'Bank Card', icon: CreditCard, hint: 'Enter your card reference' },
+  { value: 'CASH', label: 'Cash at Office', icon: Banknote, hint: 'Pay at the nearest office before departure' },
+]
+
 export default function BookingPage() {
   const { scheduleId } = useParams<{ scheduleId: string }>()
   const navigate = useNavigate()
   const [selectedSeat, setSelectedSeat] = useState<Seat | null>(null)
+  const [step, setStep] = useState<Step>('seat')
+  const [pendingBookingId, setPendingBookingId] = useState<string | null>(null)
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('MOMO')
+  const [reference, setReference] = useState('')
 
   const { data: schedule, isLoading: loadingSchedule } = useQuery({
     queryKey: ['schedule', scheduleId],
@@ -36,11 +49,26 @@ export default function BookingPage() {
       destination: schedule!.route.destination,
     }),
     onSuccess: (booking) => {
-      toast.success('Booking confirmed!')
-      navigate(`/bookings/${booking.id}/ticket`)
+      setPendingBookingId(booking.id)
+      setStep('payment')
     },
     onError: (err: { response?: { data?: { message?: string } } }) => {
       toast.error(err?.response?.data?.message ?? 'Booking failed. Please try again.')
+    },
+  })
+
+  const payMutation = useMutation({
+    mutationFn: () => bookingService.confirmPayment(
+      pendingBookingId!,
+      paymentMethod,
+      reference.trim() || undefined
+    ),
+    onSuccess: () => {
+      toast.success('Payment confirmed! Your ticket is ready.')
+      navigate(`/bookings/${pendingBookingId}/ticket`)
+    },
+    onError: (err: { response?: { data?: { message?: string } } }) => {
+      toast.error(err?.response?.data?.message ?? 'Payment failed. Please try again.')
     },
   })
 
@@ -67,11 +95,17 @@ export default function BookingPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:py-12 space-y-6">
-      <div>
-        <button onClick={() => navigate(-1)} className="mb-4 text-sm text-primary-600 hover:underline">
-          ← Back to search
-        </button>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Complete Your Booking</h1>
+      {/* Step indicator */}
+      <div className="flex items-center gap-3 text-sm">
+        <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
+          step === 'seat' ? 'bg-primary-600 text-white' : 'bg-green-500 text-white'
+        }`}>1</span>
+        <span className={step === 'seat' ? 'font-semibold text-gray-900 dark:text-white' : 'text-gray-400'}>Select Seat</span>
+        <div className="h-px w-8 bg-gray-300" />
+        <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
+          step === 'payment' ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-400'
+        }`}>2</span>
+        <span className={step === 'payment' ? 'font-semibold text-gray-900 dark:text-white' : 'text-gray-400'}>Payment</span>
       </div>
 
       {/* Schedule summary */}
@@ -103,63 +137,65 @@ export default function BookingPage() {
         </CardBody>
       </Card>
 
-      {/* Seat picker */}
-      <Card>
-        <CardBody>
-          <h2 className="mb-4 font-semibold text-gray-900 dark:text-white">Select a Seat</h2>
+      {/* Seat picker — only on step 1 */}
+      {step === 'seat' && (
+        <Card>
+          <CardBody>
+            <h2 className="mb-4 font-semibold text-gray-900 dark:text-white">Select a Seat</h2>
 
-          {loadingSeats ? (
-            <div className="grid grid-cols-5 gap-2">
-              {Array.from({ length: 30 }).map((_, i) => (
-                <Skeleton key={i} className="h-10 w-full rounded-lg" />
-              ))}
-            </div>
-          ) : (
-            <>
-              {/* Legend */}
-              <div className="mb-4 flex flex-wrap gap-4 text-xs text-gray-500">
-                <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded bg-green-100 border border-green-300" />Available</span>
-                <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded bg-primary-600" />Selected</span>
-                <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded bg-gray-200 dark:bg-gray-700" />Taken</span>
-              </div>
-
-              {/* Bus front indicator */}
-              <div className="mb-3 flex items-center gap-2 text-xs text-gray-400">
-                <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
-                <span>FRONT</span>
-                <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
-              </div>
-
+            {loadingSeats ? (
               <div className="grid grid-cols-5 gap-2">
-                {seats.map((seat) => {
-                  const isSelected = selectedSeat?.id === seat.id
-                  const isTaken = !seat.isAvailable
-                  return (
-                    <button
-                      key={seat.id}
-                      disabled={isTaken}
-                      onClick={() => setSelectedSeat(isSelected ? null : seat)}
-                      className={[
-                        'rounded-lg border py-2.5 text-xs font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-primary-500',
-                        isTaken
-                          ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-500'
-                          : isSelected
-                          ? 'border-primary-600 bg-primary-600 text-white shadow-md'
-                          : 'border-green-300 bg-green-50 text-green-700 hover:border-primary-400 hover:bg-primary-50 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400',
-                      ].join(' ')}
-                    >
-                      {seat.seatNumber}
-                    </button>
-                  )
-                })}
+                {Array.from({ length: 30 }).map((_, i) => (
+                  <Skeleton key={i} className="h-10 w-full rounded-lg" />
+                ))}
               </div>
-            </>
-          )}
-        </CardBody>
-      </Card>
+            ) : (
+              <>
+                {/* Legend */}
+                <div className="mb-4 flex flex-wrap gap-4 text-xs text-gray-500">
+                  <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded bg-green-100 border border-green-300" />Available</span>
+                  <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded bg-primary-600" />Selected</span>
+                  <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded bg-gray-200 dark:bg-gray-700" />Taken</span>
+                </div>
 
-      {/* Confirm */}
-      {selectedSeat && (
+                {/* Bus front indicator */}
+                <div className="mb-3 flex items-center gap-2 text-xs text-gray-400">
+                  <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+                  <span>FRONT</span>
+                  <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+                </div>
+
+                <div className="grid grid-cols-5 gap-2">
+                  {seats.map((seat) => {
+                    const isSelected = selectedSeat?.id === seat.id
+                    const isTaken = !seat.isAvailable
+                    return (
+                      <button
+                        key={seat.id}
+                        disabled={isTaken}
+                        onClick={() => setSelectedSeat(isSelected ? null : seat)}
+                        className={[
+                          'rounded-lg border py-2.5 text-xs font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-primary-500',
+                          isTaken
+                            ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-500'
+                            : isSelected
+                            ? 'border-primary-600 bg-primary-600 text-white shadow-md'
+                            : 'border-green-300 bg-green-50 text-green-700 hover:border-primary-400 hover:bg-primary-50 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400',
+                        ].join(' ')}
+                      >
+                        {seat.seatNumber}
+                      </button>
+                    )
+                  })}
+                </div>
+              </>
+            )}
+          </CardBody>
+        </Card>
+      )}
+
+      {/* Confirm — Step 1 */}
+      {step === 'seat' && selectedSeat && (
         <Card>
           <CardBody>
             <div className="flex items-center justify-between gap-4">
@@ -179,7 +215,66 @@ export default function BookingPage() {
                 loading={bookMutation.isPending}
                 className="shrink-0"
               >
-                Confirm Booking
+                Proceed to Payment
+              </Button>
+            </div>
+          </CardBody>
+        </Card>
+      )}
+
+      {/* Payment Step */}
+      {step === 'payment' && (
+        <Card>
+          <CardBody className="space-y-5">
+            <div>
+              <p className="font-semibold text-gray-900 dark:text-white mb-1">Choose Payment Method</p>
+              <p className="text-xs text-gray-500">Your seat is reserved. Complete payment to confirm your ticket.</p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              {PAYMENT_METHODS.map(({ value, label, icon: Icon }) => (
+                <button
+                  key={value}
+                  onClick={() => setPaymentMethod(value)}
+                  className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 text-sm font-medium transition-all ${
+                    paymentMethod === value
+                      ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
+                      : 'border-gray-200 text-gray-600 hover:border-gray-300 dark:border-gray-700 dark:text-gray-400'
+                  }`}
+                >
+                  <Icon className="h-6 w-6" />
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {paymentMethod !== 'CASH' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {paymentMethod === 'MOMO' ? 'MoMo Phone Number' : 'Card Reference'}
+                </label>
+                <input
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                  placeholder={paymentMethod === 'MOMO' ? '07X XXX XXXX' : 'e.g. TXN-123456'}
+                  value={reference}
+                  onChange={(e) => setReference(e.target.value)}
+                />
+              </div>
+            )}
+
+            {paymentMethod === 'CASH' && (
+              <div className="rounded-lg bg-yellow-50 border border-yellow-200 px-4 py-3 text-sm text-yellow-800 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-300">
+                Visit any Rwanda Bus Ticketing office and quote ticket <strong>{pendingBookingId?.slice(0, 8).toUpperCase()}</strong> to complete payment before departure.
+              </div>
+            )}
+
+            <div className="flex items-center justify-between border-t border-gray-100 dark:border-gray-700 pt-4">
+              <div>
+                <p className="text-xs text-gray-500">Amount due</p>
+                <p className="text-lg font-bold text-primary-600">RWF {Number(schedule.price).toLocaleString()}</p>
+              </div>
+              <Button onClick={() => payMutation.mutate()} loading={payMutation.isPending}>
+                Confirm Payment
               </Button>
             </div>
           </CardBody>

@@ -30,6 +30,10 @@ export const bookingService = {
     await api.delete(`/bookings/${id}`, { data: { reason } })
   },
 
+  async confirmPayment(id: string, method: 'MOMO' | 'CARD' | 'CASH', reference?: string): Promise<void> {
+    await api.post(`/bookings/${id}/pay`, { method, reference })
+  },
+
   async downloadTicket(id: string): Promise<Blob> {
     const { data } = await api.get(`/bookings/${id}/ticket`, {
       responseType: 'blob',
