@@ -1,111 +1,204 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import {
-  Ticket, QrCode, Clock, MapPin, Shield, Star,
-  ArrowRight, CheckCircle, Smartphone, HeadphonesIcon,
-  TrendingUp, Users, Calendar, ChevronRight,
+  MapPin, Calendar, Users, ArrowRight, Clock,
+  QrCode, Shield, CheckCircle, ChevronRight, Bus,
+  Ticket, Smartphone,
 } from 'lucide-react'
-import { Button } from '@/components/ui'
+import { scheduleService } from '@/services/scheduleService'
+import { Button, Skeleton } from '@/components/ui'
+import type { Schedule } from '@/types'
 
-const stats = [
-  { value: '50,000+', label: 'Happy Passengers' },
-  { value: '200+',    label: 'Daily Trips' },
-  { value: '4.9★',   label: 'Average Rating' },
-  { value: '99.8%',  label: 'On-Time Rate' },
-]
+// ── Today's date helpers ──────────────────────────────────────────────────────
+const today = new Date().toISOString().split('T')[0]
+const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
 
+// ── How it works steps ────────────────────────────────────────────────────────
 const steps = [
-  { step: '01', icon: MapPin,     title: 'Choose Your Route',   desc: 'Search available buses by origin, destination, and travel date.' },
-  { step: '02', icon: Ticket,     title: 'Select Your Seat',    desc: 'Pick your preferred seat from an interactive seat map.' },
-  { step: '03', icon: Smartphone, title: 'Pay & Confirm',       desc: 'Complete payment securely via Mobile Money or card.' },
-  { step: '04', icon: QrCode,     title: 'Travel with QR Code', desc: 'Download your digital ticket and board with a QR scan.' },
+  { n: '1', icon: MapPin,     title: 'Search',  desc: 'Pick your route and travel date.' },
+  { n: '2', icon: Ticket,     title: 'Book',    desc: 'Choose your seat and confirm.' },
+  { n: '3', icon: Smartphone, title: 'Pay',     desc: 'Pay instantly via Mobile Money.' },
+  { n: '4', icon: QrCode,     title: 'Board',   desc: 'Show your QR code and travel.' },
 ]
 
-const features = [
-  { icon: Shield,         title: 'Secure Payments',      desc: 'Bank-grade encryption on every transaction.' },
-  { icon: Clock,          title: 'Instant Confirmation', desc: 'Receive your ticket within seconds of booking.' },
-  { icon: QrCode,         title: 'Digital Tickets',      desc: 'PDF tickets with embedded QR codes — no printing needed.' },
-  { icon: HeadphonesIcon, title: '24/7 Support',         desc: 'Our team is always available to assist you.' },
-  { icon: TrendingUp,     title: 'Real-time Seats',      desc: 'Live seat availability updated every second.' },
-  { icon: CheckCircle,    title: 'Easy Cancellation',    desc: 'Cancel up to 3 hours before departure, hassle-free.' },
+// ── Why us ────────────────────────────────────────────────────────────────────
+const whyUs = [
+  { icon: Shield,      title: 'Secure & Trusted',     desc: 'Every transaction is encrypted. Your data stays private.' },
+  { icon: Clock,       title: 'Real-time Availability', desc: 'Seat counts update live — no surprises at the terminal.' },
+  { icon: QrCode,      title: 'Paperless Tickets',     desc: 'Your PDF ticket with QR code arrives instantly by email.' },
+  { icon: CheckCircle, title: 'Easy Cancellation',     desc: 'Cancel up to 3 hours before departure, no hassle.' },
 ]
 
-const testimonials = [
-  { name: 'Amina Uwase',     role: 'Regular Commuter',  rating: 5, text: 'I book my weekly Nyanza–Kigali trip in under 2 minutes. The QR boarding is seamless — no queues!' },
-  { name: 'Jean-Paul Nkusi', role: 'Business Traveler', rating: 5, text: 'Finally a Rwandan bus platform that feels world-class. Clean UI, instant tickets, and reliable buses.' },
-  { name: 'Grace Mukamana',  role: 'Student',           rating: 5, text: 'The cancellation policy is fair and the refund process is transparent. Highly recommend!' },
-]
+// ── Schedule card ─────────────────────────────────────────────────────────────
+function ScheduleCard({ s, onBook }: { s: Schedule; onBook: () => void }) {
+  const dep = new Date(s.departureTime)
+  const timeStr = dep.toLocaleTimeString('en-RW', { hour: '2-digit', minute: '2-digit' })
+  const dateStr = dep.toLocaleDateString('en-RW', { weekday: 'short', month: 'short', day: 'numeric' })
+  const full = s.availableSeats === 0
+  const cancelled = s.status === 'CANCELLED'
 
-const routeStops = ['Nyanza', 'Ruhango', 'Muhanga', 'Kigali']
-
-function StarRating({ count }: { count: number }) {
   return (
-    <div className="flex gap-0.5">
-      {Array.from({ length: count }).map((_, i) => (
-        <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
-      ))}
+    <div className={`rounded-xl border bg-white p-4 sm:p-5 shadow-sm transition hover:shadow-md dark:bg-gray-800 ${cancelled ? 'border-red-200 dark:border-red-900 opacity-60' : 'border-gray-200 dark:border-gray-700'}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          {/* Route */}
+          <div className="flex items-center gap-2 font-semibold text-gray-900 dark:text-white">
+            <MapPin className="h-4 w-4 shrink-0 text-primary-600" />
+            <span className="truncate text-sm sm:text-base">
+              {s.route.origin} → {s.route.destination}
+            </span>
+          </div>
+          {/* Meta row */}
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+            <span className="flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5 shrink-0" />
+              {timeStr} · {dateStr}
+            </span>
+            <span className="flex items-center gap-1">
+              <Bus className="h-3.5 w-3.5 shrink-0" />
+              {s.bus.name}
+            </span>
+            <span className="flex items-center gap-1">
+              <Users className="h-3.5 w-3.5 shrink-0" />
+              {full ? <span className="text-red-500 font-medium">Full</span> : <>{s.availableSeats} seats left</>}
+            </span>
+          </div>
+        </div>
+        {/* Price + action */}
+        <div className="flex shrink-0 flex-col items-end gap-2">
+          <span className="text-base sm:text-lg font-bold text-primary-600">
+            RWF {Number(s.price).toLocaleString()}
+          </span>
+          {cancelled ? (
+            <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-600 dark:bg-red-900/30 dark:text-red-400">
+              Cancelled
+            </span>
+          ) : (
+            <Button
+              size="sm"
+              disabled={full}
+              onClick={onBook}
+              className="text-xs"
+            >
+              {full ? 'Full' : 'Book'}
+            </Button>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
 
+// ── Page ──────────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const navigate = useNavigate()
   const [origin, setOrigin] = useState('')
   const [date, setDate] = useState('')
 
+  // Fetch today's departures
+  const { data: todayData, isLoading: loadingToday } = useQuery({
+    queryKey: ['schedules-home', today],
+    queryFn: () => scheduleService.search({ date: today }),
+    staleTime: 60_000,
+  })
+
+  // Fetch tomorrow's departures
+  const { data: tomorrowData, isLoading: loadingTomorrow } = useQuery({
+    queryKey: ['schedules-home', tomorrow],
+    queryFn: () => scheduleService.search({ date: tomorrow }),
+    staleTime: 60_000,
+  })
+
+  const todaySchedules: Schedule[] = (todayData as { data: Schedule[] })?.data ?? []
+  const tomorrowSchedules: Schedule[] = (tomorrowData as { data: Schedule[] })?.data ?? []
+  const allSchedules = [...todaySchedules, ...tomorrowSchedules].slice(0, 6)
+  const loading = loadingToday || loadingTomorrow
+
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
-    const params = new URLSearchParams()
-    if (origin) params.set('origin', origin)
-    if (date) params.set('date', date)
-    navigate(`/search?${params.toString()}`)
+    const p = new URLSearchParams()
+    if (origin) p.set('origin', origin)
+    if (date) p.set('date', date)
+    navigate(`/search?${p.toString()}`)
   }
 
   return (
     <div className="overflow-x-hidden">
 
-      {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="relative bg-gradient-to-br from-primary-900 via-primary-700 to-primary-500 overflow-hidden">
-        <div className="pointer-events-none absolute -top-32 -right-32 h-[500px] w-[500px] rounded-full bg-white/5 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-40 -left-20 h-[400px] w-[400px] rounded-full bg-primary-300/10 blur-3xl" />
+      {/* ── HERO ──────────────────────────────────────────────────────────── */}
+      <section className="relative bg-gradient-to-br from-[#0f2d6b] via-[#1a4db8] to-[#2563eb] overflow-hidden">
+        {/* Background texture */}
+        <div className="pointer-events-none absolute inset-0 opacity-10"
+          style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
 
-        <div className="relative mx-auto w-full max-w-6xl px-4 py-16 sm:py-20 lg:py-28 sm:px-6">
-          <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 py-14 sm:py-20 lg:py-24">
+          <div className="grid gap-10 lg:grid-cols-[1fr_420px] lg:items-start lg:gap-14">
 
-            {/* Left copy */}
+            {/* Left */}
             <div className="text-white">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs sm:text-sm font-medium text-primary-100 backdrop-blur mb-5">
-                <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-                Rwanda's #1 Online Bus Platform
-              </span>
-              <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl xl:text-7xl">
-                Travel Smarter.<br />
-                <span className="text-primary-200">Book Faster.</span>
+              {/* Badge */}
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-blue-100 backdrop-blur-sm">
+                <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+                Rwanda's Online Bus Ticketing Platform
+              </div>
+
+              <h1 className="text-3xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
+                Book Your Bus Ticket<br />
+                <span className="text-blue-200">From Anywhere.</span>
               </h1>
-              <p className="mt-5 text-base sm:text-lg text-primary-100 max-w-lg leading-relaxed">
-                Search, book, and board your bus from Nyanza to Kigali — entirely online.
-                No office visit. No queues. Just travel.
+
+              <p className="mt-4 max-w-md text-sm sm:text-base text-blue-100 leading-relaxed">
+                Travel the Nyanza–Kigali corridor without visiting a ticket office.
+                Search schedules, pick your seat, pay with Mobile Money, and board with a QR code.
               </p>
-              <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-4">
-                {['Instant e-ticket', 'Mobile Money accepted', 'Free cancellation'].map((t) => (
-                  <div key={t} className="flex items-center gap-2 text-sm text-primary-200">
-                    <CheckCircle className="h-4 w-4 shrink-0 text-green-400" /> {t}
-                  </div>
+
+              {/* Trust row */}
+              <div className="mt-6 flex flex-wrap gap-3">
+                {['No office visit', 'Instant e-ticket', 'Cancel anytime'].map((t) => (
+                  <span key={t} className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs text-blue-100">
+                    <CheckCircle className="h-3.5 w-3.5 text-green-400 shrink-0" /> {t}
+                  </span>
                 ))}
+              </div>
+
+              {/* How it works — inline on desktop */}
+              <div className="mt-10 hidden lg:block">
+                <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-blue-300">How it works</p>
+                <div className="flex gap-0">
+                  {steps.map(({ n, icon: Icon, title, desc }, i) => (
+                    <div key={n} className="flex items-start gap-0">
+                      <div className="flex flex-col items-center">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 border border-white/20">
+                          <Icon className="h-4 w-4 text-white" />
+                        </div>
+                        <div className="mt-2 text-center w-20">
+                          <p className="text-xs font-semibold text-white">{title}</p>
+                          <p className="text-[10px] text-blue-200 leading-tight mt-0.5">{desc}</p>
+                        </div>
+                      </div>
+                      {i < steps.length - 1 && (
+                        <div className="mt-4 mx-1 h-px w-6 bg-white/20 shrink-0" />
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
             {/* Search card */}
-            <div className="rounded-2xl bg-white p-5 sm:p-8 shadow-2xl dark:bg-gray-900">
-              <h2 className="mb-5 text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Find Your Bus</h2>
-              <form onSubmit={handleSearch} className="space-y-4">
-
+            <div className="w-full rounded-2xl bg-white shadow-2xl dark:bg-gray-900 overflow-hidden">
+              <div className="bg-primary-600 px-5 py-4">
+                <h2 className="text-base font-bold text-white">Find a Bus</h2>
+                <p className="text-xs text-blue-100 mt-0.5">Search available departures</p>
+              </div>
+              <form onSubmit={handleSearch} className="p-5 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">From</label>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">From</label>
                   <div className="relative">
                     <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <input
-                      className="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-3 text-sm transition focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
+                      className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 dark:focus:bg-gray-800"
                       placeholder="e.g. Nyanza"
                       value={origin}
                       onChange={(e) => setOrigin(e.target.value)}
@@ -114,11 +207,11 @@ export default function HomePage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">To</label>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">To</label>
                   <div className="relative">
-                    <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300" />
                     <input
-                      className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-10 pr-4 py-3 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-700 dark:text-gray-400 cursor-not-allowed"
+                      className="w-full rounded-lg border border-gray-200 bg-gray-100 pl-9 pr-3 py-2.5 text-sm text-gray-400 cursor-not-allowed dark:border-gray-700 dark:bg-gray-700 dark:text-gray-500"
                       value="Kigali"
                       readOnly
                     />
@@ -126,249 +219,158 @@ export default function HomePage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Travel Date</label>
+                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Travel Date</label>
                   <div className="relative">
                     <Calendar className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <input
                       type="date"
-                      className="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-3 text-sm transition focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:[color-scheme:dark]"
+                      className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2.5 text-sm text-gray-900 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:[color-scheme:dark]"
                       value={date}
-                      min={new Date().toISOString().split('T')[0]}
+                      min={today}
                       onChange={(e) => setDate(e.target.value)}
                     />
                   </div>
                 </div>
 
-                <Button type="submit" size="lg" className="w-full">
-                  Search Available Buses <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                <button
+                  type="submit"
+                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 active:scale-[0.98]"
+                >
+                  Search Buses <ArrowRight className="h-4 w-4" />
+                </button>
+
+                <p className="text-center text-xs text-gray-400">No account required to search</p>
               </form>
-              <p className="mt-3 text-center text-xs text-gray-400">No account needed to search schedules</p>
             </div>
           </div>
         </div>
 
-        {/* Wave divider */}
+        {/* Wave */}
         <div className="absolute bottom-0 left-0 right-0 leading-none">
-          <svg viewBox="0 0 1440 60" xmlns="http://www.w3.org/2000/svg" className="w-full block">
-            <path d="M0 60L1440 60L1440 30C1200 60 960 0 720 30C480 60 240 0 0 30Z" className="fill-white dark:fill-gray-950" />
+          <svg viewBox="0 0 1440 48" xmlns="http://www.w3.org/2000/svg" className="w-full block">
+            <path d="M0 48L1440 48L1440 24C1080 48 720 0 360 24C180 36 90 48 0 24Z" className="fill-gray-50 dark:fill-gray-950" />
           </svg>
         </div>
       </section>
 
-      {/* ── Stats ─────────────────────────────────────────────────────────── */}
-      <section className="bg-white dark:bg-gray-950 py-14 sm:py-16">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <div className="grid grid-cols-2 gap-6 sm:gap-8 lg:grid-cols-4">
-            {stats.map(({ value, label }) => (
-              <div key={label} className="text-center">
-                <p className="text-3xl sm:text-4xl font-extrabold text-primary-600">{value}</p>
-                <p className="mt-1 text-xs sm:text-sm text-gray-500 dark:text-gray-400">{label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── How It Works ──────────────────────────────────────────────────── */}
-      <section className="bg-gray-50 dark:bg-gray-900 py-20 sm:py-24">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="mb-12 sm:mb-16 text-center">
-            <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary-600">Simple Process</span>
-            <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white lg:text-4xl">
-              Book in 4 Easy Steps
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
-              From search to boarding, the entire journey takes less than 3 minutes.
-            </p>
-          </div>
-
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {steps.map(({ step, icon: Icon, title, desc }) => (
-              <div key={step} className="flex flex-col items-center text-center">
-                <div className="relative mb-4">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-600 shadow-lg shadow-primary-200 dark:shadow-primary-900/50">
-                    <Icon className="h-7 w-7 text-white" />
-                  </div>
-                  <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-white text-xs font-bold text-primary-600 shadow dark:bg-gray-800 dark:text-primary-400">
-                    {step}
-                  </span>
-                </div>
-                <h3 className="font-bold text-gray-900 dark:text-white">{title}</h3>
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Route Showcase ────────────────────────────────────────────────── */}
-      <section className="bg-white dark:bg-gray-950 py-20 sm:py-24">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="mb-12 sm:mb-16 text-center">
-            <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary-600">Our Route</span>
-            <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white lg:text-4xl">
-              Nyanza → Kigali
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-gray-500 dark:text-gray-400">
-              Serving Rwanda's most travelled corridor with comfort and reliability.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-gray-200 bg-gradient-to-br from-primary-50 to-white p-6 sm:p-8 shadow-sm dark:border-gray-700 dark:from-gray-800 dark:to-gray-900">
-            {/* Stop timeline — responsive: vertical on mobile, horizontal on sm+ */}
-            <div className="mb-8">
-              {/* Mobile: vertical list */}
-              <div className="flex flex-col gap-0 sm:hidden">
-                {routeStops.map((stop, i) => (
-                  <div key={stop} className="flex items-start gap-3">
-                    <div className="flex flex-col items-center">
-                      <div className={`h-4 w-4 rounded-full border-2 mt-0.5 ${i === 0 || i === routeStops.length - 1 ? 'border-primary-600 bg-primary-600' : 'border-primary-400 bg-white dark:bg-gray-800'}`} />
-                      {i < routeStops.length - 1 && <div className="w-0.5 h-8 bg-primary-300 dark:bg-primary-700" />}
-                    </div>
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 pt-0.5">{stop}</span>
-                  </div>
-                ))}
-              </div>
-              {/* Desktop: horizontal */}
-              <div className="hidden sm:flex items-center justify-center">
-                {routeStops.map((stop, i) => (
-                  <div key={stop} className="flex items-center">
-                    <div className="flex flex-col items-center">
-                      <div className={`h-4 w-4 rounded-full border-2 ${i === 0 || i === routeStops.length - 1 ? 'border-primary-600 bg-primary-600' : 'border-primary-400 bg-white dark:bg-gray-800'}`} />
-                      <span className="mt-2 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">{stop}</span>
-                    </div>
-                    {i < routeStops.length - 1 && (
-                      <div className="mb-5 h-0.5 w-16 sm:w-20 lg:w-28 bg-primary-300 dark:bg-primary-700" />
-                    )}
-                  </div>
-                ))}
-              </div>
+      {/* ── LIVE DEPARTURES ───────────────────────────────────────────────── */}
+      <section className="bg-gray-50 dark:bg-gray-950 py-14 sm:py-16">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6">
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+                Upcoming Departures
+              </h2>
+              <p className="mt-0.5 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                Today and tomorrow — live from our system
+              </p>
             </div>
-
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex flex-wrap gap-4 sm:gap-6">
-                {[
-                  { icon: Clock,      label: 'Duration', value: '2h 30min' },
-                  { icon: TrendingUp, label: 'Distance', value: '112 km' },
-                  { icon: Ticket,     label: 'From',     value: 'RWF 2,000', highlight: true },
-                ].map(({ icon: Icon, label, value, highlight }) => (
-                  <div key={label} className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-100 dark:bg-primary-900/30 shrink-0">
-                      <Icon className="h-5 w-5 text-primary-600" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500">{label}</p>
-                      <p className={`font-semibold text-sm ${highlight ? 'text-primary-600' : 'text-gray-900 dark:text-white'}`}>{value}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <Button size="lg" onClick={() => navigate('/search')} className="w-full sm:w-auto shrink-0">
-                Book This Route <ChevronRight className="ml-1 h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Features Grid ─────────────────────────────────────────────────── */}
-      <section className="bg-gray-50 dark:bg-gray-900 py-20 sm:py-24">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="mb-12 sm:mb-16 text-center">
-            <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary-600">Why Choose Us</span>
-            <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white lg:text-4xl">
-              Built for Modern Travelers
-            </h2>
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
-                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-50 transition-colors duration-200 group-hover:bg-primary-600 dark:bg-primary-900/30">
-                  <Icon className="h-6 w-6 text-primary-600 transition-colors duration-200 group-hover:text-white" />
-                </div>
-                <h3 className="font-bold text-gray-900 dark:text-white">{title}</h3>
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Testimonials ──────────────────────────────────────────────────── */}
-      <section className="bg-white dark:bg-gray-950 py-20 sm:py-24">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="mb-12 sm:mb-16 text-center">
-            <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary-600">Testimonials</span>
-            <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white lg:text-4xl">
-              Loved by Thousands
-            </h2>
-          </div>
-          <div className="grid gap-6 sm:grid-cols-3">
-            {testimonials.map(({ name, role, rating, text }) => (
-              <div key={name} className="rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800">
-                <StarRating count={rating} />
-                <p className="mt-4 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">"{text}"</p>
-                <div className="mt-6 flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-600 text-sm font-bold text-white">
-                    {name.charAt(0)}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{name}</p>
-                    <p className="text-xs text-gray-500">{role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Trust Badges ──────────────────────────────────────────────────── */}
-      <section className="border-y border-gray-200 bg-gray-50 py-10 dark:border-gray-700 dark:bg-gray-900">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
-            {[
-              { icon: Shield,      label: 'SSL Secured' },
-              { icon: Users,       label: '50,000+ Users' },
-              { icon: CheckCircle, label: 'Verified Operator' },
-              { icon: Star,        label: '4.9 App Rating' },
-              { icon: Clock,       label: '24/7 Available' },
-            ].map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
-                <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500 shrink-0" />
-                {label}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA Banner ────────────────────────────────────────────────────── */}
-      <section className="bg-gradient-to-r from-primary-700 to-primary-500 py-16 sm:py-20">
-        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white lg:text-4xl">
-            Ready to Travel?
-          </h2>
-          <p className="mt-4 text-base sm:text-lg text-primary-100">
-            Join thousands of Rwandans who book their bus tickets online every day.
-          </p>
-          <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
-            <Button
-              size="lg"
-              className="bg-white text-primary-700 hover:bg-primary-50 focus:ring-white"
+            <button
               onClick={() => navigate('/search')}
+              className="flex items-center gap-1 text-xs sm:text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400"
             >
-              Search Schedules <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-            <Button
-              size="lg"
-              variant="ghost"
-              className="border border-white/40 text-white hover:bg-white/10"
+              View all <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          {loading && (
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => <Skeleton key={i} className="h-24 w-full rounded-xl" />)}
+            </div>
+          )}
+
+          {!loading && allSchedules.length === 0 && (
+            <div className="rounded-xl border border-dashed border-gray-300 bg-white py-12 text-center dark:border-gray-700 dark:bg-gray-800">
+              <Bus className="mx-auto mb-3 h-8 w-8 text-gray-300 dark:text-gray-600" />
+              <p className="text-sm text-gray-500 dark:text-gray-400">No departures scheduled for today or tomorrow.</p>
+              <button onClick={() => navigate('/search')} className="mt-3 text-sm font-medium text-primary-600 hover:underline">
+                Search other dates
+              </button>
+            </div>
+          )}
+
+          {!loading && allSchedules.length > 0 && (
+            <div className="space-y-3">
+              {allSchedules.map((s) => (
+                <ScheduleCard
+                  key={s.id}
+                  s={s}
+                  onBook={() => navigate('/login', { state: { scheduleId: s.id } })}
+                />
+              ))}
+              <div className="pt-2 text-center">
+                <Button variant="secondary" onClick={() => navigate('/search')}>
+                  See all schedules <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS (mobile) ─────────────────────────────────────────── */}
+      <section className="bg-white dark:bg-gray-900 py-14 sm:py-16 lg:hidden">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6">
+          <h2 className="mb-8 text-center text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+            How It Works
+          </h2>
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-4">
+            {steps.map(({ n, icon: Icon, title, desc }) => (
+              <div key={n} className="flex flex-col items-center text-center">
+                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-600 shadow-md shadow-primary-200 dark:shadow-primary-900/40">
+                  <Icon className="h-5 w-5 text-white" />
+                </div>
+                <span className="text-xs font-bold text-primary-600 mb-1">Step {n}</span>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">{title}</p>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── WHY US ────────────────────────────────────────────────────────── */}
+      <section className="bg-gray-50 dark:bg-gray-950 py-14 sm:py-16">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+          <h2 className="mb-8 text-center text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+            Why Travelers Choose Us
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {whyUs.map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/30">
+                  <Icon className="h-5 w-5 text-primary-600" />
+                </div>
+                <p className="text-sm font-semibold text-gray-900 dark:text-white">{title}</p>
+                <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ───────────────────────────────────────────────────────────── */}
+      <section className="bg-primary-600 py-14 sm:py-16">
+        <div className="mx-auto max-w-2xl px-4 text-center sm:px-6">
+          <h2 className="text-xl sm:text-2xl font-extrabold text-white">
+            Ready to book your next trip?
+          </h2>
+          <p className="mt-3 text-sm sm:text-base text-blue-100">
+            Create a free account and manage all your bookings in one place.
+          </p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <button
               onClick={() => navigate('/register')}
+              className="rounded-lg bg-white px-6 py-3 text-sm font-semibold text-primary-700 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"
             >
               Create Free Account
-            </Button>
+            </button>
+            <button
+              onClick={() => navigate('/search')}
+              className="rounded-lg border border-white/30 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10 focus:outline-none"
+            >
+              Search Schedules
+            </button>
           </div>
         </div>
       </section>
