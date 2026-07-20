@@ -10,7 +10,12 @@ import { env } from './config/env.js'
 import { errorHandler } from './middlewares/errorHandler.js'
 import { notFound } from './middlewares/notFound.js'
 
-const swaggerDoc = YAML.load(join(process.cwd(), '../docs/api/openapi.yaml'))
+let swaggerDoc: object = {}
+try {
+  swaggerDoc = YAML.load(join(__dirname, 'openapi.yaml'))
+} catch {
+  console.warn('[swagger] openapi.yaml not found — /docs will be unavailable')
+}
 
 import authRoutes from './routes/auth.routes.js'
 import userRoutes from './routes/user.routes.js'

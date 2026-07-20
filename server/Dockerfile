@@ -11,6 +11,7 @@ COPY . .
 
 RUN npx prisma generate --schema=src/prisma/schema.prisma
 RUN npm run build
+RUN cp src/openapi.yaml dist/openapi.yaml
 
 EXPOSE 5000
 

@@ -1,9 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Download, XCircle } from 'lucide-react'
-import { toast } from 'sonner'
-import { bookingService } from '@/services/bookingService'
 import { Button, Badge, Card, CardBody, Skeleton } from '@/components/ui'
-import type { Booking } from '@/types'
+import { useBookings, useCancelBooking, useDownloadTicket } from '@/hooks/useBookings'
+import { formatDateTime, formatRwf, canCancel } from '@/utils'
 
 function statusVariant(s: string): 'success' | 'danger' | 'warning' | 'default' {
   if (s === 'CONFIRMED') return 'success'
@@ -12,44 +10,19 @@ function statusVariant(s: string): 'success' | 'danger' | 'warning' | 'default' 
   return 'default'
 }
 
-function downloadBlob(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  a.click()
-  URL.revokeObjectURL(url)
-}
-
 export default function BookingHistoryPage() {
-  const qc = useQueryClient()
-  const { data, isLoading } = useQuery({
-    queryKey: ['bookings'],
-    queryFn: () => bookingService.getAll(),
-  })
-
-  const bookings: Booking[] = (data as { data: Booking[] })?.data ?? []
-
-  const cancelMutation = useMutation({
-    mutationFn: (id: string) => bookingService.cancel(id),
-    onSuccess: () => { toast.success('Booking cancelled'); qc.invalidateQueries({ queryKey: ['bookings'] }) },
-    onError: () => toast.error('Cancellation failed'),
-  })
-
-  async function handleDownload(id: string, ticketNumber: string) {
-    try {
-      const blob = await bookingService.downloadTicket(id)
-      downloadBlob(blob, `ticket-${ticketNumber}.pdf`)
-    } catch {
-      toast.error('Failed to download ticket')
-    }
-  }
+  const { bookings, isLoading } = useBookings()
+  const cancelMutation = useCancelBooking()
+  const downloadTicket = useDownloadTicket()
 
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Bookings</h1>
+
       {isLoading ? (
-        <div className="space-y-4">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-28 w-full" />)}</div>
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => <Skeleton key={i} className="h-28 w-full" />)}
+        </div>
       ) : bookings.length === 0 ? (
         <Card><CardBody><p className="text-center text-gray-500 py-8">No bookings found.</p></CardBody></Card>
       ) : (
@@ -63,21 +36,28 @@ export default function BookingHistoryPage() {
                       {b.source} → {b.destination}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {new Date(b.schedule.departureTime).toLocaleString()} · Seat {b.seat.seatNumber}
+                      {formatDateTime(b.schedule.departureTime)} · Seat {b.seat.seatNumber}
                     </p>
                     <p className="text-xs text-gray-400">{b.ticketNumber}</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <Badge variant={statusVariant(b.status)}>{b.status}</Badge>
-                    <p className="font-semibold text-primary-600">RWF {Number(b.totalPrice).toLocaleString()}</p>
+                    <p className="font-semibold text-primary-600">{formatRwf(b.totalPrice)}</p>
                     {b.status === 'CONFIRMED' && (
                       <>
-                        <Button size="sm" variant="secondary" onClick={() => handleDownload(b.id, b.ticketNumber)}>
+                        <Button size="sm" variant="secondary" onClick={() => downloadTicket(b.id, b.ticketNumber)}>
                           <Download className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="danger" onClick={() => cancelMutation.mutate(b.id)} loading={cancelMutation.isPending}>
-                          <XCircle className="h-4 w-4" />
-                        </Button>
+                        {canCancel(b.schedule.departureTime) && (
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            onClick={() => cancelMutation.mutate(b.id)}
+                            loading={cancelMutation.isPending}
+                          >
+                            <XCircle className="h-4 w-4" />
+                          </Button>
+                        )}
                       </>
                     )}
                   </div>
