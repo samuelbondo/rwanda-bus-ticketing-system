@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 import { prisma } from '../config/prisma.js'
 import { env } from '../config/env.js'
 import { registerSchema, loginSchema } from '../validators/auth.validator.js'
+import { sendWelcomeEmail } from '../utils/email.js'
 import type { AuthRequest } from '../middlewares/auth.middleware.js'
 
 function signToken(id: string, role: string) {
@@ -34,6 +35,7 @@ export async function register(req: Request, res: Response) {
   })
 
   const token = signToken(user.id, user.role)
+  sendWelcomeEmail(user.email, user.name).catch(() => {})
   res.status(201).json({ data: { user, token } })
 }
 

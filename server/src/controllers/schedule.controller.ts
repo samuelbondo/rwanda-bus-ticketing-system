@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { prisma } from '../config/prisma.js'
 import { createScheduleSchema, updateScheduleSchema } from '../validators/schedule.validator.js'
+import { sendScheduleCancellationNotice } from '../utils/email.js'
 
 export async function getSchedules(req: Request, res: Response) {
   const { origin, date } = req.query
@@ -57,9 +58,46 @@ export async function updateSchedule(req: Request, res: Response) {
 }
 
 export async function deleteSchedule(req: Request, res: Response) {
-  await prisma.schedule.update({
+  const schedule = await prisma.schedule.findUnique({
     where: { id: req.params.id as string },
-    data: { status: 'CANCELLED' },
+    include: {
+      route: true,
+      bookings: {
+        where: { status: { in: ['PENDING', 'CONFIRMED'] } },
+        include: {
+          user: { select: { name: true, email: true } },
+          seat: true,
+          payment: true,
+        },
+      },
+    },
   })
-  res.json({ message: 'Schedule cancelled' })
+  if (!schedule) { res.status(404).json({ message: 'Schedule not found' }); return }
+
+  const ops: Parameters<typeof prisma.$transaction>[0] = [
+    prisma.schedule.update({ where: { id: schedule.id }, data: { status: 'CANCELLED' } }),
+    ...schedule.bookings.map((b) => prisma.booking.update({ where: { id: b.id }, data: { status: 'CANCELLED' } })),
+    ...schedule.bookings
+      .filter((b) => b.payment?.status === 'COMPLETED')
+      .map((b) => prisma.payment.update({ where: { bookingId: b.id }, data: { status: 'REFUNDED' } })),
+    ...schedule.bookings.map((b) =>
+      prisma.cancellation.create({ data: { bookingId: b.id, cancelledBy: req.params.id, reason: 'Schedule cancelled by operator' } })
+    ),
+    prisma.schedule.update({ where: { id: schedule.id }, data: { availableSeats: 0 } }),
+  ]
+
+  await prisma.$transaction(ops)
+
+  // Notify all affected passengers (non-blocking)
+  const routeLabel = `${schedule.route.origin} → ${schedule.route.destination}`
+  const departureLabel = new Date(schedule.departureTime).toLocaleString('en-RW')
+  for (const b of schedule.bookings) {
+    sendScheduleCancellationNotice(b.user.email, b.user.name, b.ticketNumber, {
+      route: routeLabel,
+      departure: departureLabel,
+      price: `RWF ${Number(b.totalPrice).toLocaleString()}`,
+    }).catch(() => {})
+  }
+
+  res.json({ message: 'Schedule cancelled and passengers notified' })
 }

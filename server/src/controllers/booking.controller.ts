@@ -111,8 +111,20 @@ export async function confirmPayment(req: AuthRequest, res: Response) {
   // Send confirmation email with PDF ticket (non-blocking)
   const confirmedBooking = { ...booking, status: 'CONFIRMED' as const }
   generateTicketPdf(confirmedBooking)
-    .then((pdf) => sendBookingConfirmation(booking.user.email, booking.user.name, booking.ticketNumber, pdf))
-    .catch(() => { /* email failure must not break the response */ })
+    .then((pdf) => sendBookingConfirmation(
+      booking.user.email,
+      booking.user.name,
+      booking.ticketNumber,
+      {
+        route: `${booking.source} → ${booking.destination}`,
+        departure: new Date(booking.schedule.departureTime).toLocaleString('en-RW'),
+        bus: `${booking.schedule.bus.name} (${booking.schedule.bus.plateNumber})`,
+        seat: booking.seat.seatNumber,
+        price: `RWF ${Number(booking.totalPrice).toLocaleString()}`,
+      },
+      pdf
+    ))
+    .catch(() => {})
 
   res.json({ message: 'Payment confirmed. Booking is now CONFIRMED.', data: { bookingId: booking.id, ticketNumber: booking.ticketNumber } })
 }
@@ -188,8 +200,17 @@ export async function cancelBooking(req: AuthRequest, res: Response) {
   await prisma.$transaction(ops)
 
   // Send cancellation email (non-blocking)
-  sendCancellationConfirmation(booking.user.email, booking.user.name, booking.ticketNumber)
-    .catch(() => {})
+  sendCancellationConfirmation(
+    booking.user.email,
+    booking.user.name,
+    booking.ticketNumber,
+    {
+      route: `${booking.source} → ${booking.destination}`,
+      departure: new Date(booking.schedule.departureTime).toLocaleString('en-RW'),
+      price: `RWF ${Number(booking.totalPrice).toLocaleString()}`,
+      refunded: !!(booking.payment && booking.payment.status === 'COMPLETED'),
+    }
+  ).catch(() => {})
 
   res.json({ message: 'Booking cancelled successfully' })
 }

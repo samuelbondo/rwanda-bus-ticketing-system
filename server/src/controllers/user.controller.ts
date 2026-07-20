@@ -1,5 +1,6 @@
 import { Response } from 'express'
 import { prisma } from '../config/prisma.js'
+import { sendAccountSuspendedEmail } from '../utils/email.js'
 import type { AuthRequest } from '../middlewares/auth.middleware.js'
 
 export async function getUsers(_req: AuthRequest, res: Response) {
@@ -29,6 +30,11 @@ export async function updateUser(req: AuthRequest, res: Response) {
 }
 
 export async function deleteUser(req: AuthRequest, res: Response) {
-  await prisma.user.update({ where: { id: req.params.id as string }, data: { isActive: false } })
+  const user = await prisma.user.update({
+    where: { id: req.params.id as string },
+    data: { isActive: false },
+    select: { name: true, email: true },
+  })
+  sendAccountSuspendedEmail(user.email, user.name).catch(() => {})
   res.json({ message: 'User deactivated' })
 }
