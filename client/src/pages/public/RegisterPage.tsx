@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useState } from 'react'
+import { Bus } from 'lucide-react'
 import { authService } from '@/services/authService'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button, Input, Card, CardBody } from '@/components/ui'
@@ -61,11 +62,14 @@ export default function RegisterPage() {
       <Card className="w-full max-w-md">
         <CardBody className="space-y-6">
           <div className="text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-600">
+              <Bus className="h-6 w-6 text-white" />
+            </div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Create account</h1>
             <p className="mt-1 text-sm text-gray-500">Start booking bus tickets online</p>
           </div>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <Input label="Full name" placeholder="John Doe" error={errors.name?.message} {...register('name')} />
+            <Input label="Full name" placeholder="Uwase Marie" error={errors.name?.message} {...register('name')} />
             <Input label="Email" type="email" placeholder="you@example.com" error={errors.email?.message} {...register('email')} />
             <Input label="Phone (optional)" type="tel" placeholder="+250 7XX XXX XXX" {...register('phone')} />
             <div className="space-y-2">

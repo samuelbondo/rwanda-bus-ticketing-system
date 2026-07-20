@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { toast } from 'sonner'
+import { Bus } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button, Input, Card, CardBody } from '@/components/ui'
 
@@ -48,9 +49,12 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardBody className="space-y-6">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Sign in</h1>
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-600">
+              <Bus className="h-6 w-6 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome back</h1>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              {scheduleId ? 'Sign in to complete your booking' : 'Welcome back to Rwanda Bus Ticketing'}
+              {scheduleId ? 'Sign in to complete your booking' : 'Sign in to your Rwanda Bus account'}
             </p>
           </div>
 
@@ -80,16 +84,17 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <p className="text-center text-sm text-gray-500 dark:text-gray-400">
-            Don't have an account?{' '}
-            <Link
-              to="/register"
-              state={state}
-              className="font-medium text-primary-600 hover:underline"
-            >
-              Register
-            </Link>
-          </p>
+          <div className="space-y-3">
+            <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+              Don't have an account?{' '}
+              <Link to="/register" state={state} className="font-medium text-primary-600 hover:underline">
+                Register
+              </Link>
+            </p>
+            <p className="text-center text-xs text-gray-400 dark:text-gray-500">
+              <a href="#" className="hover:text-primary-600">Forgot your password?</a>
+            </p>
+          </div>
         </CardBody>
       </Card>
     </div>

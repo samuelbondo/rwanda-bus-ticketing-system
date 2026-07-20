@@ -2,26 +2,25 @@ import { Link } from 'react-router-dom'
 import { Bus, Mail, Phone, MapPin, Facebook, Twitter, Instagram } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 
-const staticLinks = {
-  Company: [{ label: 'About Us', to: '/' }],
-  Travel:  [{ label: 'Search Schedules', to: '/search' }],
-  Support: [{ label: 'Contact Us', to: '/' }],
-}
-
 export default function Footer() {
   const { user } = useAuth()
 
   const accountLinks = user
-    ? [{ label: 'Dashboard', to: '/dashboard' }, { label: 'My Bookings', to: '/dashboard/bookings' }]
-    : [{ label: 'Login', to: '/login' }, { label: 'Register', to: '/register' }]
+    ? [
+        { label: 'Dashboard', to: user.role === 'ADMIN' ? '/admin' : user.role === 'AGENT' ? '/agent' : '/dashboard' },
+        { label: 'My Bookings', to: '/bookings' },
+      ]
+    : [
+        { label: 'Login', to: '/login' },
+        { label: 'Register', to: '/register' },
+      ]
 
-  const links = { ...staticLinks, Account: accountLinks }
   return (
     <footer className="bg-gray-900 text-gray-400">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
 
         {/* Main grid */}
-        <div className="grid gap-12 py-16 sm:grid-cols-2 lg:grid-cols-6">
+        <div className="grid gap-12 py-16 sm:grid-cols-2 lg:grid-cols-5">
 
           {/* Brand col */}
           <div className="lg:col-span-2">
@@ -32,7 +31,7 @@ export default function Footer() {
               Rwanda Bus
             </Link>
             <p className="mt-4 text-sm leading-relaxed">
-              Rwanda's most trusted online bus ticketing platform. Book your seat in seconds, travel with confidence.
+              Rwanda's online bus ticketing platform. Book your seat in seconds, travel with confidence.
             </p>
             <div className="mt-6 space-y-2 text-sm">
               <div className="flex items-center gap-2">
@@ -50,36 +49,53 @@ export default function Footer() {
             </div>
             <div className="mt-6 flex gap-3">
               {[Facebook, Twitter, Instagram].map((Icon, i) => (
-                <a key={i} href="#" className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-800 text-gray-400 transition hover:bg-primary-600 hover:text-white">
+                <a
+                  key={i}
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-800 text-gray-400 transition hover:bg-primary-600 hover:text-white"
+                >
                   <Icon className="h-4 w-4" />
                 </a>
               ))}
             </div>
           </div>
 
-          {/* Link columns */}
-          {Object.entries(links).map(([heading, items]) => (
-            <div key={heading}>
-              <h4 className="mb-4 text-sm font-semibold uppercase tracking-widest text-white">{heading}</h4>
-              <ul className="space-y-2 text-sm">
-                {items.map(({ label, to }) => (
-                  <li key={label}>
-                    <Link to={to} className="transition hover:text-primary-400">{label}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {/* Travel */}
+          <div>
+            <h4 className="mb-4 text-sm font-semibold uppercase tracking-widest text-white">Travel</h4>
+            <ul className="space-y-2 text-sm">
+              <li><Link to="/search" className="transition hover:text-primary-400">Search Schedules</Link></li>
+              <li><Link to="/search" className="transition hover:text-primary-400">Nyanza → Kigali</Link></li>
+            </ul>
+          </div>
+
+          {/* Account */}
+          <div>
+            <h4 className="mb-4 text-sm font-semibold uppercase tracking-widest text-white">Account</h4>
+            <ul className="space-y-2 text-sm">
+              {accountLinks.map(({ label, to }) => (
+                <li key={label}>
+                  <Link to={to} className="transition hover:text-primary-400">{label}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <h4 className="mb-4 text-sm font-semibold uppercase tracking-widest text-white">Legal</h4>
+            <ul className="space-y-2 text-sm">
+              <li><a href="#" className="transition hover:text-primary-400">Privacy Policy</a></li>
+              <li><a href="#" className="transition hover:text-primary-400">Terms of Service</a></li>
+            </ul>
+          </div>
         </div>
 
         {/* Bottom bar */}
         <div className="flex flex-col items-center justify-between gap-4 border-t border-gray-800 py-6 text-xs sm:flex-row">
           <p>© {new Date().getFullYear()} Rwanda Bus Ticketing System. All rights reserved.</p>
-          <div className="flex gap-6">
-            <a href="#" className="hover:text-primary-400 transition">Privacy Policy</a>
-            <a href="#" className="hover:text-primary-400 transition">Terms of Service</a>
-            <a href="#" className="hover:text-primary-400 transition">Cookie Policy</a>
-          </div>
         </div>
       </div>
     </footer>

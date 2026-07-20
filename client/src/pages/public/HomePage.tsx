@@ -164,28 +164,7 @@ export default function HomePage() {
                 ))}
               </div>
 
-              {/* How it works — inline on desktop */}
-              <div className="mt-10 hidden lg:block">
-                <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-blue-300">How it works</p>
-                <div className="flex gap-0">
-                  {steps.map(({ n, icon: Icon, title, desc }, i) => (
-                    <div key={n} className="flex items-start gap-0">
-                      <div className="flex flex-col items-center">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/15 border border-white/20">
-                          <Icon className="h-4 w-4 text-white" />
-                        </div>
-                        <div className="mt-2 text-center w-20">
-                          <p className="text-xs font-semibold text-white">{title}</p>
-                          <p className="text-[10px] text-blue-200 leading-tight mt-0.5">{desc}</p>
-                        </div>
-                      </div>
-                      {i < steps.length - 1 && (
-                        <div className="mt-4 mx-1 h-px w-6 bg-white/20 shrink-0" />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
+
             </div>
 
             {/* Search card */}
@@ -241,18 +220,13 @@ export default function HomePage() {
                   Search Buses <ArrowRight className="h-4 w-4" />
                 </button>
 
-                <p className="text-center text-xs text-gray-400">No account required to search</p>
+
               </form>
             </div>
           </div>
         </div>
 
-        {/* Wave */}
-        <div className="absolute bottom-0 left-0 right-0 leading-none">
-          <svg viewBox="0 0 1440 48" xmlns="http://www.w3.org/2000/svg" className="w-full block">
-            <path d="M0 48L1440 48L1440 24C1080 48 720 0 360 24C180 36 90 48 0 24Z" className="fill-gray-50 dark:fill-gray-950" />
-          </svg>
-        </div>
+
       </section>
 
       {/* ── LIVE DEPARTURES ───────────────────────────────────────────────── */}
@@ -313,8 +287,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── HOW IT WORKS (mobile) ─────────────────────────────────────────── */}
-      <section className="bg-white dark:bg-gray-900 py-14 sm:py-16 lg:hidden">
+      {/* ── HOW IT WORKS ──────────────────────────────────────────────────── */}
+      <section className="bg-white dark:bg-gray-900 py-14 sm:py-16">
         <div className="mx-auto max-w-4xl px-4 sm:px-6">
           <h2 className="mb-8 text-center text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
             How It Works
@@ -374,7 +348,7 @@ export default function HomePage() {
               onClick={() => navigate('/search')}
               className="rounded-lg border border-white/30 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10 focus:outline-none"
             >
-              Search Schedules
+              Browse Schedules
             </button>
           </div>
         </div>
