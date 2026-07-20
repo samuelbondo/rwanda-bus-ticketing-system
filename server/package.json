@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "Express backend for Rwanda Bus Ticketing System",
   "main": "dist/index.js",
+  "prisma": {
+    "seed": "tsx src/prisma/seed.ts"
+  },
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
