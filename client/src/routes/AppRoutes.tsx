@@ -1,0 +1,111 @@
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { useAuth } from '@/contexts/AuthContext'
+
+import PublicLayout from '@/layouts/PublicLayout'
+import CustomerLayout from '@/layouts/CustomerLayout'
+import AgentLayout from '@/layouts/AgentLayout'
+import AdminLayout from '@/layouts/AdminLayout'
+
+// Public pages
+import HomePage from '@/pages/public/HomePage'
+import SearchPage from '@/pages/public/SearchPage'
+import LoginPage from '@/pages/public/LoginPage'
+import RegisterPage from '@/pages/public/RegisterPage'
+
+// Customer pages
+import CustomerDashboard from '@/pages/customer/CustomerDashboard'
+import BookingHistoryPage from '@/pages/customer/BookingHistoryPage'
+import TicketPage from '@/pages/customer/TicketPage'
+import ProfilePage from '@/pages/customer/ProfilePage'
+
+// Agent pages
+import AgentDashboard from '@/pages/agent/AgentDashboard'
+import VerifyTicketPage from '@/pages/agent/VerifyTicketPage'
+import TodaysTripsPage from '@/pages/agent/TodaysTripsPage'
+
+// Admin pages
+import AdminDashboard from '@/pages/admin/AdminDashboard'
+import UsersPage from '@/pages/admin/UsersPage'
+import BusesPage from '@/pages/admin/BusesPage'
+import RoutesPage from '@/pages/admin/RoutesPage'
+import SchedulesPage from '@/pages/admin/SchedulesPage'
+import BookingsPage from '@/pages/admin/BookingsPage'
+import ReportsPage from '@/pages/admin/ReportsPage'
+import AuditLogsPage from '@/pages/admin/AuditLogsPage'
+
+import NotFoundPage from '@/pages/public/NotFoundPage'
+
+function ProtectedRoute({
+  children,
+  roles,
+}: {
+  children: React.ReactNode
+  roles: string[]
+}) {
+  const { user, isLoading } = useAuth()
+  if (isLoading) return null
+  if (!user) return <Navigate to="/login" replace />
+  if (!roles.includes(user.role)) return <Navigate to="/" replace />
+  return <>{children}</>
+}
+
+export default function AppRoutes() {
+  return (
+    <Routes>
+      {/* Public */}
+      <Route element={<PublicLayout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/search" element={<SearchPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Route>
+
+      {/* Customer */}
+      <Route
+        element={
+          <ProtectedRoute roles={['CUSTOMER']}>
+            <CustomerLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/dashboard" element={<CustomerDashboard />} />
+        <Route path="/bookings" element={<BookingHistoryPage />} />
+        <Route path="/bookings/:id/ticket" element={<TicketPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+      </Route>
+
+      {/* Agent */}
+      <Route
+        element={
+          <ProtectedRoute roles={['AGENT']}>
+            <AgentLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/agent" element={<AgentDashboard />} />
+        <Route path="/agent/verify" element={<VerifyTicketPage />} />
+        <Route path="/agent/trips" element={<TodaysTripsPage />} />
+      </Route>
+
+      {/* Admin */}
+      <Route
+        element={
+          <ProtectedRoute roles={['ADMIN']}>
+            <AdminLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<UsersPage />} />
+        <Route path="/admin/buses" element={<BusesPage />} />
+        <Route path="/admin/routes" element={<RoutesPage />} />
+        <Route path="/admin/schedules" element={<SchedulesPage />} />
+        <Route path="/admin/bookings" element={<BookingsPage />} />
+        <Route path="/admin/reports" element={<ReportsPage />} />
+        <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
+      </Route>
+
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  )
+}
