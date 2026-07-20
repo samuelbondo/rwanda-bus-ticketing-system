@@ -177,7 +177,8 @@ export async function cancelBooking(req: AuthRequest, res: Response) {
     return
   }
 
-  const ops: Parameters<typeof prisma.$transaction>[0] = [
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ops: any[] = [
     prisma.booking.update({ where: { id: booking.id }, data: { status: 'CANCELLED' } }),
     prisma.cancellation.create({
       data: { bookingId: booking.id, cancelledBy: req.user!.id, reason: req.body.reason },

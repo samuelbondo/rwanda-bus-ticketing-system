@@ -75,7 +75,8 @@ export async function deleteSchedule(req: AuthRequest, res: Response) {
   })
   if (!schedule) { res.status(404).json({ message: 'Schedule not found' }); return }
 
-  const ops: Parameters<typeof prisma.$transaction>[0] = [
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ops: any[] = [
     prisma.schedule.update({ where: { id: schedule.id }, data: { status: 'CANCELLED' } }),
     ...schedule.bookings.map((b) => prisma.booking.update({ where: { id: b.id }, data: { status: 'CANCELLED' } })),
     ...schedule.bookings
