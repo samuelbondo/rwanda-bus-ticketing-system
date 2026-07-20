@@ -25,6 +25,7 @@ export default function ResetPasswordPage() {
   async function onSubmit(data: FormData) {
     try {
       await authService.resetPassword(token, data.password)
+      localStorage.removeItem('token')
       toast.success('Password reset! You can now sign in.')
       navigate('/login')
     } catch (err: unknown) {
