@@ -82,13 +82,10 @@ export async function chat(req: Request, res: Response) {
       }
     )
 
-    if (response.status === 429) {
-      res.json({ data: { reply: staticFallback(message) } })
-      return
-    }
-
     if (!response.ok) {
-      res.json({ data: { reply: staticFallback(message) } })
+      const errBody = await response.json().catch(() => ({}))
+      console.error('[AI] Gemini error', response.status, JSON.stringify(errBody))
+      res.json({ data: { reply: staticFallback(message), _debug: { status: response.status, error: errBody } } })
       return
     }
 
