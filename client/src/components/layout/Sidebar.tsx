@@ -46,7 +46,6 @@ function NavLinks({ items, onClose }: { items: NavItem[]; onClose?: () => void }
 function UserFooter({ onClose }: { onClose?: () => void }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-
   if (!user) return null
 
   const profilePath =
@@ -87,38 +86,52 @@ function UserFooter({ onClose }: { onClose?: () => void }) {
   )
 }
 
+function SidebarInner({ title, items, onClose }: { title: string; items: NavItem[]; onClose?: () => void }) {
+  return (
+    <div className="flex h-full w-64 flex-col bg-white dark:bg-gray-900">
+      <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-700">
+        <p className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">{title}</p>
+        {onClose && (
+          <button onClick={onClose} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">
+            <X className="h-5 w-5" />
+          </button>
+        )}
+      </div>
+      <div className="flex-1 overflow-y-auto">
+        <NavLinks items={items} onClose={onClose} />
+      </div>
+      <UserFooter onClose={onClose} />
+    </div>
+  )
+}
+
 export default function Sidebar({ items, title, mobileOpen = false, onMobileClose }: SidebarProps) {
   return (
     <>
-      <aside
-        className={clsx(
-          'flex h-full w-56 shrink-0 flex-col border-r border-border bg-card transition-transform duration-300 md:translate-x-0',
-          mobileOpen ? 'translate-x-0' : '-translate-x-full',
-          'absolute inset-y-0 left-0 z-40 md:relative md:z-auto'
-        )}
-      >
-        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+      {/* ── Desktop: permanent left column, normal document flow ── */}
+      <aside className="hidden w-56 shrink-0 flex-col border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 md:flex">
+        <div className="flex items-center border-b border-gray-100 px-4 py-3 dark:border-gray-700">
           <p className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">{title}</p>
-          <button
-            onClick={onMobileClose}
-            className="rounded-lg p-1.5 text-gray-400 hover:bg-muted md:hidden"
-          >
-            <X className="h-5 w-5" />
-          </button>
         </div>
-
         <div className="flex-1 overflow-y-auto">
-          <NavLinks items={items} onClose={onMobileClose} />
+          <NavLinks items={items} />
         </div>
-
-        <UserFooter onClose={onMobileClose} />
+        <UserFooter />
       </aside>
 
+      {/* ── Mobile: fixed full-screen overlay with solid drawer ── */}
       {mobileOpen && (
-        <div
-          className="absolute inset-0 z-30 bg-black/40 md:hidden"
-          onClick={onMobileClose}
-        />
+        <div className="fixed inset-0 z-50 flex md:hidden">
+          {/* Solid dark backdrop — covers entire screen behind drawer */}
+          <div
+            className="absolute inset-0 bg-gray-900/60"
+            onClick={onMobileClose}
+          />
+          {/* Drawer — solid, opaque, left side */}
+          <div className="relative z-10 shadow-2xl">
+            <SidebarInner title={title} items={items} onClose={onMobileClose} />
+          </div>
+        </div>
       )}
     </>
   )

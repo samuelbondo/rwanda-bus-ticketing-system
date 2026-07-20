@@ -25,7 +25,7 @@ export default function AdminLayout() {
       <DashboardHeader onMenuClick={() => setSidebarOpen(true)} />
 
       {/* Body: sidebar + main side by side */}
-      <div className="relative flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar
           items={items}
           title="Admin"
