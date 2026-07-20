@@ -23,7 +23,17 @@ import uploadRoutes from './routes/upload.routes.js'
 const app = express()
 
 app.set('trust proxy', 1)
-app.use(helmet())
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com'],
+      connectSrc: ["'self'", 'https://api.cloudinary.com'],
+      formAction: ["'self'", 'https://api.cloudinary.com'],
+    },
+  },
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}))
 app.use(cors({ origin: env.CLIENT_URL, credentials: true }))
 app.use(express.json())
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'))
