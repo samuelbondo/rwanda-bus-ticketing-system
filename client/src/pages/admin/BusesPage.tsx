@@ -73,9 +73,10 @@ export default function BusesPage() {
     onError: () => toast.error('Failed to update bus'),
   })
 
-  const toggleMutation = useMutation({
-    mutationFn: ({ id, active }: { id: string; active: boolean }) =>
-      active ? busService.remove(id) : busService.update(id, { isActive: true }),
+  const toggleMutation = useMutation<void, Error, { id: string; active: boolean }>({
+    mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
+      await (active ? busService.remove(id) : busService.update(id, { isActive: true }))
+    },
     onSuccess: () => { toast.success('Bus updated'); qc.invalidateQueries({ queryKey: ['buses'] }) },
     onError: () => toast.error('Failed to update bus'),
   })

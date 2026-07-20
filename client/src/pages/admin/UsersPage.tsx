@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Search, UserPlus, Edit2, X, Check } from 'lucide-react'
 import { userService } from '@/services/adminService'
-import { Badge, Button, Card, CardBody, CardHeader, Skeleton, Input } from '@/components/ui'
+import { Badge, Button, Card, CardBody, CardHeader, Skeleton } from '@/components/ui'
 import type { User } from '@/types'
 
 const roleVariant: Record<string, 'info' | 'success' | 'warning' | 'default'> = {
@@ -29,9 +29,10 @@ export default function UsersPage() {
     onError: () => toast.error('Failed to update user'),
   })
 
-  const toggleActive = useMutation({
-    mutationFn: ({ id, active }: { id: string; active: boolean }) =>
-      active ? userService.remove(id) : userService.update(id, { isActive: true }),
+  const toggleActive = useMutation<void, Error, { id: string; active: boolean }>({
+    mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
+      await (active ? userService.remove(id) : userService.update(id, { isActive: true }))
+    },
     onSuccess: () => { toast.success('User updated'); qc.invalidateQueries({ queryKey: ['users'] }) },
     onError: () => toast.error('Failed to update user'),
   })

@@ -95,7 +95,7 @@ export default function AdminProfilePage() {
             </div>
             <div className="flex items-center gap-2.5 text-sm text-gray-500 dark:text-gray-400">
               <Shield className="h-4 w-4 shrink-0 text-gray-400" />
-              Role: {user?.role.charAt(0) + user?.role.slice(1).toLowerCase()}
+              Role: {user ? user.role.charAt(0) + user.role.slice(1).toLowerCase() : '—'}
             </div>
             <div className="flex items-center gap-2.5 text-sm text-gray-500 dark:text-gray-400">
               <Calendar className="h-4 w-4 shrink-0 text-gray-400" />

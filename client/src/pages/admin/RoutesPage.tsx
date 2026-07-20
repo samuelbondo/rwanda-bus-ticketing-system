@@ -70,9 +70,10 @@ export default function RoutesPage() {
     onError: () => toast.error('Failed to update route'),
   })
 
-  const toggleMutation = useMutation({
-    mutationFn: ({ id, active }: { id: string; active: boolean }) =>
-      active ? routeService.remove(id) : routeService.update(id, { isActive: true }),
+  const toggleMutation = useMutation<void, Error, { id: string; active: boolean }>({
+    mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
+      await (active ? routeService.remove(id) : routeService.update(id, { isActive: true }))
+    },
     onSuccess: () => { toast.success('Route updated'); qc.invalidateQueries({ queryKey: ['routes'] }) },
     onError: () => toast.error('Failed to update route'),
   })
