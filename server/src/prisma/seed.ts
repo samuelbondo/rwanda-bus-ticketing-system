@@ -187,46 +187,49 @@ async function main() {
     }
   }
 
-  // Seed 30 days of past bookings across both routes
-  const bookingPlan = [
-    // [daysAgo, seatIdx, routeId, busId, seats, price, origin, dest, status, suffix]
-    [1,  0, route.id,  bus.id,  seats1, 2000, 'Nyanza',  'Kigali',  'USED',      '001'],
-    [1,  1, route.id,  bus.id,  seats1, 2000, 'Nyanza',  'Kigali',  'USED',      '002'],
-    [1,  2, route2.id, bus2.id, seats2, 2500, 'Kigali',  'Musanze', 'USED',      '003'],
-    [2,  3, route.id,  bus.id,  seats1, 2000, 'Ruhango', 'Kigali',  'USED',      '004'],
-    [2,  4, route2.id, bus2.id, seats2, 2500, 'Kigali',  'Musanze', 'CANCELLED', '005'],
-    [3,  5, route.id,  bus.id,  seats1, 2000, 'Nyanza',  'Kigali',  'USED',      '006'],
-    [3,  6, route2.id, bus2.id, seats2, 2500, 'Kigali',  'Musanze', 'USED',      '007'],
-    [4,  7, route.id,  bus.id,  seats1, 2000, 'Muhanga', 'Kigali',  'USED',      '008'],
-    [5,  8, route.id,  bus.id,  seats1, 2000, 'Nyanza',  'Kigali',  'USED',      '009'],
-    [5,  9, route2.id, bus2.id, seats2, 2500, 'Kigali',  'Musanze', 'USED',      '010'],
-    [6,  0, route.id,  bus.id,  seats1, 2000, 'Nyanza',  'Kigali',  'CANCELLED', '011'],
-    [7,  1, route2.id, bus2.id, seats2, 2500, 'Kigali',  'Musanze', 'USED',      '012'],
-    [7,  2, route.id,  bus.id,  seats1, 2000, 'Ruhango', 'Kigali',  'USED',      '013'],
-    [8,  3, route2.id, bus2.id, seats2, 2500, 'Kigali',  'Musanze', 'USED',      '014'],
-    [9,  4, route.id,  bus.id,  seats1, 2000, 'Nyanza',  'Kigali',  'USED',      '015'],
-    [10, 5, route2.id, bus2.id, seats2, 2500, 'Kigali',  'Musanze', 'USED',      '016'],
-    [10, 6, route.id,  bus.id,  seats1, 2000, 'Muhanga', 'Kigali',  'USED',      '017'],
-    [11, 7, route2.id, bus2.id, seats2, 2500, 'Kigali',  'Musanze', 'CANCELLED', '018'],
-    [12, 8, route.id,  bus.id,  seats1, 2000, 'Nyanza',  'Kigali',  'USED',      '019'],
-    [13, 9, route2.id, bus2.id, seats2, 2500, 'Kigali',  'Musanze', 'USED',      '020'],
-    [14, 0, route.id,  bus.id,  seats1, 2000, 'Nyanza',  'Kigali',  'USED',      '021'],
-    [15, 1, route2.id, bus2.id, seats2, 2500, 'Kigali',  'Musanze', 'USED',      '022'],
-    [16, 2, route.id,  bus.id,  seats1, 2000, 'Ruhango', 'Kigali',  'USED',      '023'],
-    [17, 3, route2.id, bus2.id, seats2, 2500, 'Kigali',  'Musanze', 'USED',      '024'],
-    [18, 4, route.id,  bus.id,  seats1, 2000, 'Nyanza',  'Kigali',  'CANCELLED', '025'],
-    [20, 5, route2.id, bus2.id, seats2, 2500, 'Kigali',  'Musanze', 'USED',      '026'],
-    [22, 6, route.id,  bus.id,  seats1, 2000, 'Muhanga', 'Kigali',  'USED',      '027'],
-    [25, 7, route2.id, bus2.id, seats2, 2500, 'Kigali',  'Musanze', 'USED',      '028'],
-    [28, 8, route.id,  bus.id,  seats1, 2000, 'Nyanza',  'Kigali',  'USED',      '029'],
-    [30, 9, route2.id, bus2.id, seats2, 2500, 'Kigali',  'Musanze', 'USED',      '030'],
-  ] as const
+  type BookingPlan = {
+    daysAgo: number; seatIdx: number; routeId: string; busId: string
+    seats: { id: string }[]; price: number; origin: string; destination: string
+    status: 'CONFIRMED' | 'CANCELLED' | 'USED'; suffix: string
+  }
 
-  // Skip if seed bookings already exist
+  const bookingPlan: BookingPlan[] = [
+    { daysAgo: 1,  seatIdx: 0, routeId: route.id,  busId: bus.id,  seats: seats1, price: 2000, origin: 'Nyanza',  destination: 'Kigali',  status: 'USED',      suffix: '001' },
+    { daysAgo: 1,  seatIdx: 1, routeId: route.id,  busId: bus.id,  seats: seats1, price: 2000, origin: 'Nyanza',  destination: 'Kigali',  status: 'USED',      suffix: '002' },
+    { daysAgo: 1,  seatIdx: 2, routeId: route2.id, busId: bus2.id, seats: seats2, price: 2500, origin: 'Kigali',  destination: 'Musanze', status: 'USED',      suffix: '003' },
+    { daysAgo: 2,  seatIdx: 3, routeId: route.id,  busId: bus.id,  seats: seats1, price: 2000, origin: 'Ruhango', destination: 'Kigali',  status: 'USED',      suffix: '004' },
+    { daysAgo: 2,  seatIdx: 4, routeId: route2.id, busId: bus2.id, seats: seats2, price: 2500, origin: 'Kigali',  destination: 'Musanze', status: 'CANCELLED', suffix: '005' },
+    { daysAgo: 3,  seatIdx: 5, routeId: route.id,  busId: bus.id,  seats: seats1, price: 2000, origin: 'Nyanza',  destination: 'Kigali',  status: 'USED',      suffix: '006' },
+    { daysAgo: 3,  seatIdx: 6, routeId: route2.id, busId: bus2.id, seats: seats2, price: 2500, origin: 'Kigali',  destination: 'Musanze', status: 'USED',      suffix: '007' },
+    { daysAgo: 4,  seatIdx: 7, routeId: route.id,  busId: bus.id,  seats: seats1, price: 2000, origin: 'Muhanga', destination: 'Kigali',  status: 'USED',      suffix: '008' },
+    { daysAgo: 5,  seatIdx: 8, routeId: route.id,  busId: bus.id,  seats: seats1, price: 2000, origin: 'Nyanza',  destination: 'Kigali',  status: 'USED',      suffix: '009' },
+    { daysAgo: 5,  seatIdx: 9, routeId: route2.id, busId: bus2.id, seats: seats2, price: 2500, origin: 'Kigali',  destination: 'Musanze', status: 'USED',      suffix: '010' },
+    { daysAgo: 6,  seatIdx: 0, routeId: route.id,  busId: bus.id,  seats: seats1, price: 2000, origin: 'Nyanza',  destination: 'Kigali',  status: 'CANCELLED', suffix: '011' },
+    { daysAgo: 7,  seatIdx: 1, routeId: route2.id, busId: bus2.id, seats: seats2, price: 2500, origin: 'Kigali',  destination: 'Musanze', status: 'USED',      suffix: '012' },
+    { daysAgo: 7,  seatIdx: 2, routeId: route.id,  busId: bus.id,  seats: seats1, price: 2000, origin: 'Ruhango', destination: 'Kigali',  status: 'USED',      suffix: '013' },
+    { daysAgo: 8,  seatIdx: 3, routeId: route2.id, busId: bus2.id, seats: seats2, price: 2500, origin: 'Kigali',  destination: 'Musanze', status: 'USED',      suffix: '014' },
+    { daysAgo: 9,  seatIdx: 4, routeId: route.id,  busId: bus.id,  seats: seats1, price: 2000, origin: 'Nyanza',  destination: 'Kigali',  status: 'USED',      suffix: '015' },
+    { daysAgo: 10, seatIdx: 5, routeId: route2.id, busId: bus2.id, seats: seats2, price: 2500, origin: 'Kigali',  destination: 'Musanze', status: 'USED',      suffix: '016' },
+    { daysAgo: 10, seatIdx: 6, routeId: route.id,  busId: bus.id,  seats: seats1, price: 2000, origin: 'Muhanga', destination: 'Kigali',  status: 'USED',      suffix: '017' },
+    { daysAgo: 11, seatIdx: 7, routeId: route2.id, busId: bus2.id, seats: seats2, price: 2500, origin: 'Kigali',  destination: 'Musanze', status: 'CANCELLED', suffix: '018' },
+    { daysAgo: 12, seatIdx: 8, routeId: route.id,  busId: bus.id,  seats: seats1, price: 2000, origin: 'Nyanza',  destination: 'Kigali',  status: 'USED',      suffix: '019' },
+    { daysAgo: 13, seatIdx: 9, routeId: route2.id, busId: bus2.id, seats: seats2, price: 2500, origin: 'Kigali',  destination: 'Musanze', status: 'USED',      suffix: '020' },
+    { daysAgo: 14, seatIdx: 0, routeId: route.id,  busId: bus.id,  seats: seats1, price: 2000, origin: 'Nyanza',  destination: 'Kigali',  status: 'USED',      suffix: '021' },
+    { daysAgo: 15, seatIdx: 1, routeId: route2.id, busId: bus2.id, seats: seats2, price: 2500, origin: 'Kigali',  destination: 'Musanze', status: 'USED',      suffix: '022' },
+    { daysAgo: 16, seatIdx: 2, routeId: route.id,  busId: bus.id,  seats: seats1, price: 2000, origin: 'Ruhango', destination: 'Kigali',  status: 'USED',      suffix: '023' },
+    { daysAgo: 17, seatIdx: 3, routeId: route2.id, busId: bus2.id, seats: seats2, price: 2500, origin: 'Kigali',  destination: 'Musanze', status: 'USED',      suffix: '024' },
+    { daysAgo: 18, seatIdx: 4, routeId: route.id,  busId: bus.id,  seats: seats1, price: 2000, origin: 'Nyanza',  destination: 'Kigali',  status: 'CANCELLED', suffix: '025' },
+    { daysAgo: 20, seatIdx: 5, routeId: route2.id, busId: bus2.id, seats: seats2, price: 2500, origin: 'Kigali',  destination: 'Musanze', status: 'USED',      suffix: '026' },
+    { daysAgo: 22, seatIdx: 6, routeId: route.id,  busId: bus.id,  seats: seats1, price: 2000, origin: 'Muhanga', destination: 'Kigali',  status: 'USED',      suffix: '027' },
+    { daysAgo: 25, seatIdx: 7, routeId: route2.id, busId: bus2.id, seats: seats2, price: 2500, origin: 'Kigali',  destination: 'Musanze', status: 'USED',      suffix: '028' },
+    { daysAgo: 28, seatIdx: 8, routeId: route.id,  busId: bus.id,  seats: seats1, price: 2000, origin: 'Nyanza',  destination: 'Kigali',  status: 'USED',      suffix: '029' },
+    { daysAgo: 30, seatIdx: 9, routeId: route2.id, busId: bus2.id, seats: seats2, price: 2500, origin: 'Kigali',  destination: 'Musanze', status: 'USED',      suffix: '030' },
+  ]
+
   const existing = await prisma.booking.findFirst({ where: { ticketNumber: { startsWith: 'TKT-SEED-' } } })
   if (!existing) {
-    for (const [daysAgo, seatIdx, routeId, busId, seats, price, origin, dest, status, suffix] of bookingPlan) {
-      await seedBooking(daysAgo, seatIdx, routeId, busId, seats as {id:string}[], price, origin, dest, status, suffix)
+    for (const p of bookingPlan) {
+      await seedBooking(p.daysAgo, p.seatIdx, p.routeId, p.busId, p.seats, p.price, p.origin, p.destination, p.status, p.suffix)
     }
     console.log('✅ Seeded 30 sample bookings & payments for reports')
   } else {
