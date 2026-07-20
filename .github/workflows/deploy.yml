@@ -3,13 +3,8 @@ name: Deploy
 on:
   workflow_dispatch:
 
-# Frontend is deployed automatically by Vercel's native GitHub integration
-# on every push to main — no GitHub Actions step needed.
-#
-# Backend is deployed automatically by Railway's native GitHub integration
-# on every push to main — no GitHub Actions step needed.
-#
-# This workflow is kept for manual override only (workflow_dispatch).
+# Vercel and Railway both have native GitHub integrations that auto-deploy
+# on every push to main. This workflow is kept for manual override only.
 
 jobs:
   deploy-frontend:
@@ -20,8 +15,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-          cache-dependency-path: client/package-lock.json
       - run: npm ci
         working-directory: client
       - run: npm run build
@@ -41,6 +34,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
       - run: npm install -g @railway/cli
       - run: railway up --service api
         env:
