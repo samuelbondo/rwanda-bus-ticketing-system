@@ -140,3 +140,12 @@ export async function sendAccountSuspendedEmail(to: string, name: string) {
     <p>If you believe this is a mistake, please contact our support team.</p>`
   await send({ to, subject: 'Account Suspended', html: baseTemplate('Account Suspended', body) })
 }
+
+export async function sendPasswordResetByAdminEmail(to: string, name: string, newPassword: string) {
+  const body = `
+    <p>Hi <strong>${name}</strong>,</p>
+    <p>An administrator has reset your password. Your new temporary password is:</p>
+    <p style="font-size:20px;font-weight:700;letter-spacing:2px;color:#1d4ed8;margin:16px 0;">${newPassword}</p>
+    <p>Please log in and change your password immediately.</p>`
+  await send({ to, subject: 'Your Password Has Been Reset', html: baseTemplate('Password Reset by Admin', body) })
+}

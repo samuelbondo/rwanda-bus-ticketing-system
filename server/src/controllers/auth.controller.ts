@@ -72,7 +72,7 @@ export function logout(_req: Request, res: Response) {
 export async function getProfile(req: AuthRequest, res: Response) {
   const user = await prisma.user.findUnique({
     where: { id: req.user!.id },
-    select: { id: true, name: true, email: true, role: true, phone: true, isActive: true, createdAt: true },
+    select: { id: true, name: true, email: true, role: true, phone: true, avatarUrl: true, isActive: true, createdAt: true },
   })
   if (!user) {
     res.status(404).json({ message: 'User not found' })
@@ -82,11 +82,11 @@ export async function getProfile(req: AuthRequest, res: Response) {
 }
 
 export async function updateProfile(req: AuthRequest, res: Response) {
-  const { name, phone } = req.body
+  const { name, phone, avatarUrl } = req.body
   const user = await prisma.user.update({
     where: { id: req.user!.id },
-    data: { name, phone },
-    select: { id: true, name: true, email: true, role: true, phone: true, createdAt: true },
+    data: { name, phone, avatarUrl },
+    select: { id: true, name: true, email: true, role: true, phone: true, avatarUrl: true, isActive: true, createdAt: true },
   })
   res.json({ data: user })
 }

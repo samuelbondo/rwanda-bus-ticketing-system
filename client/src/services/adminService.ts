@@ -42,12 +42,22 @@ export const userService = {
     const { data } = await api.get('/users')
     return data.data
   },
+  async create(payload: Partial<User> & { password: string }): Promise<User> {
+    const { data } = await api.post('/users', payload)
+    return data.data
+  },
   async update(id: string, payload: Partial<User>): Promise<User> {
     const { data } = await api.put(`/users/${id}`, payload)
     return data.data
   },
   async remove(id: string): Promise<void> {
     await api.delete(`/users/${id}`)
+  },
+  async resetPassword(id: string, newPassword: string): Promise<void> {
+    await api.post(`/users/${id}/reset-password`, { newPassword })
+  },
+  async sendPasswordReset(id: string, newPassword: string): Promise<void> {
+    await api.post(`/users/${id}/send-password-reset`, { newPassword })
   },
 }
 
