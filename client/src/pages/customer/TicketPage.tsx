@@ -1,14 +1,15 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Download } from 'lucide-react'
+import { ArrowLeft, Download, XCircle } from 'lucide-react'
 import { Button, Card, CardBody, Badge, Skeleton } from '@/components/ui'
-import { useBookingById, useDownloadTicket } from '@/hooks/useBookings'
-import { formatDateTime, formatRwf } from '@/utils'
+import { useBookingById, useDownloadTicket, useCancelBooking } from '@/hooks/useBookings'
+import { formatDateTime, formatRwf, canCancel } from '@/utils'
 
 export default function TicketPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { data: booking, isLoading } = useBookingById(id!)
   const downloadTicket = useDownloadTicket()
+  const cancelMutation = useCancelBooking()
 
   if (isLoading) {
     return (
@@ -18,6 +19,9 @@ export default function TicketPage() {
     )
   }
   if (!booking) return <p className="text-center text-gray-500">Booking not found.</p>
+
+  const confirmed = booking.status === 'CONFIRMED'
+  const cancellable = confirmed && canCancel(booking.schedule.departureTime)
 
   return (
     <div className="space-y-6">
@@ -57,9 +61,32 @@ export default function TicketPage() {
             </div>
           )}
 
-          <Button className="w-full" onClick={() => downloadTicket(booking.id, booking.ticketNumber)}>
-            <Download className="mr-2 h-4 w-4" /> Download PDF
-          </Button>
+          {confirmed && (
+            <Button className="w-full" onClick={() => downloadTicket(booking.id, booking.ticketNumber)}>
+              <Download className="mr-2 h-4 w-4" /> Download PDF
+            </Button>
+          )}
+
+          {cancellable && (
+            <Button
+              className="w-full"
+              variant="danger"
+              loading={cancelMutation.isPending}
+              onClick={() =>
+                cancelMutation.mutate(booking.id, {
+                  onSuccess: () => navigate('/bookings'),
+                })
+              }
+            >
+              <XCircle className="mr-2 h-4 w-4" /> Cancel Ticket
+            </Button>
+          )}
+
+          {confirmed && !cancellable && (
+            <p className="text-center text-xs text-gray-400">
+              Cancellation window has closed (less than 3 hours before departure).
+            </p>
+          )}
         </CardBody>
       </Card>
     </div>
