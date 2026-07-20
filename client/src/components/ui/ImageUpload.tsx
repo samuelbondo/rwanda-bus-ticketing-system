@@ -6,7 +6,7 @@ import { clsx } from 'clsx'
 interface ImageUploadProps {
   value?: string
   onChange: (url: string) => void
-  folder: 'buses' | 'avatars' | 'general'
+  folder: 'buses' | 'avatars' | 'general' | 'slideshow'
   label?: string
   className?: string
   shape?: 'square' | 'circle'
