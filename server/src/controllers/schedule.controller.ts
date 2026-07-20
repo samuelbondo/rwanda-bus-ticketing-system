@@ -28,7 +28,7 @@ export async function getSchedules(req: Request, res: Response) {
 
 export async function getScheduleById(req: Request, res: Response) {
   const schedule = await prisma.schedule.findUnique({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     include: { route: { include: { stops: true } }, bus: true },
   })
   if (!schedule) { res.status(404).json({ message: 'Schedule not found' }); return }
@@ -50,7 +50,7 @@ export async function updateSchedule(req: Request, res: Response) {
   const parsed = updateScheduleSchema.safeParse(req.body)
   if (!parsed.success) { res.status(400).json({ message: 'Validation error', errors: parsed.error.flatten() }); return }
   const schedule = await prisma.schedule.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: parsed.data,
   })
   res.json({ data: schedule })
@@ -58,7 +58,7 @@ export async function updateSchedule(req: Request, res: Response) {
 
 export async function deleteSchedule(req: Request, res: Response) {
   await prisma.schedule.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: { status: 'CANCELLED' },
   })
   res.json({ message: 'Schedule cancelled' })

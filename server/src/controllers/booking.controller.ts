@@ -1,5 +1,7 @@
 import { Response } from 'express'
 import { prisma } from '../config/prisma.js'
+import type { PrismaClient } from '@prisma/client'
+import type { DefaultArgs } from '@prisma/client/runtime/library'
 import { generateTicketNumber } from '../utils/ticket.js'
 import { generateQrCode } from '../utils/qrcode.js'
 import { generateTicketPdf } from '../utils/pdf.js'
@@ -38,7 +40,7 @@ export async function createBooking(req: AuthRequest, res: Response) {
   const ticketNumber = generateTicketNumber()
   const qrCode = await generateQrCode(ticketNumber)
 
-  const booking = await prisma.$transaction(async (tx: typeof prisma) => {
+  const booking = await prisma.$transaction(async (tx: Omit<PrismaClient<object, never, DefaultArgs>, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>) => {
     const b = await tx.booking.create({
       data: {
         userId: req.user!.id,
