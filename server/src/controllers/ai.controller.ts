@@ -69,9 +69,10 @@ export async function chat(req: Request, res: Response) {
       { role: 'user', parts: [{ text: message }] },
     ]
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/${settings.aiModel}:generateContent?key=${settings.geminiApiKey}`,
-      {
+    // Try v1beta first (works with all AI Studio key formats)
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${settings.aiModel}:generateContent?key=${settings.geminiApiKey}`
+
+    const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
