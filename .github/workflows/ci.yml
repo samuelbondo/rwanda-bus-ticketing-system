@@ -8,7 +8,7 @@ on:
 
 jobs:
   server:
-    name: Server — Lint, Type Check, Build
+    name: Server — Type Check & Build
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -21,15 +21,17 @@ jobs:
           cache: npm
           cache-dependency-path: server/package-lock.json
       - run: npm ci
-      - run: npx prisma generate
+      - run: npx prisma generate --schema=src/prisma/schema.prisma
       - run: npm run build
 
   client:
-    name: Client — Lint, Type Check, Build
+    name: Client — Type Check & Build
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: client
+    env:
+      VITE_API_URL: http://localhost:5000/api
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
