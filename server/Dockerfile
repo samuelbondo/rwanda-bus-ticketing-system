@@ -12,4 +12,4 @@ RUN npm run build
 
 EXPOSE 5000
 
-CMD ["npm", "run", "start"]
+CMD npx prisma migrate deploy --schema=src/prisma/schema.prisma && npm run start
