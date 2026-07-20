@@ -14,6 +14,7 @@ export interface User {
   email: string
   role: Role
   phone?: string
+  avatarUrl?: string
   isActive: boolean
   createdAt: string
 }
@@ -23,6 +24,7 @@ export interface Bus {
   name: string
   plateNumber: string
   capacity: number
+  imageUrl?: string
   isActive: boolean
 }
 

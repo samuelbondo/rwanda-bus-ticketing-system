@@ -1,27 +1,25 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { Plus, Edit2, X, Bus as BusIcon } from 'lucide-react'
 import { busService } from '@/services/adminService'
 import { Button, Input, Card, CardBody, CardHeader, Badge, Skeleton } from '@/components/ui'
+import ImageUpload from '@/components/ui/ImageUpload'
 import type { Bus } from '@/types'
 
 const schema = z.object({
   name: z.string().min(2, 'Name required'),
   plateNumber: z.string().min(3, 'Plate required'),
   capacity: z.coerce.number().int().min(1, 'Capacity required'),
+  imageUrl: z.string().optional(),
 })
 type FormData = z.infer<typeof schema>
 
 function BusForm({
-  defaultValues,
-  onSubmit,
-  onCancel,
-  loading,
-  title,
+  defaultValues, onSubmit, onCancel, loading, title,
 }: {
   defaultValues?: Partial<FormData>
   onSubmit: (d: FormData) => void
@@ -29,7 +27,7 @@ function BusForm({
   loading: boolean
   title: string
 }) {
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, control, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues,
   })
@@ -40,11 +38,25 @@ function BusForm({
         <button onClick={onCancel} className="text-gray-400 hover:text-gray-600"><X className="h-4 w-4" /></button>
       </CardHeader>
       <CardBody>
-        <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 sm:grid-cols-3">
-          <Input label="Bus Name" placeholder="Volcano Express 1" error={errors.name?.message} {...register('name')} />
-          <Input label="Plate Number" placeholder="RAB 001 A" error={errors.plateNumber?.message} {...register('plateNumber')} />
-          <Input label="Capacity (seats)" type="number" placeholder="30" error={errors.capacity?.message} {...register('capacity')} />
-          <div className="sm:col-span-3 flex justify-end gap-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Input label="Bus Name" placeholder="Volcano Express 1" error={errors.name?.message} {...register('name')} />
+            <Input label="Plate Number" placeholder="RAB 001 A" error={errors.plateNumber?.message} {...register('plateNumber')} />
+            <Input label="Capacity (seats)" type="number" placeholder="30" error={errors.capacity?.message} {...register('capacity')} />
+          </div>
+          <Controller
+            name="imageUrl"
+            control={control}
+            render={({ field }) => (
+              <ImageUpload
+                label="Bus Photo (optional)"
+                folder="buses"
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
+          <div className="flex justify-end gap-2">
             <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
             <Button type="submit" loading={loading}>Save Bus</Button>
           </div>
@@ -74,7 +86,7 @@ export default function BusesPage() {
   })
 
   const toggleMutation = useMutation<void, Error, { id: string; active: boolean }>({
-    mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
+    mutationFn: async ({ id, active }) => {
       await (active ? busService.remove(id) : busService.update(id, { isActive: true }))
     },
     onSuccess: () => { toast.success('Bus updated'); qc.invalidateQueries({ queryKey: ['buses'] }) },
@@ -107,7 +119,7 @@ export default function BusesPage() {
       {editBus && (
         <BusForm
           title={`Edit — ${editBus.name}`}
-          defaultValues={{ name: editBus.name, plateNumber: editBus.plateNumber, capacity: editBus.capacity }}
+          defaultValues={{ name: editBus.name, plateNumber: editBus.plateNumber, capacity: editBus.capacity, imageUrl: editBus.imageUrl }}
           loading={updateMutation.isPending}
           onSubmit={(d) => updateMutation.mutate({ id: editBus.id, data: d })}
           onCancel={() => setEditBus(null)}
@@ -137,10 +149,14 @@ export default function BusesPage() {
                   {(buses as Bus[]).map((b) => (
                     <tr key={b.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-2.5">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/20">
-                            <BusIcon className="h-4 w-4 text-blue-600" />
-                          </div>
+                        <div className="flex items-center gap-3">
+                          {b.imageUrl ? (
+                            <img src={b.imageUrl} alt={b.name} className="h-10 w-14 rounded-lg object-cover shrink-0" />
+                          ) : (
+                            <div className="flex h-10 w-14 shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                              <BusIcon className="h-5 w-5 text-blue-400" />
+                            </div>
+                          )}
                           <span className="font-medium text-gray-900 dark:text-white">{b.name}</span>
                         </div>
                       </td>

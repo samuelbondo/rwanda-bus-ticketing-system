@@ -6,6 +6,7 @@ import { User, Mail, Phone, Shield, Calendar } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { authService } from '@/services/authService'
 import { Button, Input, Card, CardBody, CardHeader, Badge } from '@/components/ui'
+import ImageUpload from '@/components/ui/ImageUpload'
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -69,8 +70,14 @@ export default function ProfilePage() {
       <Card>
         <CardBody>
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary-600 text-2xl font-bold text-white">
-              {user?.name.charAt(0).toUpperCase()}
+            <div className="shrink-0">
+              {user?.avatarUrl ? (
+                <img src={user.avatarUrl} alt={user.name} className="h-16 w-16 rounded-2xl object-cover" />
+              ) : (
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-600 text-2xl font-bold text-white">
+                  {user?.name.charAt(0).toUpperCase()}
+                </div>
+              )}
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
@@ -132,6 +139,16 @@ export default function ProfilePage() {
               type="tel"
               placeholder="+250 7XX XXX XXX"
               {...profileForm.register('phone')}
+            />
+            <ImageUpload
+              label="Profile Photo"
+              folder="avatars"
+              shape="circle"
+              value={user?.avatarUrl}
+              onChange={async (url) => {
+                const updated = await authService.updateProfile({ avatarUrl: url } as never)
+                updateUser(updated)
+              }}
             />
             <div className="flex justify-end">
               <Button type="submit" loading={profileForm.formState.isSubmitting}>

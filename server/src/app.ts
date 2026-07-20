@@ -18,6 +18,8 @@ import verifyRoutes from './routes/verify.routes.js'
 import reportRoutes from './routes/report.routes.js'
 import auditRoutes from './routes/audit.routes.js'
 
+import uploadRoutes from './routes/upload.routes.js'
+
 const app = express()
 
 app.set('trust proxy', 1)
@@ -47,6 +49,7 @@ app.use('/api/bookings', bookingRoutes)
 app.use('/api/verify', verifyRoutes)
 app.use('/api/reports', reportRoutes)
 app.use('/api/audit-logs', auditRoutes)
+app.use('/api/upload', uploadRoutes)
 
 app.use(notFound)
 app.use(errorHandler)
