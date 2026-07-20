@@ -56,8 +56,8 @@ export const userService = {
   async resetPassword(id: string, newPassword: string): Promise<void> {
     await api.post(`/users/${id}/reset-password`, { newPassword })
   },
-  async sendPasswordReset(id: string, newPassword: string): Promise<void> {
-    await api.post(`/users/${id}/send-password-reset`, { newPassword })
+  async sendPasswordReset(id: string): Promise<void> {
+    await api.post(`/users/${id}/send-password-reset`)
   },
 }
 

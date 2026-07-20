@@ -1,4 +1,5 @@
 import { Response } from 'express'
+import { env } from '../config/env.js'
 import * as userService from '../services/user.service.js'
 import type { AuthRequest } from '../middlewares/auth.middleware.js'
 
@@ -38,8 +39,6 @@ export async function resetPasswordManual(req: AuthRequest, res: Response) {
 }
 
 export async function sendPasswordReset(req: AuthRequest, res: Response) {
-  const { newPassword } = req.body
-  if (!newPassword || (newPassword as string).length < 8) { res.status(400).json({ message: 'newPassword must be at least 8 characters' }); return }
-  await userService.adminResetPassword(req.params.id as string, newPassword as string, true)
-  res.json({ message: 'Password reset and email sent' })
+  await userService.adminSendResetLink(req.params.id as string, env.CLIENT_URL)
+  res.json({ message: 'Password reset link sent to user email' })
 }

@@ -188,39 +188,67 @@ function UserFormModal({ initial, onClose, onSave }: {
 // ── Reset Password Modal ─────────────────────────────────────────────────────
 function ResetPasswordModal({ user, onClose }: { user: User; onClose: () => void }) {
   const [password, setPassword] = useState('')
-  const [sendEmail, setSendEmail] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [sendingLink, setSendingLink] = useState(false)
 
-  async function submit(e: React.FormEvent) {
+  async function handleSetPassword(e: React.FormEvent) {
     e.preventDefault()
     if (password.length < 8) { toast.error('Password must be at least 8 characters'); return }
     setSaving(true)
     try {
-      if (sendEmail) {
-        await userService.sendPasswordReset(user.id, password)
-        toast.success('Password reset and email sent')
-      } else {
-        await userService.resetPassword(user.id, password)
-        toast.success('Password reset successfully')
-      }
+      await userService.resetPassword(user.id, password)
+      toast.success('Password reset successfully')
       onClose()
     } catch { toast.error('Failed to reset password') }
     finally { setSaving(false) }
   }
 
+  async function handleSendLink() {
+    setSendingLink(true)
+    try {
+      await userService.sendPasswordReset(user.id)
+      toast.success(`Reset link sent to ${user.email}`)
+      onClose()
+    } catch { toast.error('Failed to send reset link') }
+    finally { setSendingLink(false) }
+  }
+
   return (
     <Modal title={`Reset Password — ${user.name}`} onClose={onClose}>
-      <form onSubmit={submit} className="space-y-4">
-        <Input label="New password" type="password" placeholder="Min. 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-          <input type="checkbox" className="rounded border-gray-300" checked={sendEmail} onChange={(e) => setSendEmail(e.target.checked)} />
-          Send new password to user via email
-        </label>
-        <div className="flex justify-end gap-2 pt-1">
-          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button type="submit" loading={saving}>Reset Password</Button>
+      <div className="space-y-5">
+        {/* Send reset link */}
+        <div className="rounded-xl border border-primary-200 bg-primary-50 p-4 dark:border-primary-800 dark:bg-primary-900/20">
+          <p className="text-sm font-semibold text-primary-800 dark:text-primary-300">Send Reset Link via Email</p>
+          <p className="mt-1 text-xs text-primary-600 dark:text-primary-400">
+            A secure reset link will be sent to <strong>{user.email}</strong>. It expires in 15 minutes.
+          </p>
+          <Button className="mt-3 w-full" onClick={handleSendLink} loading={sendingLink}>
+            Send Reset Link
+          </Button>
         </div>
-      </form>
+
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+          <span className="text-xs text-gray-400">or set manually</span>
+          <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+        </div>
+
+        {/* Manual password set */}
+        <form onSubmit={handleSetPassword} className="space-y-4">
+          <Input
+            label="New password"
+            type="password"
+            placeholder="Min. 8 characters"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
+            <Button type="submit" variant="secondary" loading={saving}>Set Password</Button>
+          </div>
+        </form>
+      </div>
     </Modal>
   )
 }

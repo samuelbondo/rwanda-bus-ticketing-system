@@ -1,6 +1,8 @@
 import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 import { prisma } from '../config/prisma.js'
-import { sendAccountSuspendedEmail, sendPasswordResetByAdminEmail } from '../utils/email.js'
+import { env } from '../config/env.js'
+import { sendAccountSuspendedEmail, sendPasswordResetByAdminEmail, sendPasswordResetEmail } from '../utils/email.js'
 import type { Role } from '@prisma/client'
 
 const userSelect = {
@@ -55,6 +57,18 @@ export async function deactivateUser(id: string) {
     select: { name: true, email: true },
   })
   sendAccountSuspendedEmail(user.email, user.name).catch(() => {})
+}
+
+export async function adminSendResetLink(id: string, clientUrl: string) {
+  const user = await prisma.user.findUnique({ where: { id }, select: { name: true, email: true, isActive: true } })
+  if (!user) throw Object.assign(new Error('User not found'), { status: 404 })
+  const token = jwt.sign(
+    { id, purpose: 'password-reset' },
+    env.JWT_SECRET,
+    { expiresIn: '15m' } as jwt.SignOptions
+  )
+  const resetUrl = `${clientUrl}/reset-password?token=${token}`
+  await sendPasswordResetEmail(user.email, user.name, resetUrl)
 }
 
 export async function adminResetPassword(id: string, newPassword: string, notify: boolean) {
