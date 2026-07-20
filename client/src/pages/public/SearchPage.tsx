@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Search, MapPin, Calendar, Users } from 'lucide-react'
 import { scheduleService } from '@/services/scheduleService'
 import { Button, Input, Card, CardBody, Badge, Skeleton } from '@/components/ui'
+import { useAuth } from '@/contexts/AuthContext'
 import type { Schedule } from '@/types'
 
 function statusVariant(s: string) {
@@ -12,6 +13,7 @@ function statusVariant(s: string) {
 
 export default function SearchPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [searchParams] = useSearchParams()
 
   const [origin, setOrigin] = useState(searchParams.get('origin') ?? '')
@@ -117,7 +119,10 @@ export default function SearchPage() {
                     <Badge variant={statusVariant(s.status) as 'success' | 'danger' | 'default'}>{s.status}</Badge>
                   </div>
                   <Button
-                    onClick={() => navigate('/login', { state: { scheduleId: s.id } })}
+                    onClick={() => user
+                      ? navigate(`/book/${s.id}`)
+                      : navigate('/login', { state: { scheduleId: s.id } })
+                    }
                     disabled={s.availableSeats === 0 || s.status !== 'SCHEDULED'}
                     className="shrink-0"
                   >

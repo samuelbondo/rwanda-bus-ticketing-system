@@ -7,6 +7,7 @@ import {
   Ticket, Smartphone,
 } from 'lucide-react'
 import { scheduleService } from '@/services/scheduleService'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button, Skeleton } from '@/components/ui'
 import type { Schedule } from '@/types'
 
@@ -93,6 +94,7 @@ function ScheduleCard({ s, onBook }: { s: Schedule; onBook: () => void }) {
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [origin, setOrigin] = useState('')
   const [date, setDate] = useState('')
 
@@ -295,7 +297,10 @@ export default function HomePage() {
                 <ScheduleCard
                   key={s.id}
                   s={s}
-                  onBook={() => navigate('/login', { state: { scheduleId: s.id } })}
+                  onBook={() => user
+                      ? navigate(`/book/${s.id}`)
+                      : navigate('/login', { state: { scheduleId: s.id } })
+                  }
                 />
               ))}
               <div className="pt-2 text-center">

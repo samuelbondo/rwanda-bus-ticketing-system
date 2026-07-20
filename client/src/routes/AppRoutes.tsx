@@ -15,6 +15,7 @@ import RegisterPage from '@/pages/public/RegisterPage'
 // Customer pages
 import CustomerDashboard from '@/pages/customer/CustomerDashboard'
 import BookingHistoryPage from '@/pages/customer/BookingHistoryPage'
+import BookingPage from '@/pages/customer/BookingPage'
 import TicketPage from '@/pages/customer/TicketPage'
 import ProfilePage from '@/pages/customer/ProfilePage'
 
@@ -69,6 +70,7 @@ export default function AppRoutes() {
         }
       >
         <Route path="/dashboard" element={<CustomerDashboard />} />
+        <Route path="/book/:scheduleId" element={<BookingPage />} />
         <Route path="/bookings" element={<BookingHistoryPage />} />
         <Route path="/bookings/:id/ticket" element={<TicketPage />} />
         <Route path="/profile" element={<ProfilePage />} />
