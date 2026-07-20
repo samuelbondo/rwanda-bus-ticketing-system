@@ -1,14 +1,21 @@
 import { Link } from 'react-router-dom'
 import { Bus, Mail, Phone, MapPin, Facebook, Twitter, Instagram } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
 
-const links = {
-  Company:  [{ label: 'About Us', to: '/' }, { label: 'Careers', to: '/' }, { label: 'Press', to: '/' }],
-  Travel:   [{ label: 'Search Schedules', to: '/search' }, { label: 'Routes', to: '/search' }, { label: 'Timetable', to: '/search' }],
-  Support:  [{ label: 'Help Center', to: '/' }, { label: 'Contact Us', to: '/' }, { label: 'Refund Policy', to: '/' }],
-  Account:  [{ label: 'Login', to: '/login' }, { label: 'Register', to: '/register' }, { label: 'My Bookings', to: '/dashboard' }],
+const staticLinks = {
+  Company: [{ label: 'About Us', to: '/' }],
+  Travel:  [{ label: 'Search Schedules', to: '/search' }],
+  Support: [{ label: 'Contact Us', to: '/' }],
 }
 
 export default function Footer() {
+  const { user } = useAuth()
+
+  const accountLinks = user
+    ? [{ label: 'Dashboard', to: '/dashboard' }, { label: 'My Bookings', to: '/dashboard/bookings' }]
+    : [{ label: 'Login', to: '/login' }, { label: 'Register', to: '/register' }]
+
+  const links = { ...staticLinks, Account: accountLinks }
   return (
     <footer className="bg-gray-900 text-gray-400">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
