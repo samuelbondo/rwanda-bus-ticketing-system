@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
-import { LayoutDashboard, Users, Bus, Route, CalendarDays, Ticket, BarChart2, ScrollText, UserCircle, SlidersHorizontal } from 'lucide-react'
+import { LayoutDashboard, Users, Bus, Route, CalendarDays, Ticket, BarChart2, ScrollText, UserCircle, SlidersHorizontal, Settings } from 'lucide-react'
 import DashboardHeader from '@/components/layout/DashboardHeader'
 import Sidebar from '@/components/layout/Sidebar'
 
@@ -13,6 +13,7 @@ const items = [
   { label: 'Bookings',   to: '/admin/bookings',      icon: Ticket },
   { label: 'Reports',    to: '/admin/reports',       icon: BarChart2 },
   { label: 'Slideshow',  to: '/admin/slideshow',     icon: SlidersHorizontal },
+  { label: 'Settings',   to: '/admin/settings',      icon: Settings },
   { label: 'Audit Logs', to: '/admin/audit-logs',    icon: ScrollText },
   { label: 'My Profile', to: '/admin/profile',       icon: UserCircle },
 ]

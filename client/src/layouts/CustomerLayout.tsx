@@ -3,6 +3,8 @@ import { Outlet } from 'react-router-dom'
 import { LayoutDashboard, Ticket, User } from 'lucide-react'
 import DashboardHeader from '@/components/layout/DashboardHeader'
 import Sidebar from '@/components/layout/Sidebar'
+import AiChat from '@/components/ui/AiChat'
+import MaintenanceBanner from '@/components/ui/MaintenanceBanner'
 
 const items = [
   { label: 'Dashboard',   to: '/dashboard', icon: LayoutDashboard },
@@ -15,6 +17,7 @@ export default function CustomerLayout() {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background">
+      <MaintenanceBanner />
       <DashboardHeader onMenuClick={() => setSidebarOpen(true)} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
@@ -29,6 +32,7 @@ export default function CustomerLayout() {
           </div>
         </main>
       </div>
+      <AiChat welcomeMessage="Hi! Need help with your booking or ticket? I'm here to assist you." />
     </div>
   )
 }

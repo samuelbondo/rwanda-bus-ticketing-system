@@ -237,6 +237,30 @@ async function main() {
     console.log('ℹ️  Sample bookings already exist — skipping')
   }
 
+  // Platform settings singleton
+  await prisma.platformSettings.upsert({
+    where: { id: 'singleton' },
+    update: {},
+    create: {
+      id: 'singleton',
+      siteName: 'Rwanda Bus',
+      supportPhone: '+250794047261',
+      supportEmail: 'rwandabus@gmail.com',
+      supportAddress: 'KG 7 Ave, Kigali, Rwanda',
+      whatsappNumber: '+250794047261',
+      whatsappMessage: 'Hello! I need help with my bus booking.',
+      maintenanceMode: false,
+      maintenanceMessage: "We are currently performing scheduled maintenance. We'll be back shortly.",
+      geminiApiKey: '',
+      aiModel: 'gemini-1.5-flash',
+      aiEnabled: true,
+      aiWelcomeMessage: "Hi! I'm your Rwanda Bus assistant. How can I help you today?",
+      facebookUrl: '',
+      twitterUrl: '',
+      instagramUrl: '',
+    },
+  })
+
   console.log('✅ Seed complete — 14 days × 3 departures = 42 schedules')
   console.log('Admin:    admin@rwandabus.rw    / Admin123!')
   console.log('Agent:    agent@rwandabus.rw    / Agent@1234')

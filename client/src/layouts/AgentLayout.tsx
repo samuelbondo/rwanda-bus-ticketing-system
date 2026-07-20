@@ -3,6 +3,8 @@ import { Outlet } from 'react-router-dom'
 import { LayoutDashboard, QrCode, CalendarDays, UserCircle } from 'lucide-react'
 import DashboardHeader from '@/components/layout/DashboardHeader'
 import Sidebar from '@/components/layout/Sidebar'
+import AiChat from '@/components/ui/AiChat'
+import MaintenanceBanner from '@/components/ui/MaintenanceBanner'
 
 const items = [
   { label: 'Dashboard',     to: '/agent',          icon: LayoutDashboard },
@@ -16,6 +18,7 @@ export default function AgentLayout() {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-background">
+      <MaintenanceBanner />
       <DashboardHeader onMenuClick={() => setSidebarOpen(true)} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
@@ -30,6 +33,7 @@ export default function AgentLayout() {
           </div>
         </main>
       </div>
+      <AiChat welcomeMessage="Hi! I can help you with passenger info, schedules, or ticket verification questions." />
     </div>
   )
 }

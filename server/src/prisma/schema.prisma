@@ -231,3 +231,25 @@ model HeroSlide {
 
   @@map("hero_slides")
 }
+
+model PlatformSettings {
+  id                 String   @id @default("singleton")
+  siteName           String   @default("Rwanda Bus")
+  supportPhone       String   @default("+250794047261")
+  supportEmail       String   @default("rwandabus@gmail.com")
+  supportAddress     String   @default("KG 7 Ave, Kigali, Rwanda")
+  whatsappNumber     String   @default("+250794047261")
+  whatsappMessage    String   @default("Hello! I need help with my bus booking.")
+  maintenanceMode    Boolean  @default(false)
+  maintenanceMessage String   @default("We are currently performing scheduled maintenance. We'll be back shortly.")
+  geminiApiKey       String   @default("")
+  aiModel            String   @default("gemini-1.5-flash")
+  aiEnabled          Boolean  @default(true)
+  aiWelcomeMessage   String   @default("Hi! I'm your Rwanda Bus assistant. How can I help you today?")
+  facebookUrl        String   @default("")
+  twitterUrl         String   @default("")
+  instagramUrl       String   @default("")
+  updatedAt          DateTime @updatedAt
+
+  @@map("platform_settings")
+}

@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom'
 import { Bus, Mail, Phone, MapPin, Facebook, Twitter, Instagram } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useSettings } from '@/contexts/SettingsContext'
 
 export default function Footer() {
   const { user } = useAuth()
+  const { siteName, supportPhone, supportEmail, supportAddress, facebookUrl, twitterUrl, instagramUrl } = useSettings()
 
   const accountLinks = user
     ? [
@@ -14,6 +16,12 @@ export default function Footer() {
         { label: 'Login', to: '/login' },
         { label: 'Register', to: '/register' },
       ]
+
+  const socials = [
+    { Icon: Facebook, url: facebookUrl },
+    { Icon: Twitter, url: twitterUrl },
+    { Icon: Instagram, url: instagramUrl },
+  ]
 
   return (
     <footer className="bg-gray-900 text-gray-400">
@@ -28,7 +36,7 @@ export default function Footer() {
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600">
                 <Bus className="h-5 w-5 text-white" />
               </div>
-              Rwanda Bus
+              {siteName}
             </Link>
             <p className="mt-4 text-sm leading-relaxed">
               Rwanda's online bus ticketing platform. Book your seat in seconds, travel with confidence.
@@ -36,22 +44,22 @@ export default function Footer() {
             <div className="mt-6 space-y-2 text-sm">
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-primary-500 shrink-0" />
-                KG 7 Ave, Kigali, Rwanda
+                {supportAddress}
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-primary-500 shrink-0" />
-                +250 788 000 000
+                {supportPhone}
               </div>
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-primary-500 shrink-0" />
-                support@rwandabus.rw
+                {supportEmail}
               </div>
             </div>
             <div className="mt-6 flex gap-3">
-              {[Facebook, Twitter, Instagram].map((Icon, i) => (
+              {socials.map(({ Icon, url }, i) => (
                 <a
                   key={i}
-                  href="#"
+                  href={url || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-800 text-gray-400 transition hover:bg-primary-600 hover:text-white"
@@ -95,7 +103,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="flex flex-col items-center justify-between gap-4 border-t border-gray-800 py-6 text-xs sm:flex-row">
-          <p>© {new Date().getFullYear()} Rwanda Bus Ticketing System. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {siteName} Ticketing System. All rights reserved.</p>
         </div>
       </div>
     </footer>
