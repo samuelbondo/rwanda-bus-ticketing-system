@@ -34,6 +34,8 @@ import BookingsPage from '@/pages/admin/BookingsPage'
 import ReportsPage from '@/pages/admin/ReportsPage'
 import AuditLogsPage from '@/pages/admin/AuditLogsPage'
 
+import AdminProfilePage from '@/pages/admin/AdminProfilePage'
+
 import NotFoundPage from '@/pages/public/NotFoundPage'
 
 function ProtectedRoute({
@@ -104,6 +106,7 @@ export default function AppRoutes() {
         <Route path="/admin/schedules" element={<SchedulesPage />} />
         <Route path="/admin/bookings" element={<BookingsPage />} />
         <Route path="/admin/reports" element={<ReportsPage />} />
+        <Route path="/admin/profile" element={<AdminProfilePage />} />
         <Route path="/admin/audit-logs" element={<AuditLogsPage />} />
       </Route>
 

@@ -24,7 +24,7 @@ const passwordSchema = z.object({
 type ProfileData = z.infer<typeof profileSchema>
 type PasswordData = z.infer<typeof passwordSchema>
 
-export default function ProfilePage() {
+export default function AdminProfilePage() {
   const { user, updateUser } = useAuth()
 
   const profileForm = useForm<ProfileData>({
@@ -59,12 +59,13 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6 max-w-3xl">
 
+      {/* Page header */}
       <div>
         <h1 className="text-xl font-bold text-gray-900 dark:text-white">My Profile</h1>
         <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">Manage your account information and security</p>
       </div>
 
-      {/* Account overview */}
+      {/* Account overview card */}
       <Card>
         <CardBody>
           <div className="flex items-center gap-4">
@@ -74,7 +75,7 @@ export default function ProfilePage() {
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <p className="text-lg font-bold text-gray-900 dark:text-white">{user?.name}</p>
-                <Badge variant="success">Customer</Badge>
+                <Badge variant="info">{user?.role}</Badge>
                 <Badge variant={user?.isActive ? 'success' : 'danger'}>
                   {user?.isActive ? 'Active' : 'Inactive'}
                 </Badge>
@@ -82,6 +83,7 @@ export default function ProfilePage() {
               <p className="mt-0.5 text-sm text-gray-500">{user?.email}</p>
             </div>
           </div>
+
           <div className="mt-5 grid gap-3 sm:grid-cols-2 border-t border-gray-100 dark:border-gray-700 pt-5">
             <div className="flex items-center gap-2.5 text-sm text-gray-500 dark:text-gray-400">
               <Mail className="h-4 w-4 shrink-0 text-gray-400" />
@@ -93,7 +95,7 @@ export default function ProfilePage() {
             </div>
             <div className="flex items-center gap-2.5 text-sm text-gray-500 dark:text-gray-400">
               <Shield className="h-4 w-4 shrink-0 text-gray-400" />
-              Customer account
+              Role: {user?.role.charAt(0) + user?.role.slice(1).toLowerCase()}
             </div>
             <div className="flex items-center gap-2.5 text-sm text-gray-500 dark:text-gray-400">
               <Calendar className="h-4 w-4 shrink-0 text-gray-400" />

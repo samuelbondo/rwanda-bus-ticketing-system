@@ -24,10 +24,10 @@ export default function AuditLogsPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="border-b border-gray-200 dark:border-gray-700">
-                  <tr className="text-left text-gray-500">
+                <thead className="border-b border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50">
+                  <tr className="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                     {['Time', 'User', 'Action', 'Entity', 'Entity ID', 'IP'].map((h) => (
-                      <th key={h} className="px-4 py-3 font-medium">{h}</th>
+                      <th key={h} className="px-4 py-3">{h}</th>
                     ))}
                   </tr>
                 </thead>
