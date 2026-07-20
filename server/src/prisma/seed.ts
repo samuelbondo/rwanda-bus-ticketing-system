@@ -4,13 +4,13 @@ import bcrypt from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function main() {
-  const adminPassword    = await bcrypt.hash('Admin@1234', 12)
+  const adminPassword    = await bcrypt.hash('Admin123!', 12)
   const customerPassword = await bcrypt.hash('Customer@1234', 12)
   const agentPassword    = await bcrypt.hash('Agent@1234', 12)
 
   await prisma.user.upsert({
     where: { email: 'admin@rwandabus.rw' },
-    update: {},
+    update: { password: adminPassword },
     create: { name: 'Samuel Bondo', email: 'admin@rwandabus.rw', password: adminPassword, role: 'ADMIN' },
   })
   await prisma.user.upsert({
@@ -93,7 +93,7 @@ async function main() {
   }
 
   console.log('✅ Seed complete — 14 days × 3 departures = 42 schedules')
-  console.log('Admin:    admin@rwandabus.rw    / Admin@1234')
+  console.log('Admin:    admin@rwandabus.rw    / Admin123!')
   console.log('Agent:    agent@rwandabus.rw    / Agent@1234')
   console.log('Customer: customer@rwandabus.rw / Customer@1234')
 }
