@@ -31,7 +31,7 @@ export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
     : '/profile'
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-200/80 bg-white/95 backdrop-blur-md dark:border-gray-700/80 dark:bg-gray-900/95">
+    <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
 
         {/* Brand */}
@@ -56,7 +56,7 @@ export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
           {/* Theme toggle */}
           <button
             onClick={toggleTheme}
-            className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+            className="rounded-lg p-2 text-gray-500 transition hover:bg-muted dark:text-gray-400"
             aria-label="Toggle theme"
           >
             {theme === 'dark' ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
@@ -67,7 +67,7 @@ export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
             <div className="relative hidden md:block">
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-2 rounded-lg border border-gray-200 px-2.5 py-1.5 transition hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+                className="flex items-center gap-2 rounded-lg border border-border px-2.5 py-1.5 transition hover:bg-muted"
               >
                 <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full">
                   {user.avatarUrl
@@ -86,8 +86,8 @@ export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
               {dropdownOpen && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
-                  <div className="absolute right-0 z-20 mt-2 w-52 rounded-xl border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
-                    <div className="border-b border-gray-100 px-4 py-3 dark:border-gray-700">
+                  <div className="absolute right-0 z-20 mt-2 w-52 rounded-xl border border-border bg-card shadow-lg">
+                    <div className="border-b border-border px-4 py-3">
                       <p className="text-sm font-semibold text-gray-900 dark:text-white">{user.name}</p>
                       <p className="truncate text-xs text-gray-500">{user.email}</p>
                     </div>
@@ -95,7 +95,7 @@ export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
                       <Link
                         to={profilePath}
                         onClick={() => setDropdownOpen(false)}
-                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-700 transition hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                        className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground transition hover:bg-muted"
                       >
                         Manage Profile
                       </Link>
@@ -113,14 +113,24 @@ export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
             </div>
           )}
 
-          {/* Mobile hamburger — triggers sidebar drawer */}
-          <button
-            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 md:hidden"
-            onClick={onMenuClick}
-            aria-label="Open menu"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
+          {/* Mobile: avatar + hamburger */}
+          <div className="flex items-center gap-2 md:hidden">
+            {user && (
+              <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full">
+                {user.avatarUrl
+                  ? <img src={user.avatarUrl} alt={user.name} className="h-full w-full object-cover" />
+                  : <div className="flex h-full w-full items-center justify-center bg-primary-600 text-xs font-bold text-white">{user.name.charAt(0).toUpperCase()}</div>
+                }
+              </div>
+            )}
+            <button
+              className="rounded-lg p-2 text-gray-500 hover:bg-muted dark:text-gray-400"
+              onClick={onMenuClick}
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       </div>
 

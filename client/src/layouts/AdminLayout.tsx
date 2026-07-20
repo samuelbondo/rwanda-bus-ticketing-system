@@ -20,7 +20,7 @@ export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-gray-50 dark:bg-gray-950">
+    <div className="flex h-screen flex-col overflow-hidden bg-background">
       {/* Top header — full width */}
       <DashboardHeader onMenuClick={() => setSidebarOpen(true)} />
 
