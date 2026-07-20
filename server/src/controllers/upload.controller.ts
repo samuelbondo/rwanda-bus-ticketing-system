@@ -15,7 +15,7 @@ export async function uploadFile(req: Request, res: Response, next: NextFunction
     }
 
     const folder = (req.query.folder as string) || 'general'
-    const allowed = ['buses', 'avatars', 'general']
+    const allowed = ['buses', 'avatars', 'general', 'slideshow']
     if (!allowed.includes(folder)) {
       res.status(400).json({ message: 'Invalid folder' })
       return
