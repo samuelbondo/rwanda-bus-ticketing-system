@@ -92,7 +92,7 @@ export default function LoginPage() {
               </Link>
             </p>
             <p className="text-center text-xs text-gray-400 dark:text-gray-500">
-              <a href="#" className="hover:text-primary-600">Forgot your password?</a>
+              <Link to="/forgot-password" className="hover:text-primary-600">Forgot your password?</Link>
             </p>
           </div>
         </CardBody>

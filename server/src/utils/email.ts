@@ -149,3 +149,14 @@ export async function sendPasswordResetByAdminEmail(to: string, name: string, ne
     <p>Please log in and change your password immediately.</p>`
   await send({ to, subject: 'Your Password Has Been Reset', html: baseTemplate('Password Reset by Admin', body) })
 }
+
+export async function sendPasswordResetEmail(to: string, name: string, resetUrl: string) {
+  const body = `
+    <p>Hi <strong>${name}</strong>,</p>
+    <p>We received a request to reset your password. Click the button below to choose a new one:</p>
+    <p style="margin:24px 0;">
+      <a href="${resetUrl}" style="display:inline-block;background:#1d4ed8;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;">Reset Password</a>
+    </p>
+    <p style="font-size:13px;color:#6b7280;">This link expires in <strong>1 hour</strong>. If you did not request a password reset, you can safely ignore this email.</p>`
+  await send({ to, subject: 'Reset Your Password', html: baseTemplate('Password Reset Request 🔑', body) })
+}
