@@ -11,11 +11,10 @@ const roleColors: Record<string, string> = {
 }
 
 interface DashboardHeaderProps {
-  navItems: { label: string; to: string; icon: React.ElementType }[]
   onMenuClick?: () => void
 }
 
-export default function DashboardHeader({ navItems, onMenuClick }: DashboardHeaderProps) {
+export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
   const { user, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()

@@ -42,42 +42,46 @@ function NavLinks({ items, onClose }: { items: NavItem[]; onClose?: () => void }
   )
 }
 
+function SidebarContent({ title, items, onClose }: { title: string; items: NavItem[]; onClose?: () => void }) {
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-4 py-3">
+        <p className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">{title}</p>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 md:hidden"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
+      </div>
+      <div className="flex-1 overflow-y-auto">
+        <NavLinks items={items} onClose={onClose} />
+      </div>
+    </div>
+  )
+}
+
 export default function Sidebar({ items, title, mobileOpen = false, onMobileClose }: SidebarProps) {
   return (
     <>
-      {/* ── Desktop sidebar (always visible ≥ md) ── */}
-      <aside className="hidden w-56 shrink-0 md:block">
-        <div className="sticky top-20 rounded-xl border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 overflow-hidden">
-          <div className="border-b border-gray-100 dark:border-gray-700 px-4 py-3">
-            <p className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">{title}</p>
-          </div>
-          <NavLinks items={items} />
+      {/* Desktop sidebar — always visible, fixed left column */}
+      <aside className="hidden w-56 shrink-0 border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 md:block">
+        <div className="sticky top-0 h-full">
+          <SidebarContent title={title} items={items} />
         </div>
       </aside>
 
-      {/* ── Mobile sidebar overlay (< md) ── */}
+      {/* Mobile drawer overlay */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={onMobileClose}
           />
-          {/* Drawer panel */}
-          <aside className="absolute left-0 top-0 h-full w-64 bg-white dark:bg-gray-900 shadow-2xl flex flex-col">
-            {/* Drawer header */}
-            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 px-4 py-4">
-              <p className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">{title}</p>
-              <button
-                onClick={onMobileClose}
-                className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto">
-              <NavLinks items={items} onClose={onMobileClose} />
-            </div>
+          <aside className="absolute left-0 top-0 h-full w-64 bg-white dark:bg-gray-900 shadow-2xl">
+            <SidebarContent title={title} items={items} onClose={onMobileClose} />
           </aside>
         </div>
       )}
