@@ -21,6 +21,7 @@ export default function SearchPage() {
   const [searchParams] = useSearchParams()
 
   const [origin, setOrigin] = useState(searchParams.get('origin') ?? '')
+  const [destination, setDestination] = useState(searchParams.get('destination') ?? '')
   const [date, setDate] = useState(searchParams.get('date') ?? '')
   const [submitted, setSubmitted] = useState(
     !!(searchParams.get('origin') || searchParams.get('date'))
@@ -29,14 +30,16 @@ export default function SearchPage() {
   useEffect(() => {
     const o = searchParams.get('origin') ?? ''
     const d = searchParams.get('date') ?? ''
+    const dest = searchParams.get('destination') ?? ''
     setOrigin(o)
+    setDestination(dest)
     setDate(d)
     if (o || d) setSubmitted(true)
   }, [searchParams])
 
   const { data, isLoading } = useQuery({
-    queryKey: ['schedules', origin, date],
-    queryFn: () => scheduleService.search({ origin, date }),
+    queryKey: ['schedules', origin, destination, date],
+    queryFn: () => scheduleService.search({ origin, destination, date }),
     enabled: submitted,
   })
 
@@ -72,27 +75,37 @@ export default function SearchPage() {
               </label>
               <div className="relative">
                 <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500"
-                  placeholder="e.g. Nyanza"
+                <select
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2.5 text-sm text-gray-900 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   value={origin}
                   onChange={(e) => setOrigin(e.target.value)}
-                />
+                >
+                  <option value="">Any origin</option>
+                  <option value="Nyanza">Nyanza</option>
+                  <option value="Ruhango">Ruhango</option>
+                  <option value="Muhanga">Muhanga</option>
+                  <option value="Kigali">Kigali</option>
+                </select>
               </div>
             </div>
 
-            {/* Destination — locked */}
+            {/* Destination */}
             <div className="flex-1">
               <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1.5">
                 To
               </label>
               <div className="relative">
-                <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300" />
-                <input
-                  className="w-full rounded-lg border border-gray-200 bg-gray-100 pl-9 pr-3 py-2.5 text-sm text-gray-400 cursor-not-allowed dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-500"
-                  value="Kigali"
-                  readOnly
-                />
+                <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <select
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2.5 text-sm text-gray-900 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value)}
+                >
+                  <option value="">Any destination</option>
+                  <option value="Ruhango">Ruhango</option>
+                  <option value="Muhanga">Muhanga</option>
+                  <option value="Kigali">Kigali</option>
+                </select>
               </div>
             </div>
 

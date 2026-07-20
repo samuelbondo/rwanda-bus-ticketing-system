@@ -4,9 +4,10 @@ import * as scheduleService from '../services/schedule.service.js'
 import type { AuthRequest } from '../middlewares/auth.middleware.js'
 
 export async function getSchedules(req: Request, res: Response) {
-  const { origin, date } = req.query
+  const { origin, destination, date } = req.query
   const schedules = await scheduleService.listSchedules({
     origin: origin as string | undefined,
+    destination: destination as string | undefined,
     date: date as string | undefined,
   })
   res.json({ data: schedules })

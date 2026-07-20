@@ -2,11 +2,18 @@ import { prisma } from '../config/prisma.js'
 import { sendScheduleCancellationNotice } from '../utils/email.js'
 import type { ScheduleStatus } from '@prisma/client'
 
-export async function listSchedules(filters: { origin?: string; date?: string }) {
+export async function listSchedules(filters: { origin?: string; destination?: string; date?: string }) {
   const where: Record<string, unknown> = { status: 'SCHEDULED' }
 
-  if (filters.origin) {
+  if (filters.origin && filters.destination) {
+    where.route = {
+      origin: { contains: filters.origin, mode: 'insensitive' },
+      destination: { contains: filters.destination, mode: 'insensitive' },
+    }
+  } else if (filters.origin) {
     where.route = { origin: { contains: filters.origin, mode: 'insensitive' } }
+  } else if (filters.destination) {
+    where.route = { destination: { contains: filters.destination, mode: 'insensitive' } }
   }
   if (filters.date) {
     const day = new Date(filters.date)
