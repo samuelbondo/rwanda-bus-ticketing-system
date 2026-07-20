@@ -152,7 +152,7 @@ export async function sendPasswordResetEmail(to: string, name: string, resetUrl:
   await send({ to, subject: 'Reset Your Password — Rwanda Bus Ticketing', html: baseTemplate('Password Reset Request 🔐', body) })
 }
 
-(to: string, name: string, newPassword: string) {
+export async function sendPasswordResetByAdminEmail(to: string, name: string, newPassword: string) {
   const body = `
     <p>Hi <strong>${name}</strong>,</p>
     <p>An administrator has reset your password. Your new temporary password is:</p>
