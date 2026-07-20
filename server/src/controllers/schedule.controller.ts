@@ -3,7 +3,7 @@ import { prisma } from '../config/prisma.js'
 import { createScheduleSchema, updateScheduleSchema } from '../validators/schedule.validator.js'
 
 export async function getSchedules(req: Request, res: Response) {
-  const { origin, destination, date } = req.query
+  const { origin, date } = req.query
 
   const where: Record<string, unknown> = { status: 'SCHEDULED' }
 

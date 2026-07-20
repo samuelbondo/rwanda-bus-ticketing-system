@@ -38,7 +38,7 @@ export async function createBooking(req: AuthRequest, res: Response) {
   const ticketNumber = generateTicketNumber()
   const qrCode = await generateQrCode(ticketNumber)
 
-  const booking = await prisma.$transaction(async (tx) => {
+  const booking = await prisma.$transaction(async (tx: typeof prisma) => {
     const b = await tx.booking.create({
       data: {
         userId: req.user!.id,
@@ -80,7 +80,7 @@ export async function getBookings(req: AuthRequest, res: Response) {
 
 export async function getBookingById(req: AuthRequest, res: Response) {
   const booking = await prisma.booking.findUnique({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     include: { schedule: { include: { route: true, bus: true } }, seat: true, user: { select: { id: true, name: true, email: true } } },
   })
   if (!booking) { res.status(404).json({ message: 'Booking not found' }); return }
@@ -92,7 +92,7 @@ export async function getBookingById(req: AuthRequest, res: Response) {
 
 export async function cancelBooking(req: AuthRequest, res: Response) {
   const booking = await prisma.booking.findUnique({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     include: { schedule: true },
   })
   if (!booking) { res.status(404).json({ message: 'Booking not found' }); return }
@@ -126,7 +126,7 @@ export async function cancelBooking(req: AuthRequest, res: Response) {
 
 export async function downloadTicket(req: AuthRequest, res: Response) {
   const booking = await prisma.booking.findUnique({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     include: {
       schedule: { include: { route: true, bus: true } },
       seat: true,

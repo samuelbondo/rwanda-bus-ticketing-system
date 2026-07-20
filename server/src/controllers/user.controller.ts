@@ -12,7 +12,7 @@ export async function getUsers(_req: AuthRequest, res: Response) {
 
 export async function getUserById(req: AuthRequest, res: Response) {
   const user = await prisma.user.findUnique({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     select: { id: true, name: true, email: true, role: true, phone: true, isActive: true, createdAt: true },
   })
   if (!user) { res.status(404).json({ message: 'User not found' }); return }
@@ -21,7 +21,7 @@ export async function getUserById(req: AuthRequest, res: Response) {
 
 export async function updateUser(req: AuthRequest, res: Response) {
   const user = await prisma.user.update({
-    where: { id: req.params.id },
+    where: { id: req.params.id as string },
     data: req.body,
     select: { id: true, name: true, email: true, role: true, phone: true, isActive: true },
   })
@@ -29,6 +29,6 @@ export async function updateUser(req: AuthRequest, res: Response) {
 }
 
 export async function deleteUser(req: AuthRequest, res: Response) {
-  await prisma.user.update({ where: { id: req.params.id }, data: { isActive: false } })
+  await prisma.user.update({ where: { id: req.params.id as string }, data: { isActive: false } })
   res.json({ message: 'User deactivated' })
 }

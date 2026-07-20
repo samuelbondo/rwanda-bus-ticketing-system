@@ -37,7 +37,6 @@ export async function getReports(req: Request, res: Response) {
   })
 }
 
-export async function exportReport(req: Request, res: Response) {
-  // Placeholder — Timothy Keita implements full export (PDF/Excel/CSV)
+export async function exportReport(_req: Request, res: Response) {
   res.status(501).json({ message: 'Export not yet implemented' })
 }

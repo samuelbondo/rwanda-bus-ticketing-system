@@ -8,5 +8,11 @@ export async function log(params: {
   details?: Record<string, unknown>
   ipAddress?: string
 }) {
-  await prisma.auditLog.create({ data: params })
+  const { userId, ...rest } = params
+  await prisma.auditLog.create({
+    data: {
+      ...rest,
+      ...(userId ? { user: { connect: { id: userId } } } : {}),
+    },
+  })
 }

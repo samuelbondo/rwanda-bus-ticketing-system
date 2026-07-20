@@ -25,11 +25,11 @@ export async function updateRoute(req: Request, res: Response) {
   const parsed = updateRouteSchema.safeParse(req.body)
   if (!parsed.success) { res.status(400).json({ message: 'Validation error', errors: parsed.error.flatten() }); return }
   const { stops: _stops, ...routeData } = parsed.data
-  const route = await prisma.route.update({ where: { id: req.params.id }, data: routeData })
+  const route = await prisma.route.update({ where: { id: req.params.id as string }, data: routeData })
   res.json({ data: route })
 }
 
 export async function deleteRoute(req: Request, res: Response) {
-  await prisma.route.update({ where: { id: req.params.id }, data: { isActive: false } })
+  await prisma.route.update({ where: { id: req.params.id as string }, data: { isActive: false } })
   res.json({ message: 'Route deactivated' })
 }
