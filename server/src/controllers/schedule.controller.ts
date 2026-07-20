@@ -1,49 +1,30 @@
 import { Request, Response } from 'express'
-import { prisma } from '../config/prisma.js'
 import { createScheduleSchema, updateScheduleSchema } from '../validators/schedule.validator.js'
-import { sendScheduleCancellationNotice } from '../utils/email.js'
+import * as scheduleService from '../services/schedule.service.js'
 import type { AuthRequest } from '../middlewares/auth.middleware.js'
 
 export async function getSchedules(req: Request, res: Response) {
   const { origin, date } = req.query
-
-  const where: Record<string, unknown> = { status: 'SCHEDULED' }
-
-  if (origin) where.route = { origin: { contains: origin as string, mode: 'insensitive' } }
-  if (date) {
-    const day = new Date(date as string)
-    const next = new Date(day)
-    next.setDate(next.getDate() + 1)
-    where.departureTime = { gte: day, lt: next }
-  }
-
-  const schedules = await prisma.schedule.findMany({
-    where,
-    include: {
-      route: { include: { stops: { orderBy: { stopOrder: 'asc' } } } },
-      bus: true,
-    },
-    orderBy: { departureTime: 'asc' },
+  const schedules = await scheduleService.listSchedules({
+    origin: origin as string | undefined,
+    date: date as string | undefined,
   })
   res.json({ data: schedules })
 }
 
 export async function getScheduleById(req: Request, res: Response) {
-  const schedule = await prisma.schedule.findUnique({
-    where: { id: req.params.id as string },
-    include: { route: { include: { stops: true } }, bus: true },
-  })
-  if (!schedule) { res.status(404).json({ message: 'Schedule not found' }); return }
+  const schedule = await scheduleService.findScheduleById(req.params.id as string)
   res.json({ data: schedule })
 }
 
 export async function createSchedule(req: Request, res: Response) {
   const parsed = createScheduleSchema.safeParse(req.body)
   if (!parsed.success) { res.status(400).json({ message: 'Validation error', errors: parsed.error.flatten() }); return }
-  const bus = await prisma.bus.findUnique({ where: { id: parsed.data.busId } })
-  if (!bus) { res.status(404).json({ message: 'Bus not found' }); return }
-  const schedule = await prisma.schedule.create({
-    data: { ...parsed.data, availableSeats: bus.capacity },
+  const { departureTime, arrivalTime, ...rest } = parsed.data
+  const schedule = await scheduleService.createSchedule({
+    ...rest,
+    departureTime: new Date(departureTime),
+    ...(arrivalTime ? { arrivalTime: new Date(arrivalTime) } : {}),
   })
   res.status(201).json({ data: schedule })
 }
@@ -51,55 +32,16 @@ export async function createSchedule(req: Request, res: Response) {
 export async function updateSchedule(req: Request, res: Response) {
   const parsed = updateScheduleSchema.safeParse(req.body)
   if (!parsed.success) { res.status(400).json({ message: 'Validation error', errors: parsed.error.flatten() }); return }
-  const schedule = await prisma.schedule.update({
-    where: { id: req.params.id as string },
-    data: parsed.data,
+  const { departureTime, arrivalTime, ...rest } = parsed.data
+  const schedule = await scheduleService.updateSchedule(req.params.id as string, {
+    ...rest,
+    ...(departureTime ? { departureTime: new Date(departureTime) } : {}),
+    ...(arrivalTime ? { arrivalTime: new Date(arrivalTime) } : {}),
   })
   res.json({ data: schedule })
 }
 
 export async function deleteSchedule(req: AuthRequest, res: Response) {
-  const schedule = await prisma.schedule.findUnique({
-    where: { id: req.params.id as string },
-    include: {
-      route: true,
-      bookings: {
-        where: { status: { in: ['PENDING', 'CONFIRMED'] } },
-        include: {
-          user: { select: { name: true, email: true } },
-          seat: true,
-          payment: true,
-        },
-      },
-    },
-  })
-  if (!schedule) { res.status(404).json({ message: 'Schedule not found' }); return }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ops: any[] = [
-    prisma.schedule.update({ where: { id: schedule.id }, data: { status: 'CANCELLED' } }),
-    ...schedule.bookings.map((b) => prisma.booking.update({ where: { id: b.id }, data: { status: 'CANCELLED' } })),
-    ...schedule.bookings
-      .filter((b) => b.payment?.status === 'COMPLETED')
-      .map((b) => prisma.payment.update({ where: { bookingId: b.id }, data: { status: 'REFUNDED' } })),
-    ...schedule.bookings.map((b) =>
-      prisma.cancellation.create({ data: { bookingId: b.id, cancelledBy: req.user!.id, reason: 'Schedule cancelled by operator' } })
-    ),
-    prisma.schedule.update({ where: { id: schedule.id }, data: { availableSeats: 0 } }),
-  ]
-
-  await prisma.$transaction(ops)
-
-  // Notify all affected passengers (non-blocking)
-  const routeLabel = `${schedule.route.origin} → ${schedule.route.destination}`
-  const departureLabel = new Date(schedule.departureTime).toLocaleString('en-RW')
-  for (const b of schedule.bookings) {
-    sendScheduleCancellationNotice(b.user.email, b.user.name, b.ticketNumber, {
-      route: routeLabel,
-      departure: departureLabel,
-      price: `RWF ${Number(b.totalPrice).toLocaleString()}`,
-    }).catch(() => {})
-  }
-
+  await scheduleService.cancelSchedule(req.params.id as string, req.user!.id)
   res.json({ message: 'Schedule cancelled and passengers notified' })
 }

@@ -1,6 +1,21 @@
 import PDFDocument from 'pdfkit'
 
-export async function generateTicketPdf(booking: any): Promise<Buffer> {
+interface BookingForPdf {
+  ticketNumber: string
+  source: string
+  destination: string
+  totalPrice: number | string | { toNumber?: () => number }
+  qrCode?: string
+  user: { name: string }
+  schedule: {
+    departureTime: Date | string
+    route: { name: string }
+    bus: { name: string; plateNumber: string }
+  }
+  seat: { seatNumber: string }
+}
+
+export async function generateTicketPdf(booking: BookingForPdf): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: 'A5', margin: 40 })
     const chunks: Buffer[] = []
@@ -9,18 +24,15 @@ export async function generateTicketPdf(booking: any): Promise<Buffer> {
     doc.on('end', () => resolve(Buffer.concat(chunks)))
     doc.on('error', reject)
 
-    // Header
     doc.fontSize(18).font('Helvetica-Bold').text('Rwanda Bus Ticketing', { align: 'center' })
     doc.moveDown(0.5)
     doc.fontSize(12).font('Helvetica').text('Official Travel Ticket', { align: 'center' })
     doc.moveDown(1)
 
-    // Divider
     doc.moveTo(40, doc.y).lineTo(555, doc.y).stroke()
     doc.moveDown(0.5)
 
-    // Ticket details
-    const details = [
+    const details: [string, string][] = [
       ['Ticket No', booking.ticketNumber],
       ['Passenger', booking.user.name],
       ['From', booking.source],
@@ -41,7 +53,6 @@ export async function generateTicketPdf(booking: any): Promise<Buffer> {
     doc.moveTo(40, doc.y).lineTo(555, doc.y).stroke()
     doc.moveDown(0.5)
 
-    // QR code
     if (booking.qrCode?.startsWith('data:image')) {
       const base64 = booking.qrCode.split(',')[1]
       const imgBuffer = Buffer.from(base64, 'base64')
