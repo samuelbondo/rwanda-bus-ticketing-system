@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import PDFDocument from 'pdfkit'
+import ExcelJS from 'exceljs'
 import { getDateRange, buildReportData } from '../services/report.service.js'
 
 export async function getReports(req: Request, res: Response) {
@@ -13,6 +14,58 @@ export async function exportReport(req: Request, res: Response) {
   const { period = 'monthly', from, to, format = 'pdf' } = req.query as Record<string, string>
   const { start, end } = getDateRange(period, from, to)
   const data = await buildReportData(start, end, period)
+
+  if (format === 'excel') {
+    const workbook = new ExcelJS.Workbook()
+    workbook.creator = 'Rwanda Bus Ticketing System'
+    workbook.created = new Date()
+
+    // ── Summary sheet ──────────────────────────────────────────────────────
+    const summary = workbook.addWorksheet('Summary')
+    summary.columns = [
+      { header: 'Metric', key: 'metric', width: 28 },
+      { header: 'Value', key: 'value', width: 22 },
+    ]
+    summary.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } }
+    summary.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1D4ED8' } }
+    summary.addRows([
+      { metric: 'Period', value: period },
+      { metric: 'From', value: new Date(start).toLocaleDateString() },
+      { metric: 'To', value: new Date(end).toLocaleDateString() },
+      { metric: 'Total Bookings', value: data.totalBookings },
+      { metric: 'Total Revenue (RWF)', value: data.totalRevenue },
+      { metric: 'Cancellation Rate (%)', value: Number(data.cancellationRate.toFixed(2)) },
+      { metric: 'Seat Occupancy (%)', value: Number(data.seatOccupancy.toFixed(2)) },
+    ])
+
+    // ── Bookings per day sheet ──────────────────────────────────────────────
+    const daily = workbook.addWorksheet('Bookings Per Day')
+    daily.columns = [
+      { header: 'Date', key: 'date', width: 16 },
+      { header: 'Bookings', key: 'count', width: 14 },
+      { header: 'Revenue (RWF)', key: 'revenue', width: 20 },
+    ]
+    daily.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } }
+    daily.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1D4ED8' } }
+    data.bookingsPerDay.forEach((row) => daily.addRow(row))
+
+    // ── Popular routes sheet ────────────────────────────────────────────────
+    const routes = workbook.addWorksheet('Popular Routes')
+    routes.columns = [
+      { header: 'Route', key: 'route', width: 30 },
+      { header: 'Origin', key: 'origin', width: 16 },
+      { header: 'Destination', key: 'destination', width: 16 },
+      { header: 'Bookings', key: 'count', width: 14 },
+    ]
+    routes.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } }
+    routes.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1D4ED8' } }
+    data.popularRoutes.forEach((row) => routes.addRow(row))
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    res.setHeader('Content-Disposition', `attachment; filename="report-${period}.xlsx"`)
+    await workbook.xlsx.write(res)
+    return res.end()
+  }
 
   if (format === 'csv') {
     const rows = [

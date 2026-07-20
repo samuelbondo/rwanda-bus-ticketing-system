@@ -66,7 +66,7 @@ export const reportService = {
     const { data } = await api.get('/reports', { params: { period, from, to } })
     return data.data
   },
-  async export(period: string, format: 'pdf' | 'csv', from?: string, to?: string): Promise<Blob> {
+  async export(period: string, format: 'pdf' | 'csv' | 'excel', from?: string, to?: string): Promise<Blob> {
     const response = await api.get('/reports/export', {
       params: { period, format, from, to },
       responseType: 'blob',

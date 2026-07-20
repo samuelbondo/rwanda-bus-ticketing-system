@@ -3,9 +3,14 @@ import helmet from 'helmet'
 import cors from 'cors'
 import morgan from 'morgan'
 import rateLimit from 'express-rate-limit'
+import swaggerUi from 'swagger-ui-express'
+import YAML from 'yamljs'
+import { join } from 'path'
 import { env } from './config/env.js'
 import { errorHandler } from './middlewares/errorHandler.js'
 import { notFound } from './middlewares/notFound.js'
+
+const swaggerDoc = YAML.load(join(process.cwd(), '../docs/api/openapi.yaml'))
 
 import authRoutes from './routes/auth.routes.js'
 import userRoutes from './routes/user.routes.js'
@@ -50,6 +55,7 @@ app.use(
 )
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }))
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc, { customSiteTitle: 'Rwanda Bus API Docs' }))
 
 app.use('/api/auth', authRoutes)
 app.use('/api/users', userRoutes)
