@@ -38,6 +38,12 @@ import AdminProfilePage from '@/pages/admin/AdminProfilePage'
 
 import NotFoundPage from '@/pages/public/NotFoundPage'
 
+function roleDashboard(role: string) {
+  if (role === 'ADMIN') return '/admin'
+  if (role === 'AGENT') return '/agent'
+  return '/dashboard'
+}
+
 function ProtectedRoute({
   children,
   roles,
@@ -48,7 +54,15 @@ function ProtectedRoute({
   const { user, isLoading } = useAuth()
   if (isLoading) return null
   if (!user) return <Navigate to="/login" replace />
-  if (!roles.includes(user.role)) return <Navigate to="/" replace />
+  if (!roles.includes(user.role)) return <Navigate to={roleDashboard(user.role)} replace />
+  return <>{children}</>
+}
+
+// Redirect already-authenticated users away from public-only pages
+function GuestRoute({ children }: { children: React.ReactNode }) {
+  const { user, isLoading } = useAuth()
+  if (isLoading) return null
+  if (user) return <Navigate to={roleDashboard(user.role)} replace />
   return <>{children}</>
 }
 
@@ -59,8 +73,8 @@ export default function AppRoutes() {
       <Route element={<PublicLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<SearchPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+        <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
       </Route>
 
       {/* Customer */}
