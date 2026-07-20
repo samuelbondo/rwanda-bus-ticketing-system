@@ -53,17 +53,17 @@ export default function Sidebar({ items, title, mobileOpen = false, onMobileClos
       */}
       <aside
         className={clsx(
-          'flex h-full w-56 shrink-0 flex-col border-r border-gray-200 bg-white transition-transform duration-300 dark:border-gray-700 dark:bg-gray-900 md:translate-x-0',
+          'flex h-full w-56 shrink-0 flex-col border-r border-border bg-card transition-transform duration-300 md:translate-x-0',
           mobileOpen ? 'translate-x-0' : '-translate-x-full',
           // On mobile: absolute so it doesn't take space when hidden; on md+: relative (normal flow)
           'absolute inset-y-0 left-0 z-40 md:relative md:z-auto'
         )}
       >
-        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-700">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <p className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">{title}</p>
           <button
             onClick={onMobileClose}
-            className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 md:hidden"
+            className="rounded-lg p-1.5 text-gray-400 hover:bg-muted dark:hover:bg-muted md:hidden"
           >
             <X className="h-5 w-5" />
           </button>

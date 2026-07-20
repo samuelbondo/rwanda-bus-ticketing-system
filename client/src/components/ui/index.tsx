@@ -53,14 +53,14 @@ Input.displayName = 'Input'
 
 export function Card({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
-    <div className={clsx('rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800', className)}>
+    <div className={clsx('rounded-xl border border-border bg-card shadow-sm', className)}>
       {children}
     </div>
   )
 }
 
 export function CardHeader({ className, children }: { className?: string; children: React.ReactNode }) {
-  return <div className={clsx('px-6 py-4 border-b border-gray-200 dark:border-gray-700', className)}>{children}</div>
+  return <div className={clsx('px-6 py-4 border-b border-border', className)}>{children}</div>
 }
 
 export function CardBody({ className, children }: { className?: string; children: React.ReactNode }) {
