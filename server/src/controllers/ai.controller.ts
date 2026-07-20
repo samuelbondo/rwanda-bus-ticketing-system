@@ -85,7 +85,8 @@ export async function chat(req: Request, res: Response) {
     if (!response.ok) {
       const errBody = await response.json().catch(() => ({}))
       console.error('[AI] Gemini error', response.status, JSON.stringify(errBody))
-      res.json({ data: { reply: staticFallback(message), _debug: { status: response.status, error: errBody } } })
+      const errMsg = (errBody as any)?.error?.message ?? `Gemini error ${response.status}`
+      res.json({ data: { reply: `⚠️ ${errMsg}` } })
       return
     }
 
@@ -94,7 +95,9 @@ export async function chat(req: Request, res: Response) {
     }
     const reply = data.candidates?.[0]?.content?.parts?.[0]?.text ?? staticFallback(message)
     res.json({ data: { reply } })
-  } catch {
-    res.json({ data: { reply: staticFallback(message) } })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[AI] fetch error', msg)
+    res.json({ data: { reply: `⚠️ ${msg}` } })
   }
 }
