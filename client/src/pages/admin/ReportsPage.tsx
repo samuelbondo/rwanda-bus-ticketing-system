@@ -17,6 +17,7 @@ export default function ReportsPage() {
     { label: 'Total Bookings', value: data?.totalBookings ?? 0 },
     { label: 'Total Revenue', value: data ? `RWF ${Number(data.totalRevenue).toLocaleString()}` : '—' },
     { label: 'Cancellation Rate', value: data ? `${Number(data.cancellationRate).toFixed(1)}%` : '—' },
+    { label: 'Seat Occupancy', value: data ? `${Number(data.seatOccupancy).toFixed(1)}%` : '—' },
   ]
 
   return (
@@ -32,7 +33,7 @@ export default function ReportsPage() {
         </select>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-4">
         {stats.map(({ label, value }) => (
           <Card key={label}>
             <CardBody>
