@@ -203,3 +203,31 @@ model AuditLog {
 
   @@map("audit_logs")
 }
+
+enum SlideshowSource {
+  CUSTOM
+  BUSES
+  ROUTES
+}
+
+model SlideshowConfig {
+  id        String          @id @default("singleton")
+  source    SlideshowSource @default(CUSTOM)
+  interval  Int             @default(5000)
+  updatedAt DateTime        @updatedAt
+
+  @@map("slideshow_config")
+}
+
+model HeroSlide {
+  id        String   @id @default(uuid())
+  title     String
+  subtitle  String?
+  imageUrl  String
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("hero_slides")
+}

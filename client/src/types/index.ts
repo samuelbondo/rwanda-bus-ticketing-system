@@ -128,3 +128,21 @@ export interface PaginatedResponse<T> {
   limit: number
   totalPages: number
 }
+
+export type SlideshowSource = 'CUSTOM' | 'BUSES' | 'ROUTES'
+
+export interface SlideshowConfig {
+  id: string
+  source: SlideshowSource
+  interval: number
+}
+
+export interface HeroSlide {
+  id: string
+  title: string
+  subtitle?: string | null
+  imageUrl: string
+  sortOrder: number
+  isActive: boolean
+  createdAt: string
+}
