@@ -12,7 +12,11 @@ const schema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   password: z.string().min(8),
+  confirmPassword: z.string(),
   phone: z.string().optional(),
+}).refine(d => d.password === d.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword'],
 })
 type FormData = z.infer<typeof schema>
 
@@ -93,6 +97,13 @@ export default function RegisterPage() {
                 </div>
               )}
             </div>
+            <Input
+              label="Confirm password"
+              type="password"
+              placeholder="Re-enter your password"
+              error={errors.confirmPassword?.message}
+              {...register('confirmPassword')}
+            />
             <Button type="submit" className="w-full" loading={isSubmitting}>Create account</Button>
           </form>
           <p className="text-center text-sm text-gray-500">
