@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Bus, Moon, Sun, Menu, X, ChevronDown } from 'lucide-react'
+import { Bus, Moon, Sun, Menu, X } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -21,19 +21,22 @@ export default function Header() {
   const dashboardPath =
     user?.role === 'ADMIN' ? '/admin' : user?.role === 'AGENT' ? '/agent' : '/dashboard'
 
-  const navLink = (to: string, label: string) => (
-    <Link
-      to={to}
-      className={clsx(
-        'text-sm font-medium transition-colors',
-        location.pathname === to
-          ? 'text-primary-600 dark:text-primary-400'
-          : 'text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400'
-      )}
-    >
-      {label}
-    </Link>
-  )
+  function navLink(to: string, label: string) {
+    const active = location.pathname === to
+    return (
+      <Link
+        to={to}
+        className={clsx(
+          'text-sm font-medium transition-colors',
+          active
+            ? 'text-primary-600 dark:text-primary-400'
+            : 'text-gray-600 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400'
+        )}
+      >
+        {label}
+      </Link>
+    )
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200/80 bg-white/95 backdrop-blur-md dark:border-gray-700/80 dark:bg-gray-900/95">
@@ -41,8 +44,8 @@ export default function Header() {
 
         {/* Brand */}
         <Link to="/" className="flex items-center gap-2.5 font-bold text-gray-900 dark:text-white">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600">
-            <Bus className="h-4.5 w-4.5 text-white h-[18px] w-[18px]" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 shrink-0">
+            <Bus className="h-[18px] w-[18px] text-white" />
           </div>
           <span className="hidden sm:inline">
             Rwanda <span className="text-primary-600">Bus</span>
@@ -63,17 +66,21 @@ export default function Header() {
             className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
             aria-label="Toggle theme"
           >
-            {theme === 'dark' ? <Sun className="h-4.5 w-4.5 h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
+            {theme === 'dark'
+              ? <Sun className="h-[18px] w-[18px]" />
+              : <Moon className="h-[18px] w-[18px]" />
+            }
           </button>
 
           {user ? (
-            <div className="hidden items-center gap-3 md:flex">
-              <div className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5 text-sm dark:border-gray-700">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-600 text-xs font-bold text-white">
-                  {user.name.charAt(0)}
+            <div className="hidden items-center gap-2 md:flex">
+              <div className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5 dark:border-gray-700">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-600 text-xs font-bold text-white">
+                  {user.name.charAt(0).toUpperCase()}
                 </div>
-                <span className="text-gray-700 dark:text-gray-300 max-w-[120px] truncate">{user.name}</span>
-                <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
+                <span className="max-w-[120px] truncate text-sm text-gray-700 dark:text-gray-300">
+                  {user.name}
+                </span>
               </div>
               <Button variant="secondary" size="sm" onClick={handleLogout}>Logout</Button>
             </div>
@@ -98,17 +105,32 @@ export default function Header() {
       {menuOpen && (
         <div className="border-t border-gray-200 bg-white px-4 py-4 dark:border-gray-700 dark:bg-gray-900 md:hidden">
           <div className="flex flex-col gap-4 text-sm">
-            <Link to="/" onClick={() => setMenuOpen(false)} className="font-medium text-gray-700 dark:text-gray-300">Home</Link>
-            <Link to="/search" onClick={() => setMenuOpen(false)} className="font-medium text-gray-700 dark:text-gray-300">Search Schedules</Link>
+            <Link to="/" onClick={() => setMenuOpen(false)} className={clsx('font-medium', location.pathname === '/' ? 'text-primary-600' : 'text-gray-700 dark:text-gray-300')}>
+              Home
+            </Link>
+            <Link to="/search" onClick={() => setMenuOpen(false)} className={clsx('font-medium', location.pathname === '/search' ? 'text-primary-600' : 'text-gray-700 dark:text-gray-300')}>
+              Search Schedules
+            </Link>
             {user ? (
               <>
-                <Link to={dashboardPath} onClick={() => setMenuOpen(false)} className="font-medium text-gray-700 dark:text-gray-300">Dashboard</Link>
-                <button onClick={handleLogout} className="text-left font-medium text-red-500">Logout</button>
+                <Link to={dashboardPath} onClick={() => setMenuOpen(false)} className="font-medium text-gray-700 dark:text-gray-300">
+                  Dashboard
+                </Link>
+                <div className="border-t border-gray-100 pt-3 dark:border-gray-800">
+                  <p className="mb-2 text-xs text-gray-400">Signed in as {user.name}</p>
+                  <button onClick={handleLogout} className="text-left font-medium text-red-500">
+                    Logout
+                  </button>
+                </div>
               </>
             ) : (
-              <div className="flex gap-3 pt-2">
-                <Button variant="secondary" size="sm" className="flex-1" onClick={() => { navigate('/login'); setMenuOpen(false) }}>Login</Button>
-                <Button size="sm" className="flex-1" onClick={() => { navigate('/register'); setMenuOpen(false) }}>Get Started</Button>
+              <div className="flex gap-3 border-t border-gray-100 pt-3 dark:border-gray-800">
+                <Button variant="secondary" size="sm" className="flex-1" onClick={() => { navigate('/login'); setMenuOpen(false) }}>
+                  Login
+                </Button>
+                <Button size="sm" className="flex-1" onClick={() => { navigate('/register'); setMenuOpen(false) }}>
+                  Get Started
+                </Button>
               </div>
             )}
           </div>
