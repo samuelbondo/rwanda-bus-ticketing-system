@@ -42,48 +42,43 @@ function NavLinks({ items, onClose }: { items: NavItem[]; onClose?: () => void }
   )
 }
 
-function SidebarContent({ title, items, onClose }: { title: string; items: NavItem[]; onClose?: () => void }) {
+export default function Sidebar({ items, title, mobileOpen = false, onMobileClose }: SidebarProps) {
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-4 py-3">
-        <p className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">{title}</p>
-        {onClose && (
+    <>
+      {/*
+        Mobile sidebar — always in the DOM, slides in/out via translate.
+        Width is w-56. When closed: -translate-x-full (hidden left).
+        When open: translate-x-0 (visible, pushes main content).
+        The parent layout uses overflow-hidden so the hidden sidebar doesn't cause scroll.
+      */}
+      <aside
+        className={clsx(
+          'flex h-full w-56 shrink-0 flex-col border-r border-gray-200 bg-white transition-transform duration-300 dark:border-gray-700 dark:bg-gray-900 md:translate-x-0',
+          mobileOpen ? 'translate-x-0' : '-translate-x-full',
+          // On mobile: absolute so it doesn't take space when hidden; on md+: relative (normal flow)
+          'absolute inset-y-0 left-0 z-40 md:relative md:z-auto'
+        )}
+      >
+        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-700">
+          <p className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">{title}</p>
           <button
-            onClick={onClose}
+            onClick={onMobileClose}
             className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 md:hidden"
           >
             <X className="h-5 w-5" />
           </button>
-        )}
-      </div>
-      <div className="flex-1 overflow-y-auto">
-        <NavLinks items={items} onClose={onClose} />
-      </div>
-    </div>
-  )
-}
-
-export default function Sidebar({ items, title, mobileOpen = false, onMobileClose }: SidebarProps) {
-  return (
-    <>
-      {/* Desktop sidebar — always visible, fixed left column */}
-      <aside className="hidden w-56 shrink-0 border-r border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 md:block">
-        <div className="sticky top-0 h-full">
-          <SidebarContent title={title} items={items} />
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          <NavLinks items={items} onClose={onMobileClose} />
         </div>
       </aside>
 
-      {/* Mobile drawer overlay */}
+      {/* Backdrop — only on mobile when open, does NOT cover the sidebar */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={onMobileClose}
-          />
-          <aside className="absolute left-0 top-0 h-full w-64 bg-white dark:bg-gray-900 shadow-2xl">
-            <SidebarContent title={title} items={items} onClose={onMobileClose} />
-          </aside>
-        </div>
+        <div
+          className="absolute inset-0 z-30 bg-black/40 md:hidden"
+          onClick={onMobileClose}
+        />
       )}
     </>
   )

@@ -114,7 +114,7 @@ export default function HomePage() {
 
   const todaySchedules: Schedule[] = (todayData as { data: Schedule[] })?.data ?? []
   const tomorrowSchedules: Schedule[] = (tomorrowData as { data: Schedule[] })?.data ?? []
-  const allSchedules = [...todaySchedules, ...tomorrowSchedules].slice(0, 6)
+  const allSchedules = [...todaySchedules, ...tomorrowSchedules].slice(0, 3)
   const loading = loadingToday || loadingTomorrow
 
   function handleSearch(e: React.FormEvent) {

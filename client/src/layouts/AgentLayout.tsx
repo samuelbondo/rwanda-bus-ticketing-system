@@ -17,7 +17,7 @@ export default function AgentLayout() {
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-gray-50 dark:bg-gray-950">
       <DashboardHeader onMenuClick={() => setSidebarOpen(true)} />
-      <div className="flex flex-1 overflow-hidden">
+      <div className="relative flex flex-1 overflow-hidden">
         <Sidebar
           items={items}
           title="Agent"
