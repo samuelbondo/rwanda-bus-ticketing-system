@@ -10,17 +10,16 @@ import { scheduleService } from '@/services/scheduleService'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button, Skeleton } from '@/components/ui'
 import type { Schedule } from '@/types'
-
 import HeroSlideshow from '@/components/HeroSlideshow'
 
 const today = new Date().toISOString().split('T')[0]
 const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
 
 const steps = [
-  { n: '1', icon: MapPin,     title: 'Search',  desc: 'Pick your route and travel date.' },
-  { n: '2', icon: Ticket,     title: 'Book',    desc: 'Choose your seat and confirm.' },
-  { n: '3', icon: Smartphone, title: 'Pay',     desc: 'Pay instantly via Mobile Money.' },
-  { n: '4', icon: QrCode,     title: 'Board',   desc: 'Show your QR code and travel.' },
+  { n: '1', icon: MapPin,     title: 'Search', desc: 'Pick your route and travel date.' },
+  { n: '2', icon: Ticket,     title: 'Book',   desc: 'Choose your seat and confirm.' },
+  { n: '3', icon: Smartphone, title: 'Pay',    desc: 'Pay instantly via Mobile Money.' },
+  { n: '4', icon: QrCode,     title: 'Board',  desc: 'Show your QR code and travel.' },
 ]
 
 const whyUs = [
@@ -214,7 +213,7 @@ export default function HomePage() {
             </div>
             <button
               onClick={() => navigate('/search')}
-              className="flex items-center gap-1 text-xs sm:text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 shrink-0"
+              className="flex shrink-0 items-center gap-1 text-xs sm:text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400"
             >
               View all <ChevronRight className="h-4 w-4" />
             </button>
@@ -272,7 +271,7 @@ export default function HomePage() {
                 </div>
                 <span className="text-xs font-bold text-primary-600 mb-1">Step {n}</span>
                 <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{title}</p>
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 leading-relaxed hidden sm:block">{desc}</p>
+                <p className="mt-1 hidden text-xs text-gray-500 dark:text-gray-400 leading-relaxed sm:block">{desc}</p>
               </div>
             ))}
           </div>
@@ -285,14 +284,14 @@ export default function HomePage() {
           <h2 className="mb-6 text-center text-base sm:text-xl font-bold text-gray-900 dark:text-white">
             Why Travelers Choose Us
           </h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {whyUs.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
                 <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/30">
                   <Icon className="h-4 w-4 text-primary-600" />
                 </div>
                 <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{title}</p>
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 leading-relaxed hidden sm:block">{desc}</p>
+                <p className="mt-1 hidden text-xs text-gray-500 dark:text-gray-400 leading-relaxed sm:block">{desc}</p>
               </div>
             ))}
           </div>
