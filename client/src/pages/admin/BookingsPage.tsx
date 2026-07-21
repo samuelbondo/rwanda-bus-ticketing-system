@@ -20,7 +20,8 @@ interface PaymentInfo {
   reference?: string | null
 }
 
-interface BookingWithPayment extends Booking {
+interface BookingWithPayment extends Omit<Booking, 'user'> {
+  user?: { id: string; name: string; email: string } | null
   payment?: PaymentInfo
 }
 
