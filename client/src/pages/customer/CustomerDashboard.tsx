@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
-import { Ticket, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Ticket, CheckCircle, XCircle, Clock, Search } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { bookingService } from '@/services/bookingService'
-import { Card, CardBody, Badge, Skeleton } from '@/components/ui'
+import { Card, CardBody, Badge, Skeleton, Button } from '@/components/ui'
 import type { Booking } from '@/types'
 
 function statusVariant(s: string): 'success' | 'danger' | 'warning' | 'default' {
@@ -14,6 +15,7 @@ function statusVariant(s: string): 'success' | 'danger' | 'warning' | 'default' 
 
 export default function CustomerDashboard() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const { data, isLoading } = useQuery({
     queryKey: ['bookings'],
     queryFn: () => bookingService.getAll({ limit: 5 }),
@@ -25,7 +27,12 @@ export default function CustomerDashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome, {user?.name}</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome, {user?.name}</h1>
+        <Button onClick={() => navigate('/search')}>
+          <Search className="mr-2 h-4 w-4" /> Book a Ticket
+        </Button>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         {[
