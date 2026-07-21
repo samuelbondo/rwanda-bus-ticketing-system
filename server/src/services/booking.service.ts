@@ -30,7 +30,7 @@ export async function createBooking(data: {
   }
 
   const conflict = await prisma.booking.findFirst({
-    where: { scheduleId: data.scheduleId, seatId: data.seatId, status: { in: ['PENDING', 'CONFIRMED'] } },
+    where: { scheduleId: data.scheduleId, seatId: data.seatId, status: { in: ['PENDING', 'AWAITING_APPROVAL' as never, 'CONFIRMED'] } },
   })
   if (conflict) throw Object.assign(new Error('Seat already booked'), { status: 409 })
 
@@ -172,10 +172,15 @@ export async function rejectPayment(bookingId: string, adminId: string, reason?:
 
 export async function listBookings(userId: string, role: string) {
   if (role === 'ADMIN') {
-    return prisma.booking.findMany({
+    const all = await prisma.booking.findMany({
       include: { schedule: { include: { route: true, bus: true } }, seat: true, user: { select: { id: true, name: true, email: true } }, payment: true },
-      orderBy: [{ status: 'asc' }, { bookedAt: 'desc' }],
+      orderBy: { bookedAt: 'desc' },
     })
+    // Sort AWAITING_APPROVAL to top
+    return [
+      ...all.filter((b) => (b.status as string) === 'AWAITING_APPROVAL'),
+      ...all.filter((b) => (b.status as string) !== 'AWAITING_APPROVAL'),
+    ]
   }
   if (role === 'AGENT') {
     // Agents only see bookings for today's schedules
