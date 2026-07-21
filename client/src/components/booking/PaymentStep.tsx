@@ -10,7 +10,6 @@ const METHODS: { value: PaymentMethod; label: string; icon: React.ElementType }[
 
 interface PaymentStepProps {
   price: number
-  pendingBookingId: string
   method: PaymentMethod
   reference: string
   loading: boolean
@@ -20,7 +19,7 @@ interface PaymentStepProps {
 }
 
 export default function PaymentStep({
-  price, pendingBookingId, method, reference, loading,
+  price, method, reference, loading,
   onMethodChange, onReferenceChange, onConfirm,
 }: PaymentStepProps) {
   return (

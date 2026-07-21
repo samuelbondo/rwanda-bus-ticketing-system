@@ -116,7 +116,6 @@ export default function BookingPage() {
       {step === 'payment' && (
         <PaymentStep
           price={Number(schedule.price)}
-          pendingBookingId={pendingBookingId!}
           method={paymentMethod}
           reference={reference}
           loading={payMutation.isPending}
