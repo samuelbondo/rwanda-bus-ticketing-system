@@ -4,23 +4,17 @@ import { useState } from 'react'
 import {
   MapPin, Calendar, Users, ArrowRight, Clock,
   QrCode, Shield, CheckCircle, ChevronRight, Bus,
-  Ticket, Smartphone,
 } from 'lucide-react'
 import { scheduleService } from '@/services/scheduleService'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button, Skeleton } from '@/components/ui'
 import type { Schedule } from '@/types'
 import HeroSlideshow from '@/components/HeroSlideshow'
+import RouteJourneyStrip from '@/components/RouteJourneyStrip'
+import BusShowcase from '@/components/BusShowcase'
 
 const today = new Date().toISOString().split('T')[0]
 const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
-
-const steps = [
-  { n: '1', icon: MapPin,     title: 'Search', desc: 'Pick your route and travel date.' },
-  { n: '2', icon: Ticket,     title: 'Book',   desc: 'Choose your seat and confirm.' },
-  { n: '3', icon: Smartphone, title: 'Pay',    desc: 'Pay instantly via Mobile Money.' },
-  { n: '4', icon: QrCode,     title: 'Board',  desc: 'Show your QR code and travel.' },
-]
 
 const whyUs = [
   { icon: Shield,      title: 'Secure & Trusted',      desc: 'Every transaction is encrypted. Your data stays private.' },
@@ -302,26 +296,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
-      <section className="bg-white dark:bg-gray-900 py-10 sm:py-16">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6">
-          <h2 className="mb-6 text-center text-base sm:text-xl font-bold text-gray-900 dark:text-white">
-            How It Works
-          </h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {steps.map(({ n, icon: Icon, title, desc }) => (
-              <div key={n} className="flex flex-col items-center text-center">
-                <div className="mb-3 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-primary-600 shadow-md shadow-primary-200 dark:shadow-primary-900/40">
-                  <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-                </div>
-                <span className="text-xs font-bold text-primary-600 mb-1">Step {n}</span>
-                <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{title}</p>
-                <p className="mt-1 hidden text-xs text-gray-500 dark:text-gray-400 leading-relaxed sm:block">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <RouteJourneyStrip />
+      <BusShowcase />
 
       {/* WHY US */}
       <section className="bg-gray-50 dark:bg-gray-950 py-10 sm:py-16">
