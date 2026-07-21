@@ -64,19 +64,17 @@ export default function SearchPage() {
       </div>
 
       {/* Search form */}
-      <div className="mb-8 rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <form onSubmit={handleSearch}>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:items-end sm:gap-4">
 
             {/* Origin */}
             <div className="flex-1">
-              <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1.5">
-                From
-              </label>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1.5">From</label>
               <div className="relative">
-                <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 hidden sm:block" />
                 <select
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2.5 text-sm text-gray-900 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 sm:pl-9 sm:pr-3 py-2.5 text-sm text-gray-900 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   value={origin}
                   onChange={(e) => setOrigin(e.target.value)}
                 >
@@ -91,13 +89,11 @@ export default function SearchPage() {
 
             {/* Destination */}
             <div className="flex-1">
-              <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1.5">
-                To
-              </label>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1.5">To</label>
               <div className="relative">
-                <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 hidden sm:block" />
                 <select
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2.5 text-sm text-gray-900 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 sm:pl-9 sm:pr-3 py-2.5 text-sm text-gray-900 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
                 >
@@ -110,15 +106,13 @@ export default function SearchPage() {
             </div>
 
             {/* Date */}
-            <div className="flex-1">
-              <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1.5">
-                Travel Date
-              </label>
+            <div className="col-span-2 sm:col-span-1 flex-1">
+              <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1.5">Travel Date</label>
               <div className="relative">
-                <Calendar className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Calendar className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 hidden sm:block" />
                 <input
                   type="date"
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2.5 text-sm text-gray-900 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 sm:pl-9 sm:pr-3 py-2.5 text-sm text-gray-900 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]"
                   value={date}
                   min={today}
                   onChange={(e) => setDate(e.target.value)}
@@ -126,7 +120,7 @@ export default function SearchPage() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full sm:w-auto shrink-0 gap-2">
+            <Button type="submit" className="col-span-2 sm:col-span-1 w-full sm:w-auto shrink-0 gap-2">
               <Search className="h-4 w-4" /> Search
             </Button>
           </div>
