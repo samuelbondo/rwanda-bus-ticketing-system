@@ -115,164 +115,98 @@ export default function HomePage() {
   return (
     <div className="overflow-x-hidden">
 
-      {/* HERO */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#0f2d6b] via-[#1a4db8] to-[#2563eb]">
+      {/* HERO — full width, slideshow fully visible */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#0f2d6b] via-[#1a4db8] to-[#2563eb] min-h-[420px] sm:min-h-[520px]">
         <HeroSlideshow />
         <div className="pointer-events-none absolute inset-0 opacity-10"
           style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
 
-        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-20 lg:py-24">
-          <div className="grid gap-6 sm:gap-10 lg:grid-cols-[1fr_420px] lg:items-start lg:gap-14">
-
-            {/* Left */}
-            <div className="text-white">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-blue-100 backdrop-blur-sm">
-                <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
-                Rwanda's Online Bus Ticketing Platform
-              </div>
-
-              <h1 className="text-2xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
-                Book Your Bus Ticket<br />
-                <span className="text-blue-200">From Anywhere.</span>
-              </h1>
-
-              <p className="mt-3 max-w-md text-sm sm:text-base text-blue-100 leading-relaxed">
-                Travel the Nyanza–Kigali corridor without visiting a ticket office.
-                Search schedules, pick your seat, pay with Mobile Money, and board with a QR code.
-              </p>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                {['No office visit', 'Instant e-ticket', 'Cancel anytime'].map((t) => (
-                  <span key={t} className="flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-xs text-blue-100">
-                    <CheckCircle className="h-3 w-3 text-green-400 shrink-0" /> {t}
-                  </span>
-                ))}
-              </div>
+        {/* Text overlay — bottom-left, doesn't block slideshow */}
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 pt-12 pb-20 sm:pt-20 sm:pb-28">
+          <div className="max-w-xl text-white">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-blue-100 backdrop-blur-sm">
+              <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+              Rwanda's Online Bus Ticketing Platform
             </div>
-
-            {/* Search card — desktop only inside hero */}
-            <div className="hidden sm:block w-full rounded-2xl bg-white shadow-2xl dark:bg-gray-900 overflow-hidden">
-              <div className="bg-primary-600 px-5 py-3">
-                <h2 className="text-base font-bold text-white">Find a Bus</h2>
-                <p className="text-xs text-blue-100 mt-0.5">Search available departures</p>
-              </div>
-              <form onSubmit={handleSearch} className="p-4 sm:p-5 space-y-3">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">From</label>
-                  <div className="relative">
-                    <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
-                    <select
-                      className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2.5 text-sm text-gray-900 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                      value={origin}
-                      onChange={(e) => { setOrigin(e.target.value); if (e.target.value === destination) setDestination('') }}
-                    >
-                      {STOPS.map((s) => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">To</label>
-                  <div className="relative">
-                    <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
-                    <select
-                      className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2.5 text-sm text-gray-900 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                      value={destination}
-                      onChange={(e) => setDestination(e.target.value)}
-                    >
-                      <option value="">Select destination</option>
-                      {STOPS.filter((s) => s !== origin).map((s) => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Travel Date</label>
-                  <div className="relative">
-                    <Calendar className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <input
-                      type="date"
-                      className={`w-full rounded-lg border bg-gray-50 pl-9 pr-3 py-2.5 text-sm text-gray-900 transition focus:bg-white focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white dark:[color-scheme:dark] ${
-                        dateError
-                          ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
-                          : 'border-gray-200 focus:border-primary-500 focus:ring-primary-500/20 dark:border-gray-700'
-                      }`}
-                      value={date}
-                      min={today}
-                      onChange={(e) => handleDateChange(e.target.value)}
-                    />
-                  </div>
-                  {dateError && (
-                    <p className="mt-1 flex items-center gap-1 text-xs text-red-500">
-                      <Calendar className="h-3 w-3 shrink-0" />{dateError}
-                    </p>
-                  )}
-                </div>
-
-                <button
-                  type="submit"
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 active:scale-[0.98]"
-                >
-                  Search Buses <ArrowRight className="h-4 w-4" />
-                </button>
-              </form>
+            <h1 className="text-2xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl lg:text-5xl">
+              Book Your Bus Ticket<br />
+              <span className="text-blue-200">From Anywhere.</span>
+            </h1>
+            <p className="mt-3 max-w-md text-sm sm:text-base text-blue-100 leading-relaxed">
+              Travel the Nyanza–Kigali corridor without visiting a ticket office.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {['No office visit', 'Instant e-ticket', 'Cancel anytime'].map((t) => (
+                <span key={t} className="flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-xs text-blue-100">
+                  <CheckCircle className="h-3 w-3 text-green-400 shrink-0" /> {t}
+                </span>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* SEARCH CARD — mobile only, below hero */}
-      <div className="block sm:hidden bg-white dark:bg-gray-900 px-4 py-5 shadow-md">
-        <form onSubmit={handleSearch} className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">From</label>
-              <select
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 focus:border-primary-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                value={origin}
-                onChange={(e) => { setOrigin(e.target.value); if (e.target.value === destination) setDestination('') }}
-              >
-                {STOPS.map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">To</label>
-              <select
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 focus:border-primary-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-              >
-                <option value="">Select</option>
-                {STOPS.filter((s) => s !== origin).map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </div>
+      {/* SEARCH CARD — floats below hero, overlaps on desktop */}
+      <div className="relative z-10 -mt-8 sm:-mt-10 mx-auto max-w-3xl px-4 sm:px-6">
+        <div className="rounded-2xl bg-white shadow-2xl dark:bg-gray-900 overflow-hidden">
+          <div className="bg-primary-600 px-5 py-3">
+            <h2 className="text-sm font-bold text-white">Find a Bus</h2>
+            <p className="text-xs text-blue-100 mt-0.5">Search available departures</p>
           </div>
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Travel Date</label>
-            <input
-              type="date"
-              className={`w-full rounded-lg border bg-gray-50 px-3 py-2 text-sm text-gray-900 focus:outline-none dark:bg-gray-800 dark:text-white dark:[color-scheme:dark] ${
-                dateError
-                  ? 'border-red-400 focus:border-red-400'
-                  : 'border-gray-200 focus:border-primary-500 dark:border-gray-700'
-              }`}
-              value={date}
-              min={today}
-              onChange={(e) => handleDateChange(e.target.value)}
-            />
-          </div>
-          {dateError && (
-            <p className="flex items-center gap-1 text-xs text-red-500">
-              <Calendar className="h-3 w-3 shrink-0" />{dateError}
-            </p>
-          )}
-          <button
-            type="submit"
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700 active:scale-[0.98]"
-          >
-            Search Buses <ArrowRight className="h-4 w-4" />
-          </button>
-        </form>
+          <form onSubmit={handleSearch} className="p-4 sm:p-5">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">From</label>
+                <div className="relative">
+                  <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
+                  <select
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2.5 text-sm text-gray-900 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                    value={origin}
+                    onChange={(e) => { setOrigin(e.target.value); if (e.target.value === destination) setDestination('') }}
+                  >
+                    {STOPS.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">To</label>
+                <div className="relative">
+                  <MapPin className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 z-10" />
+                  <select
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2.5 text-sm text-gray-900 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                    value={destination}
+                    onChange={(e) => setDestination(e.target.value)}
+                  >
+                    <option value="">Select destination</option>
+                    {STOPS.filter((s) => s !== origin).map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Travel Date</label>
+                <div className="relative">
+                  <Calendar className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="date"
+                    className={`w-full rounded-lg border bg-gray-50 pl-9 pr-3 py-2.5 text-sm text-gray-900 transition focus:bg-white focus:outline-none focus:ring-2 dark:bg-gray-800 dark:text-white dark:[color-scheme:dark] ${
+                      dateError ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20' : 'border-gray-200 focus:border-primary-500 focus:ring-primary-500/20 dark:border-gray-700'
+                    }`}
+                    value={date}
+                    min={today}
+                    onChange={(e) => handleDateChange(e.target.value)}
+                  />
+                </div>
+                {dateError && <p className="mt-1 flex items-center gap-1 text-xs text-red-500"><Calendar className="h-3 w-3 shrink-0" />{dateError}</p>}
+              </div>
+            </div>
+            <button
+              type="submit"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 active:scale-[0.98]"
+            >
+              Search Buses <ArrowRight className="h-4 w-4" />
+            </button>
+          </form>
+        </div>
       </div>
 
       {/* LIVE DEPARTURES */}
