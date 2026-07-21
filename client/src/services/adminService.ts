@@ -73,6 +73,17 @@ export const reportService = {
     })
     return response.data
   },
+  async getModule(module: 'bookings' | 'users' | 'revenue', period: string, from?: string, to?: string): Promise<Record<string, string | number>[]> {
+    const { data } = await api.get(`/reports/${module}`, { params: { period, from, to } })
+    return data.data
+  },
+  async exportModule(module: 'bookings' | 'users' | 'revenue', period: string, format: 'pdf' | 'csv', from?: string, to?: string): Promise<Blob> {
+    const response = await api.get(`/reports/${module}`, {
+      params: { period, format, from, to },
+      responseType: 'blob',
+    })
+    return response.data
+  },
 }
 
 export const auditService = {

@@ -96,3 +96,91 @@ export async function buildReportData(start: Date, end: Date, period: string) {
     popularRoutes,
   }
 }
+
+export async function buildBookingsReport(start: Date, end: Date) {
+  const rows = await prisma.booking.findMany({
+    where: { bookedAt: { gte: start, lte: end } },
+    select: {
+      ticketNumber: true,
+      bookedAt: true,
+      status: true,
+      totalPrice: true,
+      source: true,
+      destination: true,
+      user: { select: { name: true, email: true } },
+      schedule: { select: { departureTime: true, route: { select: { name: true } } } },
+      seat: { select: { seatNumber: true } },
+    },
+    orderBy: { bookedAt: 'desc' },
+  })
+  return rows.map((b) => ({
+    ticket: b.ticketNumber,
+    passenger: b.user.name,
+    email: b.user.email,
+    route: b.schedule.route.name,
+    from: b.source,
+    to: b.destination,
+    seat: b.seat.seatNumber,
+    departure: new Date(b.schedule.departureTime).toLocaleString('en-RW'),
+    bookedAt: new Date(b.bookedAt).toLocaleString('en-RW'),
+    status: b.status,
+    price: Number(b.totalPrice),
+  }))
+}
+
+export async function buildUsersReport(start: Date, end: Date) {
+  const rows = await prisma.user.findMany({
+    where: { createdAt: { gte: start, lte: end } },
+    select: {
+      name: true,
+      email: true,
+      role: true,
+      phone: true,
+      isActive: true,
+      createdAt: true,
+      _count: { select: { bookings: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+  })
+  return rows.map((u) => ({
+    name: u.name,
+    email: u.email,
+    role: u.role,
+    phone: u.phone ?? '—',
+    status: u.isActive ? 'Active' : 'Inactive',
+    bookings: u._count.bookings,
+    joinedAt: new Date(u.createdAt).toLocaleDateString('en-RW'),
+  }))
+}
+
+export async function buildRevenueReport(start: Date, end: Date) {
+  const rows = await prisma.payment.findMany({
+    where: { createdAt: { gte: start, lte: end } },
+    select: {
+      amount: true,
+      method: true,
+      status: true,
+      reference: true,
+      paidAt: true,
+      createdAt: true,
+      booking: {
+        select: {
+          ticketNumber: true,
+          user: { select: { name: true } },
+          schedule: { select: { route: { select: { name: true } } } },
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  })
+  return rows.map((p) => ({
+    ticket: p.booking.ticketNumber,
+    passenger: p.booking.user.name,
+    route: p.booking.schedule.route.name,
+    amount: Number(p.amount),
+    method: p.method,
+    status: p.status,
+    reference: p.reference ?? '—',
+    paidAt: p.paidAt ? new Date(p.paidAt).toLocaleString('en-RW') : '—',
+  }))
+}

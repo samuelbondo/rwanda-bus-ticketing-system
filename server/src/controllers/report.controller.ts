@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import PDFDocument from 'pdfkit'
 import ExcelJS from 'exceljs'
-import { getDateRange, buildReportData } from '../services/report.service.js'
+import { getDateRange, buildReportData, buildBookingsReport, buildUsersReport, buildRevenueReport } from '../services/report.service.js'
 
 export async function getReports(req: Request, res: Response) {
   const { period = 'monthly', from, to } = req.query as Record<string, string>
@@ -187,4 +187,123 @@ export async function exportReport(req: Request, res: Response) {
     .text(`Generated on ${new Date().toLocaleString()} — Rwanda Bus Ticketing System`, 50, doc.page.height - 40, { align: 'center', width: doc.page.width - 100 })
 
   doc.end()
+}
+
+// ── Module reports ────────────────────────────────────────────────────────────
+
+type ModuleRow = Record<string, string | number>
+
+function toCsv(headers: string[], rows: ModuleRow[]): string {
+  const lines = [headers.join(',')]
+  for (const row of rows) {
+    lines.push(headers.map((h) => {
+      const v = String(row[h] ?? '')
+      return v.includes(',') ? `"${v}"` : v
+    }).join(','))
+  }
+  return lines.join('\n')
+}
+
+function buildModulePdf(
+  res: Response,
+  title: string,
+  headers: string[],
+  rows: ModuleRow[],
+  filename: string
+) {
+  const doc = new PDFDocument({ size: 'A4', margin: 40, layout: 'landscape' })
+  res.setHeader('Content-Type', 'application/pdf')
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
+  doc.pipe(res)
+
+  const blue = '#1d4ed8'
+  const light = '#f3f4f6'
+  const gray = '#6b7280'
+
+  doc.rect(0, 0, doc.page.width, 60).fill(blue)
+  doc.fillColor('white').fontSize(16).font('Helvetica-Bold').text('Rwanda Bus Ticketing System', 40, 14)
+  doc.fontSize(10).font('Helvetica').text(title, 40, 36)
+
+  const colW = Math.floor((doc.page.width - 80) / headers.length)
+  const tableTop = 80
+
+  // Header row
+  let tx = 40
+  doc.rect(40, tableTop, doc.page.width - 80, 20).fill(blue)
+  headers.forEach((h) => {
+    doc.fillColor('white').fontSize(8).font('Helvetica-Bold')
+      .text(h.toUpperCase(), tx + 3, tableTop + 5, { width: colW - 6, ellipsis: true })
+    tx += colW
+  })
+
+  let rowY = tableTop + 20
+  rows.forEach((row, idx) => {
+    if (rowY > doc.page.height - 60) { doc.addPage(); rowY = 40 }
+    doc.rect(40, rowY, doc.page.width - 80, 16).fill(idx % 2 === 0 ? 'white' : light)
+    let cx = 40
+    headers.forEach((h) => {
+      doc.fillColor('#111827').fontSize(7.5).font('Helvetica')
+        .text(String(row[h] ?? ''), cx + 3, rowY + 4, { width: colW - 6, ellipsis: true })
+      cx += colW
+    })
+    rowY += 16
+  })
+
+  doc.fontSize(7).fillColor(gray)
+    .text(`Generated ${new Date().toLocaleString()} — Rwanda Bus Ticketing System`, 40, doc.page.height - 30, { align: 'center', width: doc.page.width - 80 })
+  doc.end()
+}
+
+export async function getBookingsReport(req: Request, res: Response) {
+  const { period = 'monthly', from, to, format } = req.query as Record<string, string>
+  const { start, end } = getDateRange(period, from, to)
+  const rows = await buildBookingsReport(start, end)
+
+  if (!format) return res.json({ data: rows })
+
+  const headers = ['ticket', 'passenger', 'email', 'route', 'from', 'to', 'seat', 'departure', 'bookedAt', 'status', 'price']
+
+  if (format === 'csv') {
+    res.setHeader('Content-Type', 'text/csv')
+    res.setHeader('Content-Disposition', `attachment; filename="bookings-report-${period}.csv"`)
+    return res.send(toCsv(headers, rows))
+  }
+
+  buildModulePdf(res, `Bookings Report — ${period}`, headers, rows, `bookings-report-${period}.pdf`)
+}
+
+export async function getUsersReport(req: Request, res: Response) {
+  const { period = 'monthly', from, to, format } = req.query as Record<string, string>
+  const { start, end } = getDateRange(period, from, to)
+  const rows = await buildUsersReport(start, end)
+
+  if (!format) return res.json({ data: rows })
+
+  const headers = ['name', 'email', 'role', 'phone', 'status', 'bookings', 'joinedAt']
+
+  if (format === 'csv') {
+    res.setHeader('Content-Type', 'text/csv')
+    res.setHeader('Content-Disposition', `attachment; filename="users-report-${period}.csv"`)
+    return res.send(toCsv(headers, rows))
+  }
+
+  buildModulePdf(res, `Users Report — ${period}`, headers, rows, `users-report-${period}.pdf`)
+}
+
+export async function getRevenueReport(req: Request, res: Response) {
+  const { period = 'monthly', from, to, format } = req.query as Record<string, string>
+  const { start, end } = getDateRange(period, from, to)
+  const rows = await buildRevenueReport(start, end)
+
+  if (!format) return res.json({ data: rows })
+
+  const headers = ['ticket', 'passenger', 'route', 'amount', 'method', 'status', 'reference', 'paidAt']
+
+  if (format === 'csv') {
+    res.setHeader('Content-Type', 'text/csv')
+    res.setHeader('Content-Disposition', `attachment; filename="revenue-report-${period}.csv"`)
+    return res.send(toCsv(headers, rows))
+  }
+
+  buildModulePdf(res, `Revenue Report — ${period}`, headers, rows, `revenue-report-${period}.pdf`)
 }
