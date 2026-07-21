@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { MessageCircle, X, Send, Bot } from 'lucide-react'
+import { X, Send, Bot } from 'lucide-react'
 import { useSettings } from '@/contexts/SettingsContext'
 import api from '@/services/api'
 
@@ -124,13 +124,20 @@ export default function AiChat({ welcomeMessage }: AiChatProps) {
       )}
 
       {/* Bubble toggle */}
-      <button
-        onClick={() => setOpen((v) => !v)}
-        aria-label="Open AI chat"
-        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg transition hover:bg-primary-700 hover:scale-110"
-      >
-        {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
-      </button>
+      <div className="fixed bottom-6 right-6 z-50">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          aria-label="Open AI chat"
+          className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg transition hover:bg-primary-700 hover:scale-110"
+        >
+          {open ? <X className="h-6 w-6" /> : <Bot className="h-6 w-6" />}
+          {!open && (
+            <span className="absolute -top-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-green-400 ring-2 ring-white">
+              <span className="h-2 w-2 rounded-full bg-green-400 animate-ping opacity-75" />
+            </span>
+          )}
+        </button>
+      </div>
     </>
   )
 }
