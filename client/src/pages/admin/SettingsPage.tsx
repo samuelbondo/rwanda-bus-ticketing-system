@@ -13,6 +13,7 @@ const schema = z.object({
   supportAddress:     z.string(),
   whatsappNumber:     z.string(),
   whatsappMessage:    z.string(),
+  whatsappEnabled:    z.boolean(),
   maintenanceMode:    z.boolean(),
   maintenanceMessage: z.string(),
   geminiApiKey:       z.string(),
@@ -120,6 +121,12 @@ export default function SettingsPage() {
       </Section>
 
       <Section icon={Phone} title="WhatsApp">
+        <div className="sm:col-span-2">
+          <label className="flex cursor-pointer items-center gap-3">
+            <input type="checkbox" {...register('whatsappEnabled')} className="h-4 w-4 rounded border-gray-300 text-primary-600" />
+            <span className="text-sm text-gray-700 dark:text-gray-300">Show WhatsApp button on the site</span>
+          </label>
+        </div>
         <Field label="WhatsApp Number" error={errors.whatsappNumber?.message}>
           <input {...register('whatsappNumber')} placeholder="+250794047261" className={inputCls} />
         </Field>

@@ -1,9 +1,9 @@
 import { useSettings } from '@/contexts/SettingsContext'
 
 export default function WhatsAppButton() {
-  const { whatsappNumber, whatsappMessage } = useSettings()
+  const { whatsappNumber, whatsappMessage, whatsappEnabled } = useSettings()
 
-  if (!whatsappNumber) return null
+  if (!whatsappEnabled || !whatsappNumber) return null
 
   const number = whatsappNumber.replace(/\D/g, '')
   const url = `https://wa.me/${number}?text=${encodeURIComponent(whatsappMessage)}`

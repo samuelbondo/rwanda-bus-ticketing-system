@@ -8,6 +8,7 @@ export interface PublicSettings {
   supportAddress: string
   whatsappNumber: string
   whatsappMessage: string
+  whatsappEnabled: boolean
   maintenanceMode: boolean
   maintenanceMessage: string
   aiEnabled: boolean
@@ -24,6 +25,7 @@ const defaults: PublicSettings = {
   supportAddress: 'KG 7 Ave, Kigali, Rwanda',
   whatsappNumber: '+250794047261',
   whatsappMessage: 'Hello! I need help with my bus booking.',
+  whatsappEnabled: true,
   maintenanceMode: false,
   maintenanceMessage: 'We are currently performing scheduled maintenance.',
   aiEnabled: true,

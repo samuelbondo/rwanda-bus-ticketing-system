@@ -8,6 +8,7 @@ export interface FullSettings {
   supportAddress: string
   whatsappNumber: string
   whatsappMessage: string
+  whatsappEnabled: boolean
   maintenanceMode: boolean
   maintenanceMessage: string
   geminiApiKey: string
