@@ -44,6 +44,8 @@ export interface Route {
   basePrice: number
   isActive: boolean
   stops: RouteStop[]
+  coverImage?: string | null
+  coverBusName?: string | null
 }
 
 export interface Schedule {

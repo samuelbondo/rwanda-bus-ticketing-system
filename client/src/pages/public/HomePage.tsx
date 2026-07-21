@@ -10,8 +10,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Button, Skeleton } from '@/components/ui'
 import type { Schedule } from '@/types'
 import HeroSlideshow from '@/components/HeroSlideshow'
-import RouteJourneyStrip from '@/components/RouteJourneyStrip'
-import BusShowcase from '@/components/BusShowcase'
+import RouteCards from '@/components/RouteCards'
 
 const today = new Date().toISOString().split('T')[0]
 const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
@@ -330,8 +329,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <RouteJourneyStrip />
-      <BusShowcase />
+      <RouteCards />
 
       {/* WHY US */}
       <section className="bg-gray-50 dark:bg-gray-950 py-10 sm:py-16">
