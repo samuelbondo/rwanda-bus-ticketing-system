@@ -83,6 +83,7 @@ model Route {
   destination String
   distanceKm  Decimal?
   basePrice   Decimal
+  imageUrl    String?
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt

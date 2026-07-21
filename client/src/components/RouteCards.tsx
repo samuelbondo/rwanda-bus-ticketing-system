@@ -46,10 +46,10 @@ export default function RouteCards() {
                 >
                   {/* Cover image */}
                   <div className="relative h-44 w-full overflow-hidden bg-gradient-to-br from-primary-100 to-blue-200 dark:from-gray-700 dark:to-gray-600">
-                    {route.coverImage ? (
+                    {route.imageUrl ? (
                       <img
-                        src={route.coverImage}
-                        alt={route.coverBusName ?? route.name}
+                        src={route.imageUrl}
+                        alt={route.name}
                         className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
                       />
                     ) : (
@@ -74,7 +74,6 @@ export default function RouteCards() {
 
                   {/* Card body */}
                   <div className="p-4">
-                    {/* Stop strip */}
                     {stops.length > 0 ? (
                       <div className="flex items-center overflow-x-auto pb-1">
                         {stops.map((stop, idx) => (
@@ -109,7 +108,6 @@ export default function RouteCards() {
                       </div>
                     )}
 
-                    {/* Footer */}
                     <div className="mt-3 flex items-center justify-between">
                       {route.distanceKm && (
                         <span className="text-xs text-gray-400">{Number(route.distanceKm)} km</span>

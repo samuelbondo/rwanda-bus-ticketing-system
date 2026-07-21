@@ -1,24 +1,10 @@
 import { prisma } from '../config/prisma.js'
 
 export async function listRoutes() {
-  const routes = await prisma.route.findMany({
+  return prisma.route.findMany({
     include: { stops: { orderBy: { stopOrder: 'asc' } } },
     orderBy: { name: 'asc' },
   })
-
-  // Attach coverImage from the next scheduled bus on each route
-  const enriched = await Promise.all(
-    routes.map(async (route) => {
-      const next = await prisma.schedule.findFirst({
-        where: { routeId: route.id, status: 'SCHEDULED', bus: { imageUrl: { not: null } } },
-        orderBy: { departureTime: 'asc' },
-        select: { bus: { select: { imageUrl: true, name: true } } },
-      })
-      return { ...route, coverImage: next?.bus.imageUrl ?? null, coverBusName: next?.bus.name ?? null }
-    })
-  )
-
-  return enriched
 }
 
 export async function createRoute(data: {
@@ -38,7 +24,7 @@ export async function createRoute(data: {
 
 export async function updateRoute(
   id: string,
-  data: { name?: string; origin?: string; destination?: string; distanceKm?: number; basePrice?: number; isActive?: boolean }
+  data: { name?: string; origin?: string; destination?: string; distanceKm?: number; basePrice?: number; imageUrl?: string; isActive?: boolean }
 ) {
   return prisma.route.update({ where: { id }, data })
 }

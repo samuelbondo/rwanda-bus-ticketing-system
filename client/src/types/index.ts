@@ -42,10 +42,9 @@ export interface Route {
   destination: string
   distanceKm?: number
   basePrice: number
+  imageUrl?: string | null
   isActive: boolean
   stops: RouteStop[]
-  coverImage?: string | null
-  coverBusName?: string | null
 }
 
 export interface Schedule {

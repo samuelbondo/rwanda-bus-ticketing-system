@@ -12,6 +12,7 @@ export const createRouteSchema = z.object({
   destination: z.string().min(2).max(100),
   distanceKm: z.number().positive().optional(),
   basePrice: z.number().min(0),
+  imageUrl: z.string().url().optional(),
   stops: z.array(stopSchema).min(2).optional(),
 })
 

@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { Plus, Edit2, X } from 'lucide-react'
 import { routeService } from '@/services/adminService'
 import { Button, Input, Card, CardBody, CardHeader, Badge, Skeleton } from '@/components/ui'
+import ImageUpload from '@/components/ui/ImageUpload'
 import type { Route } from '@/types'
 
 const schema = z.object({
@@ -14,6 +15,7 @@ const schema = z.object({
   origin: z.string().min(2),
   destination: z.string().min(2),
   basePrice: z.coerce.number().min(0),
+  imageUrl: z.string().optional(),
 })
 type FormData = z.infer<typeof schema>
 
@@ -26,7 +28,7 @@ function RouteForm({
   onCancel: () => void
   loading: boolean
 }) {
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, control, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues,
   })
@@ -42,6 +44,20 @@ function RouteForm({
           <Input label="Origin" placeholder="Nyanza" error={errors.origin?.message} {...register('origin')} />
           <Input label="Destination" placeholder="Kigali" error={errors.destination?.message} {...register('destination')} />
           <Input label="Base Price (RWF)" type="number" placeholder="2000" error={errors.basePrice?.message} {...register('basePrice')} />
+          <div className="sm:col-span-2">
+            <Controller
+              name="imageUrl"
+              control={control}
+              render={({ field }) => (
+                <ImageUpload
+                  label="Route Cover Photo (optional)"
+                  folder="general"
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+          </div>
           <div className="sm:col-span-2 flex justify-end gap-2">
             <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
             <Button type="submit" loading={loading}>Save Route</Button>
@@ -99,7 +115,7 @@ export default function RoutesPage() {
       {editRoute && (
         <RouteForm
           title={`Edit — ${editRoute.name}`}
-          defaultValues={{ name: editRoute.name, origin: editRoute.origin, destination: editRoute.destination, basePrice: editRoute.basePrice }}
+          defaultValues={{ name: editRoute.name, origin: editRoute.origin, destination: editRoute.destination, basePrice: editRoute.basePrice, imageUrl: editRoute.imageUrl ?? '' }}
           loading={updateMutation.isPending}
           onSubmit={(d) => updateMutation.mutate({ id: editRoute.id, data: d })}
           onCancel={() => setEditRoute(null)}
