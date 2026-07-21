@@ -8,7 +8,7 @@ export async function getSeatsBySchedule(scheduleId: string) {
   if (!schedule) throw Object.assign(new Error('Schedule not found'), { status: 404 })
 
   const booked = await prisma.booking.findMany({
-    where: { scheduleId, status: { in: ['PENDING', 'CONFIRMED'] } },
+    where: { scheduleId, status: { in: ['PENDING', 'AWAITING_APPROVAL' as never, 'CONFIRMED'] } },
     select: { seatId: true },
   })
   const bookedIds = new Set(booked.map((b) => b.seatId))

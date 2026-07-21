@@ -34,7 +34,7 @@ export default function CustomerDashboard() {
 
   // Next upcoming confirmed trip
   const nextTrip = bookings
-    .filter((b) => b.status === 'CONFIRMED' && new Date(b.schedule.departureTime) > new Date())
+    .filter((b) => (b.status === 'CONFIRMED' || b.status === 'AWAITING_APPROVAL') && new Date(b.schedule.departureTime) > new Date())
     .sort((a, b) => new Date(a.schedule.departureTime).getTime() - new Date(b.schedule.departureTime).getTime())[0]
 
   return (
@@ -63,7 +63,7 @@ export default function CustomerDashboard() {
       {nextTrip && (
         <div
           className="cursor-pointer rounded-xl border-2 border-primary-200 bg-primary-50 px-4 py-4 dark:border-primary-800 dark:bg-primary-900/20 transition hover:shadow-md"
-          onClick={() => navigate(`/bookings/${nextTrip.id}/ticket`)}
+          onClick={() => navigate(nextTrip.status === 'CONFIRMED' ? `/bookings/${nextTrip.id}/ticket` : '/bookings')}
         >
           <p className="text-xs font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-400 mb-1">Your Next Trip</p>
           <div className="flex items-center justify-between">

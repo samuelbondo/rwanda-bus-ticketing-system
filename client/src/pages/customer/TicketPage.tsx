@@ -1,8 +1,22 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Download, XCircle } from 'lucide-react'
+import { ArrowLeft, Download, XCircle, CreditCard, Clock } from 'lucide-react'
 import { Button, Card, CardBody, Badge, Skeleton } from '@/components/ui'
 import { useBookingById, useDownloadTicket, useCancelBooking } from '@/hooks/useBookings'
 import { formatDateTime, formatRwf, canCancel } from '@/utils'
+
+function statusVariant(s: string): 'success' | 'danger' | 'warning' | 'default' | 'info' {
+  if (s === 'CONFIRMED') return 'success'
+  if (s === 'CANCELLED') return 'danger'
+  if (s === 'PENDING' || s === 'AWAITING_APPROVAL') return 'warning'
+  if (s === 'USED') return 'info'
+  return 'default'
+}
+
+function statusLabel(s: string): string {
+  if (s === 'AWAITING_APPROVAL') return 'Awaiting Approval'
+  if (s === 'PENDING') return 'Pending Payment'
+  return s.charAt(0) + s.slice(1).toLowerCase()
+}
 
 export default function TicketPage() {
   const { id } = useParams<{ id: string }>()
@@ -21,7 +35,7 @@ export default function TicketPage() {
   if (!booking) return <p className="text-center text-gray-500">Booking not found.</p>
 
   const confirmed = booking.status === 'CONFIRMED'
-  const cancellable = confirmed && canCancel(booking.schedule.departureTime)
+  const cancellable = (confirmed || booking.status === 'AWAITING_APPROVAL') && canCancel(booking.schedule.departureTime)
 
   return (
     <div className="space-y-6">
@@ -36,10 +50,24 @@ export default function TicketPage() {
         <CardBody className="space-y-4">
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">Ticket</h1>
-            <Badge variant={booking.status === 'CONFIRMED' ? 'success' : booking.status === 'USED' ? 'info' : 'danger'}>
-              {booking.status}
+            <Badge variant={statusVariant(booking.status)}>
+              {statusLabel(booking.status)}
             </Badge>
           </div>
+
+          {/* Status messages */}
+          {booking.status === 'AWAITING_APPROVAL' && (
+            <div className="rounded-lg bg-orange-50 dark:bg-orange-900/20 px-4 py-3 text-sm text-orange-700 dark:text-orange-300">
+              <p className="font-semibold flex items-center gap-1.5"><Clock className="h-4 w-4" /> Payment Under Review</p>
+              <p className="mt-0.5 text-xs">An admin is verifying your proof of payment. You'll receive an email once confirmed.</p>
+            </div>
+          )}
+          {booking.status === 'PENDING' && (
+            <div className="rounded-lg bg-yellow-50 dark:bg-yellow-900/20 px-4 py-3 text-sm text-yellow-700 dark:text-yellow-300">
+              <p className="font-semibold">Payment Required</p>
+              <p className="mt-0.5 text-xs">Your seat is reserved but payment has not been submitted yet.</p>
+            </div>
+          )}
 
           {([
             ['Ticket No', booking.ticketNumber],
@@ -55,30 +83,35 @@ export default function TicketPage() {
             </div>
           ))}
 
-          {booking.qrCode && (
+          {confirmed && booking.qrCode && (
             <div className="flex justify-center pt-2">
               <img src={booking.qrCode} alt="QR Code" className="h-32 w-32" />
             </div>
           )}
 
+          {/* PENDING — go back to pay */}
+          {booking.status === 'PENDING' && (
+            <Button className="w-full" onClick={() => navigate(`/book/${booking.schedule.id}`)}>
+              <CreditCard className="mr-2 h-4 w-4" /> Complete Payment
+            </Button>
+          )}
+
+          {/* CONFIRMED — download */}
           {confirmed && (
             <Button className="w-full" onClick={() => downloadTicket(booking.id, booking.ticketNumber)}>
               <Download className="mr-2 h-4 w-4" /> Download PDF
             </Button>
           )}
 
+          {/* Cancel */}
           {cancellable && (
             <Button
               className="w-full"
               variant="danger"
               loading={cancelMutation.isPending}
-              onClick={() =>
-                cancelMutation.mutate(booking.id, {
-                  onSuccess: () => navigate('/bookings'),
-                })
-              }
+              onClick={() => cancelMutation.mutate(booking.id, { onSuccess: () => navigate('/bookings') })}
             >
-              <XCircle className="mr-2 h-4 w-4" /> Cancel Ticket
+              <XCircle className="mr-2 h-4 w-4" /> Cancel Booking
             </Button>
           )}
 
