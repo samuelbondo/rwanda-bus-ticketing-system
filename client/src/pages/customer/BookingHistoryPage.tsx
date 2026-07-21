@@ -7,7 +7,7 @@ import { formatDateTime, formatRwf, canCancel } from '@/utils'
 function statusVariant(s: string): 'success' | 'danger' | 'warning' | 'default' {
   if (s === 'CONFIRMED') return 'success'
   if (s === 'CANCELLED') return 'danger'
-  if (s === 'PENDING') return 'warning'
+  if (s === 'PENDING' || s === 'AWAITING_APPROVAL') return 'warning'
   return 'default'
 }
 

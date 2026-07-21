@@ -23,6 +23,7 @@ enum ScheduleStatus {
 
 enum BookingStatus {
   PENDING
+  AWAITING_APPROVAL
   CONFIRMED
   CANCELLED
   USED
@@ -169,6 +170,7 @@ model Payment {
   method    PaymentMethod
   status    PaymentStatus @default(PENDING)
   reference String?
+  proofUrl  String?
   paidAt    DateTime?
   createdAt DateTime      @default(now())
 

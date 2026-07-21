@@ -10,4 +10,5 @@ export const createBookingSchema = z.object({
 export const confirmPaymentSchema = z.object({
   method: z.enum(['MOMO', 'CARD', 'CASH']),
   reference: z.string().optional(),
+  proofUrl: z.string().url().optional(),
 })

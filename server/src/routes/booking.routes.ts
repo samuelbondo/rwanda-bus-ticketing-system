@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { createBooking, confirmPayment, getBookings, getBookingById, cancelBooking, downloadTicket, getManifest, markDeparted } from '../controllers/booking.controller.js'
+import { createBooking, confirmPayment, approvePayment, rejectPayment, getBookings, getBookingById, cancelBooking, downloadTicket, getManifest, markDeparted } from '../controllers/booking.controller.js'
 import { authenticate, authorize } from '../middlewares/auth.middleware.js'
 
 const router = Router()
@@ -12,6 +12,8 @@ router.post('/manifest/:scheduleId/depart', authorize('AGENT', 'ADMIN'), markDep
 
 router.post('/', authorize('CUSTOMER'), createBooking)
 router.post('/:id/pay', authorize('CUSTOMER'), confirmPayment)
+router.post('/:id/approve', authorize('ADMIN'), approvePayment)
+router.post('/:id/reject', authorize('ADMIN'), rejectPayment)
 router.get('/', getBookings)
 router.get('/:id', getBookingById)
 router.delete('/:id', authorize('CUSTOMER', 'ADMIN'), cancelBooking)

@@ -172,6 +172,23 @@ export async function sendPasswordResetEmail(to: string, name: string, resetUrl:
   await send({ to, subject: 'Reset Your Password — Rwanda Bus Ticketing', html: baseTemplate('Password Reset Request 🔐', body) })
 }
 
+export async function sendPaymentRejectedEmail(to: string, name: string, ticketNumber: string, reason?: string) {
+  const body = `
+    <p>Hi <strong>${name}</strong>,</p>
+    <p>Unfortunately, your payment proof for booking <strong>${ticketNumber}</strong> could not be verified.</p>
+    ${reason ? detailRow('Reason', reason) : ''}
+    <p style="margin-top:24px;">Your booking has been reset to <strong>PENDING</strong>. Please re-submit your payment with a clear proof of payment screenshot.</p>`
+  await send({ to, subject: `Payment Not Approved — ${ticketNumber}`, html: baseTemplate('Payment Verification Failed ❌', body) })
+}
+
+export async function sendPaymentApprovedEmail(to: string, name: string, ticketNumber: string) {
+  const body = `
+    <p>Hi <strong>${name}</strong>,</p>
+    <p>Your payment for booking <strong>${ticketNumber}</strong> has been verified and approved.</p>
+    <p style="margin-top:24px;">Your ticket is now <strong>CONFIRMED</strong>. Check your email for the attached PDF ticket.</p>`
+  await send({ to, subject: `Payment Approved — ${ticketNumber}`, html: baseTemplate('Payment Approved ✅', body) })
+}
+
 export async function sendPasswordResetByAdminEmail(to: string, name: string, newPassword: string) {
   const body = `
     <p>Hi <strong>${name}</strong>,</p>

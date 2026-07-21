@@ -30,8 +30,16 @@ export const bookingService = {
     await api.delete(`/bookings/${id}`, { data: { reason } })
   },
 
-  async confirmPayment(id: string, method: 'MOMO' | 'CARD' | 'CASH', reference?: string): Promise<void> {
-    await api.post(`/bookings/${id}/pay`, { method, reference })
+  async confirmPayment(id: string, method: 'MOMO' | 'CARD' | 'CASH', reference?: string, proofUrl?: string): Promise<void> {
+    await api.post(`/bookings/${id}/pay`, { method, reference, proofUrl })
+  },
+
+  async approvePayment(id: string): Promise<void> {
+    await api.post(`/bookings/${id}/approve`)
+  },
+
+  async rejectPayment(id: string, reason?: string): Promise<void> {
+    await api.post(`/bookings/${id}/reject`, { reason })
   },
 
   async downloadTicket(id: string): Promise<Blob> {

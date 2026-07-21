@@ -24,9 +24,20 @@ export async function confirmPayment(req: AuthRequest, res: Response) {
     userId: req.user!.id,
     method: parsed.data.method,
     reference: parsed.data.reference,
+    proofUrl: parsed.data.proofUrl,
     ipAddress: req.ip,
   })
-  res.json({ message: 'Payment confirmed. Booking is now CONFIRMED.', data: result })
+  res.json({ message: 'Payment submitted. Awaiting admin approval.', data: result })
+}
+
+export async function approvePayment(req: AuthRequest, res: Response) {
+  await bookingService.approvePayment(req.params.id as string, req.user!.id, req.ip)
+  res.json({ message: 'Payment approved. Booking confirmed.' })
+}
+
+export async function rejectPayment(req: AuthRequest, res: Response) {
+  await bookingService.rejectPayment(req.params.id as string, req.user!.id, req.body.reason as string | undefined, req.ip)
+  res.json({ message: 'Payment rejected. Booking reset to pending.' })
 }
 
 export async function getBookings(req: AuthRequest, res: Response) {

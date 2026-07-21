@@ -24,6 +24,7 @@ export default function BookingPage() {
   const [pendingBookingId, setPendingBookingId] = useState<string | null>(null)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('MOMO')
   const [reference, setReference] = useState('')
+  const [proofUrl, setProofUrl] = useState('')
 
   const { data: schedule, isLoading: loadingSchedule } = useQuery({
     queryKey: ['schedule', scheduleId],
@@ -53,10 +54,10 @@ export default function BookingPage() {
   })
 
   const payMutation = useMutation({
-    mutationFn: () => bookingService.confirmPayment(pendingBookingId!, paymentMethod, reference.trim() || undefined),
+    mutationFn: () => bookingService.confirmPayment(pendingBookingId!, paymentMethod, reference.trim() || undefined, proofUrl || undefined),
     onSuccess: () => {
-      toast.success('Payment confirmed! Your ticket is ready.')
-      navigate(`/bookings/${pendingBookingId}/ticket`)
+      toast.success('Payment submitted! Awaiting admin approval.')
+      navigate(`/bookings`)
     },
     onError: (err: { response?: { data?: { message?: string } } }) => {
       toast.error(err?.response?.data?.message ?? 'Payment failed. Please try again.')
@@ -118,9 +119,11 @@ export default function BookingPage() {
           price={Number(schedule.price)}
           method={paymentMethod}
           reference={reference}
+          proofUrl={proofUrl}
           loading={payMutation.isPending}
           onMethodChange={setPaymentMethod}
           onReferenceChange={setReference}
+          onProofUrlChange={setProofUrl}
           onConfirm={() => payMutation.mutate()}
         />
       )}
