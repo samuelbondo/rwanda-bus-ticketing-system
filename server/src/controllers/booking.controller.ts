@@ -50,6 +50,16 @@ export async function cancelBooking(req: AuthRequest, res: Response) {
   res.json({ message: 'Booking cancelled successfully' })
 }
 
+export async function getManifest(req: AuthRequest, res: Response) {
+  const manifest = await bookingService.getScheduleManifest(req.params.scheduleId as string)
+  res.json({ data: manifest })
+}
+
+export async function markDeparted(req: AuthRequest, res: Response) {
+  await bookingService.markScheduleDeparted(req.params.scheduleId as string, req.user!.id)
+  res.json({ message: 'Schedule marked as departed' })
+}
+
 export async function downloadTicket(req: AuthRequest, res: Response) {
   const pdfBuffer = await bookingService.getTicketPdf(req.params.id as string, req.user!.id, req.user!.role)
   res.setHeader('Content-Type', 'application/pdf')

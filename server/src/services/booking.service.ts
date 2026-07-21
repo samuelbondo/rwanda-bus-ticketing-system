@@ -119,9 +119,24 @@ export async function confirmPayment(data: {
 }
 
 export async function listBookings(userId: string, role: string) {
-  const where = role === 'ADMIN' ? {} : { userId }
+  if (role === 'ADMIN') {
+    return prisma.booking.findMany({
+      include: { schedule: { include: { route: true, bus: true } }, seat: true },
+      orderBy: { bookedAt: 'desc' },
+    })
+  }
+  if (role === 'AGENT') {
+    // Agents only see bookings for today's schedules
+    const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0)
+    const todayEnd = new Date(); todayEnd.setHours(23, 59, 59, 999)
+    return prisma.booking.findMany({
+      where: { schedule: { departureTime: { gte: todayStart, lte: todayEnd } } },
+      include: { schedule: { include: { route: true, bus: true } }, seat: true, user: { select: { id: true, name: true, email: true } } },
+      orderBy: { bookedAt: 'desc' },
+    })
+  }
   return prisma.booking.findMany({
-    where,
+    where: { userId },
     include: { schedule: { include: { route: true, bus: true } }, seat: true },
     orderBy: { bookedAt: 'desc' },
   })
@@ -198,6 +213,49 @@ export async function cancelBooking(data: {
     price: `RWF ${Number(booking.totalPrice).toLocaleString()}`,
     refunded: !!(booking.payment?.status === 'COMPLETED'),
   }).catch(() => {})
+}
+
+export async function getScheduleManifest(scheduleId: string) {
+  const schedule = await prisma.schedule.findUnique({
+    where: { id: scheduleId },
+    include: { route: true, bus: true },
+  })
+  if (!schedule) throw Object.assign(new Error('Schedule not found'), { status: 404 })
+
+  const bookings = await prisma.booking.findMany({
+    where: { scheduleId, status: { in: ['CONFIRMED', 'USED'] } },
+    include: {
+      user: { select: { name: true, email: true, phone: true } },
+      seat: true,
+    },
+    orderBy: { seat: { seatNumber: 'asc' } },
+  })
+
+  return {
+    schedule,
+    total: bookings.length,
+    checkedIn: bookings.filter((b) => b.status === 'USED').length,
+    pending: bookings.filter((b) => b.status === 'CONFIRMED').length,
+    bookings,
+  }
+}
+
+export async function markScheduleDeparted(scheduleId: string, agentId: string) {
+  const schedule = await prisma.schedule.findUnique({ where: { id: scheduleId } })
+  if (!schedule) throw Object.assign(new Error('Schedule not found'), { status: 404 })
+  if (schedule.status !== 'SCHEDULED') throw Object.assign(new Error('Schedule is not in SCHEDULED status'), { status: 400 })
+
+  await prisma.$transaction([
+    prisma.schedule.update({ where: { id: scheduleId }, data: { status: 'DEPARTED' } }),
+    prisma.auditLog.create({
+      data: {
+        action: 'SCHEDULE_MARKED_DEPARTED',
+        entity: 'schedule',
+        entityId: scheduleId,
+        user: { connect: { id: agentId } },
+      },
+    }),
+  ])
 }
 
 export async function getTicketPdf(bookingId: string, userId: string, role: string): Promise<Buffer> {
