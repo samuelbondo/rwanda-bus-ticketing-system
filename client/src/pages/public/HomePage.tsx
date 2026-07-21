@@ -141,8 +141,8 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Search card */}
-            <div className="w-full rounded-2xl bg-white shadow-2xl dark:bg-gray-900 overflow-hidden">
+            {/* Search card — desktop only inside hero */}
+            <div className="hidden sm:block w-full rounded-2xl bg-white shadow-2xl dark:bg-gray-900 overflow-hidden">
               <div className="bg-primary-600 px-5 py-3">
                 <h2 className="text-base font-bold text-white">Find a Bus</h2>
                 <p className="text-xs text-blue-100 mt-0.5">Search available departures</p>
@@ -202,6 +202,60 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* SEARCH CARD — mobile only, below hero */}
+      <div className="block sm:hidden bg-white dark:bg-gray-900 px-4 py-5 shadow-md">
+        <form onSubmit={handleSearch} className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">From</label>
+              <div className="relative">
+                <MapPin className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 z-10" />
+                <select
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-8 pr-2 py-2 text-sm text-gray-900 focus:border-primary-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                  value={origin}
+                  onChange={(e) => { setOrigin(e.target.value); if (e.target.value === destination) setDestination('') }}
+                >
+                  {STOPS.map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">To</label>
+              <div className="relative">
+                <MapPin className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 z-10" />
+                <select
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-8 pr-2 py-2 text-sm text-gray-900 focus:border-primary-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value)}
+                >
+                  <option value="">To</option>
+                  {STOPS.filter((s) => s !== origin).map((s) => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Travel Date</label>
+            <div className="relative">
+              <Calendar className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+              <input
+                type="date"
+                className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-8 pr-3 py-2 text-sm text-gray-900 focus:border-primary-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:[color-scheme:dark]"
+                value={date}
+                min={today}
+                onChange={(e) => setDate(e.target.value)}
+              />
+            </div>
+          </div>
+          <button
+            type="submit"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700 active:scale-[0.98]"
+          >
+            Search Buses <ArrowRight className="h-4 w-4" />
+          </button>
+        </form>
+      </div>
 
       {/* LIVE DEPARTURES */}
       <section className="bg-gray-50 dark:bg-gray-950 py-10 sm:py-16">
