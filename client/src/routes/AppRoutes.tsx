@@ -19,6 +19,7 @@ import BookingHistoryPage from '@/pages/customer/BookingHistoryPage'
 import BookingPage from '@/pages/customer/BookingPage'
 import TicketPage from '@/pages/customer/TicketPage'
 import ProfilePage from '@/pages/customer/ProfilePage'
+import NotificationsPage from '@/pages/customer/NotificationsPage'
 
 // Agent pages
 import AgentDashboard from '@/pages/agent/AgentDashboard'
@@ -94,6 +95,7 @@ export default function AppRoutes() {
         <Route path="/book/:scheduleId" element={<BookingPage />} />
         <Route path="/bookings" element={<BookingHistoryPage />} />
         <Route path="/bookings/:id/ticket" element={<TicketPage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
 

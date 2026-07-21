@@ -1,4 +1,5 @@
-import { Download, XCircle } from 'lucide-react'
+import { Download, XCircle, RefreshCw } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { Button, Badge, Card, CardBody, Skeleton } from '@/components/ui'
 import { useBookings, useCancelBooking, useDownloadTicket } from '@/hooks/useBookings'
 import { formatDateTime, formatRwf, canCancel } from '@/utils'
@@ -14,6 +15,7 @@ export default function BookingHistoryPage() {
   const { bookings, isLoading } = useBookings()
   const cancelMutation = useCancelBooking()
   const downloadTicket = useDownloadTicket()
+  const navigate = useNavigate()
 
   return (
     <div className="space-y-6">
@@ -59,6 +61,17 @@ export default function BookingHistoryPage() {
                           </Button>
                         )}
                       </>
+                    )}
+                    {(b.status === 'CANCELLED' || b.status === 'USED') && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() =>
+                        navigate(`/search?origin=${encodeURIComponent(b.source)}&destination=${encodeURIComponent(b.destination)}`)
+                        }
+                      >
+                        <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Rebook
+                      </Button>
                     )}
                   </div>
                 </div>

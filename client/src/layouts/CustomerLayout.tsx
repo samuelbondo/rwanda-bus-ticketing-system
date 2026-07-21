@@ -1,15 +1,16 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
-import { LayoutDashboard, Ticket, User } from 'lucide-react'
+import { LayoutDashboard, Ticket, User, Bell } from 'lucide-react'
 import DashboardHeader from '@/components/layout/DashboardHeader'
 import Sidebar from '@/components/layout/Sidebar'
 import AiChat from '@/components/ui/AiChat'
 import MaintenanceBanner from '@/components/ui/MaintenanceBanner'
 
 const items = [
-  { label: 'Dashboard',   to: '/dashboard', icon: LayoutDashboard },
-  { label: 'My Bookings', to: '/bookings',  icon: Ticket },
-  { label: 'Profile',     to: '/profile',   icon: User },
+  { label: 'Dashboard',     to: '/dashboard',      icon: LayoutDashboard },
+  { label: 'My Bookings',   to: '/bookings',       icon: Ticket },
+  { label: 'Notifications', to: '/notifications',  icon: Bell },
+  { label: 'Profile',       to: '/profile',        icon: User },
 ]
 
 export default function CustomerLayout() {
