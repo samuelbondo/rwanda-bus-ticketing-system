@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { scheduleService } from '@/services/scheduleService'
 import { bookingService } from '@/services/bookingService'
@@ -19,6 +19,7 @@ type Step = 'seat' | 'payment'
 export default function BookingPage() {
   const { scheduleId } = useParams<{ scheduleId: string }>()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [selectedSeat, setSelectedSeat] = useState<Seat | null>(null)
   const [step, setStep] = useState<Step>('seat')
   const [pendingBookingId, setPendingBookingId] = useState<string | null>(null)
@@ -47,7 +48,13 @@ export default function BookingPage() {
       source: schedule!.route.origin,
       destination: schedule!.route.destination,
     }),
-    onSuccess: (booking) => { setPendingBookingId(booking.id); setStep('payment') },
+    onSuccess: (booking) => {
+      setPendingBookingId(booking.id)
+      setStep('payment')
+      queryClient.invalidateQueries({ queryKey: ['schedule', scheduleId] })
+      queryClient.invalidateQueries({ queryKey: ['schedules'] })
+      queryClient.invalidateQueries({ queryKey: ['seats', scheduleId] })
+    },
     onError: (err: { response?: { data?: { message?: string } } }) => {
       toast.error(err?.response?.data?.message ?? 'Booking failed. Please try again.')
     },

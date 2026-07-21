@@ -27,6 +27,9 @@ export function useCancelBooking() {
     onSuccess: () => {
       toast.success('Booking cancelled')
       qc.invalidateQueries({ queryKey: ['bookings'] })
+      qc.invalidateQueries({ queryKey: ['schedules'] })
+      qc.invalidateQueries({ queryKey: ['schedule'] })
+      qc.invalidateQueries({ queryKey: ['seats'] })
     },
     onError: (err: { response?: { data?: { message?: string } } }) => {
       toast.error(err?.response?.data?.message ?? 'Cancellation failed')
