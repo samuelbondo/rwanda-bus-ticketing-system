@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
-import { LayoutDashboard, QrCode, CalendarDays, UserCircle, ClipboardList } from 'lucide-react'
+import { LayoutDashboard, QrCode, CalendarDays, UserCircle } from 'lucide-react'
 import DashboardHeader from '@/components/layout/DashboardHeader'
 import Sidebar from '@/components/layout/Sidebar'
 import AiChat from '@/components/ui/AiChat'
