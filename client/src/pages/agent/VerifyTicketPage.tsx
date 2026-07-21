@@ -3,23 +3,25 @@ import { useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import api from '@/services/api'
 import { Button, Input, Card, CardBody, Badge } from '@/components/ui'
-import { CheckCircle, XCircle } from 'lucide-react'
+import { CheckCircle, XCircle, UserCheck } from 'lucide-react'
 import type { Booking } from '@/types'
 
 export default function VerifyTicketPage() {
   const [searchParams] = useSearchParams()
   const [ticketNumber, setTicketNumber] = useState(searchParams.get('ticket') ?? '')
   const [loading, setLoading] = useState(false)
+  const [checkingIn, setCheckingIn] = useState(false)
   const [result, setResult] = useState<{ valid: boolean; message: string; data?: Booking } | null>(null)
+  const [checkedIn, setCheckedIn] = useState(false)
 
   async function handleVerify(ticket = ticketNumber) {
     if (!ticket.trim()) return
     setLoading(true)
     setResult(null)
+    setCheckedIn(false)
     try {
-      const { data } = await api.post('/verify', { ticketNumber: ticket.trim() })
+      const { data } = await api.post('/verify', { ticketNumber: ticket.trim(), checkIn: false })
       setResult(data)
-      toast.success('Ticket verified')
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Verification failed'
       setResult({ valid: false, message: msg })
@@ -29,7 +31,21 @@ export default function VerifyTicketPage() {
     }
   }
 
-  // Auto-verify when arriving via QR code scan
+  async function handleCheckIn() {
+    if (!result?.data?.ticketNumber) return
+    setCheckingIn(true)
+    try {
+      await api.post('/verify', { ticketNumber: result.data.ticketNumber, checkIn: true })
+      setCheckedIn(true)
+      toast.success('Passenger checked in successfully')
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Check-in failed'
+      toast.error(msg)
+    } finally {
+      setCheckingIn(false)
+    }
+  }
+
   useEffect(() => {
     const ticket = searchParams.get('ticket')
     if (ticket) handleVerify(ticket)
@@ -44,10 +60,10 @@ export default function VerifyTicketPage() {
             label="Ticket Number"
             placeholder="RBT-XXXXXX-XXXXXX"
             value={ticketNumber}
-            onChange={(e) => setTicketNumber(e.target.value)}
+            onChange={(e) => { setTicketNumber(e.target.value); setResult(null); setCheckedIn(false) }}
             onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
           />
-          <Button onClick={() => handleVerify()} loading={loading} className="w-full">Verify</Button>
+          <Button onClick={() => handleVerify()} loading={loading} className="w-full">Look Up Ticket</Button>
         </CardBody>
       </Card>
 
@@ -73,8 +89,17 @@ export default function VerifyTicketPage() {
                     <span className="font-medium text-gray-900 dark:text-white">{value}</span>
                   </div>
                 ))}
-                <div className="flex justify-end pt-1">
-                  <Badge variant="success">VERIFIED</Badge>
+                <div className="flex items-center justify-between pt-2">
+                  {checkedIn ? (
+                    <Badge variant="success">CHECKED IN</Badge>
+                  ) : (
+                    <Badge variant="info">CONFIRMED</Badge>
+                  )}
+                  {!checkedIn && (
+                    <Button size="sm" onClick={handleCheckIn} loading={checkingIn}>
+                      <UserCheck className="mr-1.5 h-4 w-4" /> Check In Passenger
+                    </Button>
+                  )}
                 </div>
               </div>
             )}

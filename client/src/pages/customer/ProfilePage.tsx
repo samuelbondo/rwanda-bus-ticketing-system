@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -38,6 +38,22 @@ export default function ProfilePage() {
   const passwordForm = useForm<PasswordData>({
     resolver: zodResolver(passwordSchema),
   })
+
+  const newPassword = passwordForm.watch('newPassword') ?? ''
+
+  const passwordStrength = useMemo(() => {
+    if (!newPassword) return 0
+    let score = 0
+    if (newPassword.length >= 8) score++
+    if (/[A-Z]/.test(newPassword)) score++
+    if (/[0-9]/.test(newPassword)) score++
+    if (/[^A-Za-z0-9]/.test(newPassword)) score++
+    return score
+  }, [newPassword])
+
+  const strengthLabel = ['', 'Weak', 'Fair', 'Good', 'Strong'][passwordStrength]
+  const strengthColor = ['', 'bg-red-500', 'bg-yellow-400', 'bg-blue-500', 'bg-green-500'][passwordStrength]
+  const strengthText = ['', 'text-red-500', 'text-yellow-500', 'text-blue-500', 'text-green-500'][passwordStrength]
 
   async function onProfileSubmit(data: ProfileData) {
     try {
@@ -173,13 +189,30 @@ export default function ProfilePage() {
               {...passwordForm.register('currentPassword')}
             />
             <div className="grid gap-4 sm:grid-cols-2">
-              <Input
-                label="New password"
-                type="password"
-                placeholder="Min. 8 characters"
-                error={passwordForm.formState.errors.newPassword?.message}
-                {...passwordForm.register('newPassword')}
-              />
+              <div className="space-y-1.5">
+                <Input
+                  label="New password"
+                  type="password"
+                  placeholder="Min. 8 characters"
+                  error={passwordForm.formState.errors.newPassword?.message}
+                  {...passwordForm.register('newPassword')}
+                />
+                {newPassword.length > 0 && (
+                  <div className="space-y-1">
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4].map((i) => (
+                        <div
+                          key={i}
+                          className={`h-1 flex-1 rounded-full transition-colors ${
+                            i <= passwordStrength ? strengthColor : 'bg-gray-200 dark:bg-gray-700'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className={`text-xs font-medium ${strengthText}`}>{strengthLabel}</p>
+                  </div>
+                )}
+              </div>
               <Input
                 label="Confirm new password"
                 type="password"

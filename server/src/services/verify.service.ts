@@ -1,6 +1,6 @@
 import { prisma } from '../config/prisma.js'
 
-export async function verifyTicket(ticketNumber: string) {
+export async function verifyTicket(ticketNumber: string, checkIn: boolean) {
   const booking = await prisma.booking.findUnique({
     where: { ticketNumber },
     include: {
@@ -16,6 +16,10 @@ export async function verifyTicket(ticketNumber: string) {
     throw Object.assign(new Error(`Ticket status: ${booking.status}`), { status: 400, valid: false })
   }
 
-  await prisma.booking.update({ where: { id: booking.id }, data: { status: 'USED' } })
+  // Only mark as USED when explicitly checking in, not on lookup
+  if (checkIn) {
+    await prisma.booking.update({ where: { id: booking.id }, data: { status: 'USED' } })
+  }
+
   return booking
 }
