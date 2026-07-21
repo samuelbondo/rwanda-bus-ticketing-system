@@ -36,6 +36,7 @@ import aiRoutes from './routes/ai.routes.js'
 const app = express()
 
 app.set('trust proxy', 1)
+app.set('etag', false)
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
