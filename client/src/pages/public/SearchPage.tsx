@@ -23,6 +23,7 @@ export default function SearchPage() {
   const [origin, setOrigin] = useState(searchParams.get('origin') ?? '')
   const [destination, setDestination] = useState(searchParams.get('destination') ?? '')
   const [date, setDate] = useState(searchParams.get('date') ?? '')
+  const [dateError, setDateError] = useState('')
   const [submitted, setSubmitted] = useState(
     !!(searchParams.get('origin') || searchParams.get('date'))
   )
@@ -44,6 +45,16 @@ export default function SearchPage() {
   })
 
   const schedules: Schedule[] = (data as { data: Schedule[] })?.data ?? []
+
+  function handleDateChange(val: string) {
+    if (val && val < today) {
+      setDateError('Please select today or a future date.')
+      setDate(today)
+    } else {
+      setDateError('')
+      setDate(val)
+    }
+  }
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
@@ -112,11 +123,20 @@ export default function SearchPage() {
                 <Calendar className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 hidden sm:block" />
                 <input
                   type="date"
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 sm:pl-9 sm:pr-3 py-2.5 text-sm text-gray-900 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark]"
+                  className={`w-full rounded-lg border bg-gray-50 px-3 sm:pl-9 sm:pr-3 py-2.5 text-sm text-gray-900 transition focus:bg-white focus:outline-none focus:ring-2 dark:bg-gray-700 dark:text-white dark:[color-scheme:dark] ${
+                    dateError
+                      ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
+                      : 'border-gray-200 focus:border-primary-500 focus:ring-primary-500/20 dark:border-gray-600'
+                  }`}
                   value={date}
                   min={today}
-                  onChange={(e) => setDate(e.target.value)}
+                  onChange={(e) => handleDateChange(e.target.value)}
                 />
+                {dateError && (
+                  <p className="mt-1 flex items-center gap-1 text-xs text-red-500">
+                    <Calendar className="h-3 w-3 shrink-0" />{dateError}
+                  </p>
+                )}
               </div>
             </div>
 
