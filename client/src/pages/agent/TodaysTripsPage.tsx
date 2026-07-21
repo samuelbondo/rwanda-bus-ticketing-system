@@ -1,13 +1,24 @@
 import { useQuery } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { scheduleService } from '@/services/scheduleService'
 import { Card, CardBody, Badge, Skeleton, Button } from '@/components/ui'
 import { Users, Clock, ChevronRight, QrCode } from 'lucide-react'
 import type { Schedule } from '@/types'
 
+function useNow() {
+  const [now, setNow] = useState(new Date())
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 30_000)
+    return () => clearInterval(t)
+  }, [])
+  return now
+}
+
 export default function TodaysTripsPage() {
   const today = new Date().toISOString().split('T')[0]
   const navigate = useNavigate()
+  const now = useNow()
 
   const { data, isLoading } = useQuery({
     queryKey: ['schedules', 'today'],
@@ -49,10 +60,23 @@ export default function TodaysTripsPage() {
             const timeStr = dep.toLocaleTimeString('en-RW', { hour: '2-digit', minute: '2-digit' })
             const booked = s.bus.capacity - s.availableSeats
             const pct = Math.round((booked / s.bus.capacity) * 100)
+            const minsAway = Math.round((dep.getTime() - now.getTime()) / 60_000)
+            const boarding = s.status === 'SCHEDULED' && minsAway >= 0 && minsAway <= 30
 
             return (
-              <Card key={s.id}>
+              <Card
+                key={s.id}
+                className={boarding ? 'border-2 border-orange-400 dark:border-orange-500' : ''}
+              >
                 <CardBody>
+                  {boarding && (
+                    <div className="mb-2 flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
+                      <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">
+                        Boarding Now — departs in {minsAway} min
+                      </span>
+                    </div>
+                  )}
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="space-y-1.5 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -69,7 +93,6 @@ export default function TodaysTripsPage() {
                           {booked}/{s.bus.capacity} booked ({pct}%)
                         </span>
                       </div>
-                      {/* Occupancy bar */}
                       <div className="h-1.5 w-full max-w-xs rounded-full bg-gray-100 dark:bg-gray-700">
                         <div
                           className={`h-1.5 rounded-full transition-all ${pct >= 90 ? 'bg-red-500' : pct >= 60 ? 'bg-orange-400' : 'bg-green-500'}`}

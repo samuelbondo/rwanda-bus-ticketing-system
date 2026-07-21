@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import api from '@/services/api'
 import { Card, CardBody, Badge, Skeleton, Button } from '@/components/ui'
-import { Users, CheckCircle, Clock, ArrowLeft, PlaneTakeoff, Search } from 'lucide-react'
+import { Users, CheckCircle, Clock, ArrowLeft, PlaneTakeoff, Search, UserCheck } from 'lucide-react'
 
 interface ManifestBooking {
   id: string
@@ -33,6 +33,7 @@ export default function PassengerManifestPage() {
   const navigate = useNavigate()
   const qc = useQueryClient()
   const [search, setSearch] = useState('')
+  const [checkingInId, setCheckingInId] = useState<string | null>(null)
 
   const { data, isLoading } = useQuery({
     queryKey: ['manifest', scheduleId],
@@ -55,6 +56,20 @@ export default function PassengerManifestPage() {
       toast.error(msg)
     },
   })
+
+  async function handleQuickCheckIn(ticketNumber: string, bookingId: string) {
+    setCheckingInId(bookingId)
+    try {
+      await api.post('/verify', { ticketNumber, checkIn: true })
+      toast.success('Passenger checked in')
+      qc.invalidateQueries({ queryKey: ['manifest', scheduleId] })
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Check-in failed'
+      toast.error(msg)
+    } finally {
+      setCheckingInId(null)
+    }
+  }
 
   const filtered = (data?.bookings ?? []).filter((b) =>
     b.user.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -155,14 +170,25 @@ export default function PassengerManifestPage() {
               {filtered.map((b) => (
                 <Card key={b.id} className={b.status === 'USED' ? 'opacity-60' : ''}>
                   <CardBody className="flex items-center justify-between py-3">
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="font-medium text-gray-900 dark:text-white truncate">{b.user.name}</p>
                       <p className="text-xs text-gray-500">{b.ticketNumber} · Seat {b.seat.seatNumber}</p>
                       {b.user.phone && <p className="text-xs text-gray-400">{b.user.phone}</p>}
                     </div>
-                    <Badge variant={b.status === 'USED' ? 'success' : 'warning'}>
-                      {b.status === 'USED' ? '✓ Boarded' : 'Pending'}
-                    </Badge>
+                    <div className="flex items-center gap-2 shrink-0 ml-3">
+                      <Badge variant={b.status === 'USED' ? 'success' : 'warning'}>
+                        {b.status === 'USED' ? '✓ Boarded' : 'Pending'}
+                      </Badge>
+                      {b.status === 'CONFIRMED' && data.schedule.status !== 'DEPARTED' && (
+                        <Button
+                          size="sm"
+                          loading={checkingInId === b.id}
+                          onClick={() => handleQuickCheckIn(b.ticketNumber, b.id)}
+                        >
+                          <UserCheck className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
                   </CardBody>
                 </Card>
               ))}

@@ -169,8 +169,21 @@ export default function VerifyTicketPage() {
 
             {result.data && (
               <div className="space-y-2 text-sm">
+                {/* Passenger avatar */}
+                <div className="flex items-center gap-3 pb-2">
+                  {result.data.user?.avatarUrl ? (
+                    <img src={result.data.user.avatarUrl} alt={result.data.user.name} className="h-12 w-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-700" />
+                  ) : (
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary-600 text-lg font-bold text-white">
+                      {result.data.user?.name?.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-semibold text-gray-900 dark:text-white">{result.data.user?.name}</p>
+                    <p className="text-xs text-gray-500">{result.data.user?.email}</p>
+                  </div>
+                </div>
                 {([
-                  ['Passenger', result.data.user?.name],
                   ['Route', `${result.data.source} → ${result.data.destination}`],
                   ['Seat', result.data.seat?.seatNumber],
                   ['Departure', new Date(result.data.schedule?.departureTime).toLocaleString('en-RW')],
