@@ -41,8 +41,7 @@ export default function RouteCards() {
               return (
                 <div
                   key={route.id}
-                  onClick={() => navigate(`/search?origin=${route.origin}&destination=${route.destination}`)}
-                  className="group cursor-pointer overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-lg dark:border-gray-700 dark:bg-gray-800"
+                  className="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-lg dark:border-gray-700 dark:bg-gray-800"
                 >
                   {/* Cover image */}
                   <div className="relative h-44 w-full overflow-hidden bg-gradient-to-br from-primary-100 to-blue-200 dark:from-gray-700 dark:to-gray-600">
@@ -113,10 +112,10 @@ export default function RouteCards() {
                         <span className="text-xs text-gray-400">{Number(route.distanceKm)} km</span>
                       )}
                       <button
-                        onClick={(e) => { e.stopPropagation(); navigate(`/search?origin=${route.origin}&destination=${route.destination}`) }}
-                        className="ml-auto flex items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-700 active:scale-[0.97]"
+                        onClick={() => navigate(`/search?origin=${route.origin}&destination=${route.destination}`)}
+                        className="ml-auto flex items-center gap-1.5 rounded-lg border border-primary-600 px-3 py-1.5 text-xs font-semibold text-primary-600 transition hover:bg-primary-50 dark:hover:bg-primary-900/20 active:scale-[0.97]"
                       >
-                        Book Now <ArrowRight className="h-3 w-3" />
+                        View Schedules <ArrowRight className="h-3 w-3" />
                       </button>
                     </div>
                   </div>
