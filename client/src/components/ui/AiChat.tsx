@@ -61,7 +61,7 @@ export default function AiChat({ welcomeMessage }: AiChatProps) {
           {/* Header */}
           <div className="flex items-center justify-between rounded-t-2xl bg-gray-900 px-4 py-3 dark:bg-gray-950">
             <div className="flex items-center gap-2 text-white">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-600">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-600">
                 <Bot className="h-4 w-4" />
               </div>
               <div>
@@ -128,7 +128,7 @@ export default function AiChat({ welcomeMessage }: AiChatProps) {
         <button
           onClick={() => setOpen((v) => !v)}
           aria-label="Open AI chat"
-          className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg transition hover:bg-primary-700 hover:scale-110"
+          className="relative flex h-14 w-14 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg transition hover:bg-violet-700 hover:scale-110"
         >
           {open ? <X className="h-6 w-6" /> : <Bot className="h-6 w-6" />}
           {!open && (
