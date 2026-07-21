@@ -154,7 +154,7 @@ export default function HomePage() {
             <p className="text-xs text-blue-100 mt-0.5">Search available departures</p>
           </div>
           <form onSubmit={handleSearch} className="p-4 sm:p-5">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <div>
                 <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">From</label>
                 <div className="relative">
@@ -182,8 +182,7 @@ export default function HomePage() {
                   </select>
                 </div>
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Travel Date</label>
+              <div className="col-span-2 sm:col-span-1">
                 <div className="relative">
                   <Calendar className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
