@@ -20,13 +20,14 @@ export default function AiChat({ welcomeMessage }: AiChatProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  const greeting = welcomeMessage ?? aiWelcomeMessage
+  const greeting = welcomeMessage ?? aiWelcomeMessage ?? "Hi! I'm your Rwanda Bus assistant. How can I help you today?"
 
+  // Show greeting as soon as chat opens, regardless of settings load timing
   useEffect(() => {
-    if (open && messages.length === 0) {
+    if (open && messages.length === 0 && greeting) {
       setMessages([{ role: 'model', text: greeting }])
     }
-  }, [open])
+  }, [open, greeting])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -58,12 +59,17 @@ export default function AiChat({ welcomeMessage }: AiChatProps) {
       {open && (
         <div className="fixed bottom-24 right-6 z-50 flex w-80 flex-col rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900 sm:w-96">
           {/* Header */}
-          <div className="flex items-center justify-between rounded-t-2xl bg-primary-600 px-4 py-3">
+          <div className="flex items-center justify-between rounded-t-2xl bg-gray-900 px-4 py-3 dark:bg-gray-950">
             <div className="flex items-center gap-2 text-white">
-              <Bot className="h-5 w-5" />
-              <span className="text-sm font-semibold">Rwanda Bus Assistant</span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-600">
+                <Bot className="h-4 w-4" />
+              </div>
+              <div>
+                <span className="text-sm font-semibold">Rwanda Bus Assistant</span>
+                <span className="ml-2 inline-flex h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+              </div>
             </div>
-            <button onClick={() => setOpen(false)} className="text-white/80 hover:text-white">
+            <button onClick={() => setOpen(false)} className="text-white/60 hover:text-white">
               <X className="h-4 w-4" />
             </button>
           </div>
