@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
-import { Ticket, CheckCircle, XCircle, Clock, Search, ArrowRight, AlertCircle } from 'lucide-react'
+import { Ticket, CheckCircle, XCircle, Search, ArrowRight, AlertCircle } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { bookingService } from '@/services/bookingService'
 import { Card, CardBody, Badge, Skeleton, Button } from '@/components/ui'

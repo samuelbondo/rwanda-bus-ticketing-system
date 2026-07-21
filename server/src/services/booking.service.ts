@@ -93,7 +93,7 @@ export async function confirmPayment(data: {
   }
 
   await prisma.$transaction([
-    prisma.booking.update({ where: { id: booking.id }, data: { status: 'AWAITING_APPROVAL' } }),
+    prisma.booking.update({ where: { id: booking.id }, data: { status: 'AWAITING_APPROVAL' as never } }),
     prisma.payment.update({
       where: { bookingId: booking.id },
       data: {
@@ -123,7 +123,7 @@ export async function approvePayment(bookingId: string, adminId: string, ipAddre
     },
   })
   if (!booking) throw Object.assign(new Error('Booking not found'), { status: 404 })
-  if (booking.status !== 'AWAITING_APPROVAL') throw Object.assign(new Error('Booking is not awaiting approval'), { status: 400 })
+  if ((booking.status as string) !== 'AWAITING_APPROVAL') throw Object.assign(new Error('Booking is not awaiting approval'), { status: 400 })
 
   await prisma.$transaction([
     prisma.booking.update({ where: { id: bookingId }, data: { status: 'CONFIRMED' } }),
@@ -134,7 +134,7 @@ export async function approvePayment(bookingId: string, adminId: string, ipAddre
   ])
 
   // Send confirmation email + PDF ticket
-  generateTicketPdf({ ...booking, status: 'CONFIRMED' as const })
+  generateTicketPdf({ ...booking })
     .then((pdf) =>
       sendBookingConfirmation(booking.user.email, booking.user.name, booking.ticketNumber, {
         route: `${booking.source} → ${booking.destination}`,
@@ -157,7 +157,7 @@ export async function rejectPayment(bookingId: string, adminId: string, reason?:
     },
   })
   if (!booking) throw Object.assign(new Error('Booking not found'), { status: 404 })
-  if (booking.status !== 'AWAITING_APPROVAL') throw Object.assign(new Error('Booking is not awaiting approval'), { status: 400 })
+  if ((booking.status as string) !== 'AWAITING_APPROVAL') throw Object.assign(new Error('Booking is not awaiting approval'), { status: 400 })
 
   await prisma.$transaction([
     prisma.booking.update({ where: { id: bookingId }, data: { status: 'PENDING' } }),

@@ -197,7 +197,7 @@ export default function AgentDashboard() {
                     <span className="font-medium text-gray-900 dark:text-white truncate">
                       {s.route.origin} → {s.route.destination}
                     </span>
-                    <Badge variant={statusVariant(s.status)} className="shrink-0 text-xs">
+                    <Badge variant={statusVariant(s.status)}>
                       {s.status === 'SCHEDULED' && boarding ? 'Boarding' : s.status}
                     </Badge>
                   </div>
