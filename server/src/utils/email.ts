@@ -11,13 +11,33 @@ function createTransporter() {
   })
 }
 
+export async function verifySmtp(): Promise<void> {
+  const transporter = createTransporter()
+  if (!transporter) {
+    console.warn('[email] SMTP not configured — emails will be skipped')
+    return
+  }
+  try {
+    await transporter.verify()
+    console.log('[email] SMTP connection verified ✓')
+  } catch (err: unknown) {
+    console.error('[email] SMTP connection FAILED:', (err as Error).message)
+  }
+}
+
 async function send(options: nodemailer.SendMailOptions) {
   const transporter = createTransporter()
   if (!transporter) {
     console.warn('[email] SMTP not configured — skipping email:', options.subject)
     return
   }
-  await transporter.sendMail({ from: `"Rwanda Bus Ticketing" <${env.SMTP_USER}>`, ...options })
+  try {
+    await transporter.sendMail({ from: `"Rwanda Bus Ticketing" <${env.SMTP_USER}>`, ...options })
+    console.log('[email] Sent:', options.subject, '→', options.to)
+  } catch (err: unknown) {
+    console.error('[email] Failed to send "' + options.subject + '" to ' + options.to + ':', (err as Error).message)
+    throw err
+  }
 }
 
 function baseTemplate(title: string, body: string) {

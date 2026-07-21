@@ -202,7 +202,7 @@ export default function SearchPage() {
                   </div>
 
                   {/* Right — price + action */}
-                  <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end sm:justify-start">
+                  <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-end sm:justify-start sm:gap-2">
                     <p className="text-lg font-bold text-primary-600">
                       RWF {Number(s.price).toLocaleString()}
                     </p>

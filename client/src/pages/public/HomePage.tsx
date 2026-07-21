@@ -13,11 +13,9 @@ import type { Schedule } from '@/types'
 
 import HeroSlideshow from '@/components/HeroSlideshow'
 
-// ── Today's date helpers ──────────────────────────────────────────────────────
 const today = new Date().toISOString().split('T')[0]
 const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
 
-// ── How it works steps ────────────────────────────────────────────────────────
 const steps = [
   { n: '1', icon: MapPin,     title: 'Search',  desc: 'Pick your route and travel date.' },
   { n: '2', icon: Ticket,     title: 'Book',    desc: 'Choose your seat and confirm.' },
@@ -25,15 +23,13 @@ const steps = [
   { n: '4', icon: QrCode,     title: 'Board',   desc: 'Show your QR code and travel.' },
 ]
 
-// ── Why us ────────────────────────────────────────────────────────────────────
 const whyUs = [
-  { icon: Shield,      title: 'Secure & Trusted',     desc: 'Every transaction is encrypted. Your data stays private.' },
+  { icon: Shield,      title: 'Secure & Trusted',      desc: 'Every transaction is encrypted. Your data stays private.' },
   { icon: Clock,       title: 'Real-time Availability', desc: 'Seat counts update live — no surprises at the terminal.' },
-  { icon: QrCode,      title: 'Paperless Tickets',     desc: 'Your PDF ticket with QR code arrives instantly by email.' },
-  { icon: CheckCircle, title: 'Easy Cancellation',     desc: 'Cancel up to 3 hours before departure, no hassle.' },
+  { icon: QrCode,      title: 'Paperless Tickets',      desc: 'Your PDF ticket with QR code arrives instantly by email.' },
+  { icon: CheckCircle, title: 'Easy Cancellation',      desc: 'Cancel up to 3 hours before departure, no hassle.' },
 ]
 
-// ── Schedule card ─────────────────────────────────────────────────────────────
 function ScheduleCard({ s, onBook }: { s: Schedule; onBook: () => void }) {
   const dep = new Date(s.departureTime)
   const timeStr = dep.toLocaleTimeString('en-RW', { hour: '2-digit', minute: '2-digit' })
@@ -45,21 +41,16 @@ function ScheduleCard({ s, onBook }: { s: Schedule; onBook: () => void }) {
     <div className={`flex flex-col rounded-xl border bg-white p-4 shadow-sm transition hover:shadow-md dark:bg-gray-800 ${
       cancelled ? 'border-red-200 opacity-60 dark:border-red-900' : 'border-gray-200 dark:border-gray-700'
     }`}>
-      {/* Route */}
       <div className="flex items-center gap-1.5 font-semibold text-gray-900 dark:text-white">
         <MapPin className="h-3.5 w-3.5 shrink-0 text-primary-600" />
         <span className="truncate text-sm">{s.route.origin} → {s.route.destination}</span>
       </div>
-
-      {/* Time & date */}
       <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
         <Clock className="h-3.5 w-3.5 shrink-0" />
         <span className="font-medium text-gray-800 dark:text-gray-200">{timeStr}</span>
         <span>·</span>
         <span>{dateStr}</span>
       </div>
-
-      {/* Bus & seats */}
       <div className="mt-1.5 flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
         <span className="flex items-center gap-1"><Bus className="h-3.5 w-3.5 shrink-0" />{s.bus.name}</span>
         <span className="flex items-center gap-1">
@@ -67,8 +58,6 @@ function ScheduleCard({ s, onBook }: { s: Schedule; onBook: () => void }) {
           {full ? <span className="text-red-500 font-medium">Full</span> : <>{s.availableSeats} left</>}
         </span>
       </div>
-
-      {/* Price + action */}
       <div className="mt-4 flex items-center justify-between">
         <span className="text-base font-bold text-primary-600">RWF {Number(s.price).toLocaleString()}</span>
         {cancelled ? (
@@ -81,10 +70,8 @@ function ScheduleCard({ s, onBook }: { s: Schedule; onBook: () => void }) {
   )
 }
 
-// ── Known stops (matches seed data) ─────────────────────────────────────────
 const STOPS = ['Nyanza', 'Ruhango', 'Muhanga', 'Kigali']
 
-// ── Page ──────────────────────────────────────────────────────────────────────
 export default function HomePage() {
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -92,14 +79,11 @@ export default function HomePage() {
   const [destination, setDestination] = useState('Kigali')
   const [date, setDate] = useState(today)
 
-  // Fetch today's departures
   const { data: todayData, isLoading: loadingToday } = useQuery({
     queryKey: ['schedules-home', today],
     queryFn: () => scheduleService.search({ date: today }),
     staleTime: 60_000,
   })
-
-  // Fetch tomorrow's departures
   const { data: tomorrowData, isLoading: loadingTomorrow } = useQuery({
     queryKey: ['schedules-home', tomorrow],
     queryFn: () => scheduleService.search({ date: tomorrow }),
@@ -123,54 +107,48 @@ export default function HomePage() {
   return (
     <div className="overflow-x-hidden">
 
-      {/* ── HERO ──────────────────────────────────────────────────────────── */}
-      <section className="relative bg-gradient-to-br from-[#0f2d6b] via-[#1a4db8] to-[#2563eb] overflow-hidden">
-        {/* Background slideshow */}
+      {/* HERO */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#0f2d6b] via-[#1a4db8] to-[#2563eb]">
         <HeroSlideshow />
-        {/* Background texture */}
         <div className="pointer-events-none absolute inset-0 opacity-10"
           style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
 
-        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 py-14 sm:py-20 lg:py-24">
-          <div className="grid gap-10 lg:grid-cols-[1fr_420px] lg:items-start lg:gap-14">
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 py-8 sm:py-20 lg:py-24">
+          <div className="grid gap-6 sm:gap-10 lg:grid-cols-[1fr_420px] lg:items-start lg:gap-14">
 
             {/* Left */}
             <div className="text-white">
-              {/* Badge */}
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-blue-100 backdrop-blur-sm">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-blue-100 backdrop-blur-sm">
                 <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
                 Rwanda's Online Bus Ticketing Platform
               </div>
 
-              <h1 className="text-3xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
+              <h1 className="text-2xl font-extrabold leading-[1.15] tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
                 Book Your Bus Ticket<br />
                 <span className="text-blue-200">From Anywhere.</span>
               </h1>
 
-              <p className="mt-4 max-w-md text-sm sm:text-base text-blue-100 leading-relaxed">
+              <p className="mt-3 max-w-md text-sm sm:text-base text-blue-100 leading-relaxed">
                 Travel the Nyanza–Kigali corridor without visiting a ticket office.
                 Search schedules, pick your seat, pay with Mobile Money, and board with a QR code.
               </p>
 
-              {/* Trust row */}
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className="mt-4 flex flex-wrap gap-2">
                 {['No office visit', 'Instant e-ticket', 'Cancel anytime'].map((t) => (
-                  <span key={t} className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs text-blue-100">
-                    <CheckCircle className="h-3.5 w-3.5 text-green-400 shrink-0" /> {t}
+                  <span key={t} className="flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-xs text-blue-100">
+                    <CheckCircle className="h-3 w-3 text-green-400 shrink-0" /> {t}
                   </span>
                 ))}
               </div>
-
-
             </div>
 
             {/* Search card */}
             <div className="w-full rounded-2xl bg-white shadow-2xl dark:bg-gray-900 overflow-hidden">
-              <div className="bg-primary-600 px-5 py-4">
+              <div className="bg-primary-600 px-5 py-3">
                 <h2 className="text-base font-bold text-white">Find a Bus</h2>
                 <p className="text-xs text-blue-100 mt-0.5">Search available departures</p>
               </div>
-              <form onSubmit={handleSearch} className="p-5 space-y-4">
+              <form onSubmit={handleSearch} className="p-4 sm:p-5 space-y-3">
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">From</label>
                   <div className="relative">
@@ -178,10 +156,7 @@ export default function HomePage() {
                     <select
                       className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-3 py-2.5 text-sm text-gray-900 transition focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                       value={origin}
-                      onChange={(e) => {
-                        setOrigin(e.target.value)
-                        if (e.target.value === destination) setDestination('')
-                      }}
+                      onChange={(e) => { setOrigin(e.target.value); if (e.target.value === destination) setDestination('') }}
                     >
                       {STOPS.map((s) => <option key={s} value={s}>{s}</option>)}
                     </select>
@@ -223,40 +198,36 @@ export default function HomePage() {
                 >
                   Search Buses <ArrowRight className="h-4 w-4" />
                 </button>
-
-
               </form>
             </div>
           </div>
         </div>
-
-
       </section>
 
-      {/* ── LIVE DEPARTURES ───────────────────────────────────────────────── */}
-      <section className="bg-gray-50 dark:bg-gray-950 py-14 sm:py-16">
+      {/* LIVE DEPARTURES */}
+      <section className="bg-gray-50 dark:bg-gray-950 py-10 sm:py-16">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-5 flex items-center justify-between">
             <div>
-              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Upcoming Departures</h2>
-              <p className="mt-0.5 text-xs sm:text-sm text-gray-500 dark:text-gray-400">Next available trips — live from our system</p>
+              <h2 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white">Upcoming Departures</h2>
+              <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Next available trips — live from our system</p>
             </div>
             <button
               onClick={() => navigate('/search')}
-              className="flex items-center gap-1 text-xs sm:text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400"
+              className="flex items-center gap-1 text-xs sm:text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 shrink-0"
             >
               View all <ChevronRight className="h-4 w-4" />
             </button>
           </div>
 
           {loading && (
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-3">
               {[1, 2, 3].map((i) => <Skeleton key={i} className="h-36 w-full rounded-xl" />)}
             </div>
           )}
 
           {!loading && allSchedules.length === 0 && (
-            <div className="rounded-xl border border-dashed border-gray-300 bg-white py-12 text-center dark:border-gray-700 dark:bg-gray-800">
+            <div className="rounded-xl border border-dashed border-gray-300 bg-white py-10 text-center dark:border-gray-700 dark:bg-gray-800">
               <Bus className="mx-auto mb-3 h-8 w-8 text-gray-300 dark:text-gray-600" />
               <p className="text-sm text-gray-500 dark:text-gray-400">No departures scheduled for today or tomorrow.</p>
               <button onClick={() => navigate('/search')} className="mt-3 text-sm font-medium text-primary-600 hover:underline">Search other dates</button>
@@ -265,7 +236,7 @@ export default function HomePage() {
 
           {!loading && allSchedules.length > 0 && (
             <>
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-3">
                 {allSchedules.map((s) => (
                   <ScheduleCard
                     key={s.id}
@@ -277,7 +248,7 @@ export default function HomePage() {
                   />
                 ))}
               </div>
-              <div className="mt-6 text-center">
+              <div className="mt-5 text-center">
                 <Button variant="secondary" onClick={() => navigate('/search')}>
                   See all schedules <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
@@ -287,57 +258,57 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ──────────────────────────────────────────────────── */}
-      <section className="bg-white dark:bg-gray-900 py-14 sm:py-16">
+      {/* HOW IT WORKS */}
+      <section className="bg-white dark:bg-gray-900 py-10 sm:py-16">
         <div className="mx-auto max-w-4xl px-4 sm:px-6">
-          <h2 className="mb-8 text-center text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+          <h2 className="mb-6 text-center text-base sm:text-xl font-bold text-gray-900 dark:text-white">
             How It Works
           </h2>
-          <div className="grid grid-cols-2 gap-5 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {steps.map(({ n, icon: Icon, title, desc }) => (
               <div key={n} className="flex flex-col items-center text-center">
-                <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-600 shadow-md shadow-primary-200 dark:shadow-primary-900/40">
-                  <Icon className="h-5 w-5 text-white" />
+                <div className="mb-3 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-primary-600 shadow-md shadow-primary-200 dark:shadow-primary-900/40">
+                  <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                 </div>
                 <span className="text-xs font-bold text-primary-600 mb-1">Step {n}</span>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">{title}</p>
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{desc}</p>
+                <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{title}</p>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 leading-relaxed hidden sm:block">{desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── WHY US ────────────────────────────────────────────────────────── */}
-      <section className="bg-gray-50 dark:bg-gray-950 py-14 sm:py-16">
+      {/* WHY US */}
+      <section className="bg-gray-50 dark:bg-gray-950 py-10 sm:py-16">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <h2 className="mb-8 text-center text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+          <h2 className="mb-6 text-center text-base sm:text-xl font-bold text-gray-900 dark:text-white">
             Why Travelers Choose Us
           </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {whyUs.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/30">
-                  <Icon className="h-5 w-5 text-primary-600" />
+              <div key={title} className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-primary-50 dark:bg-primary-900/30">
+                  <Icon className="h-4 w-4 text-primary-600" />
                 </div>
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">{title}</p>
-                <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{desc}</p>
+                <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{title}</p>
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 leading-relaxed hidden sm:block">{desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── CTA ───────────────────────────────────────────────────────────── */}
-      <section className="bg-primary-600 py-14 sm:py-16">
+      {/* CTA */}
+      <section className="bg-primary-600 py-10 sm:py-16">
         <div className="mx-auto max-w-2xl px-4 text-center sm:px-6">
-          <h2 className="text-xl sm:text-2xl font-extrabold text-white">
+          <h2 className="text-lg sm:text-2xl font-extrabold text-white">
             Ready to book your next trip?
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-blue-100">
+          <p className="mt-2 text-sm sm:text-base text-blue-100">
             Create a free account and manage all your bookings in one place.
           </p>
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <button
               onClick={() => navigate('/register')}
               className="rounded-lg bg-white px-6 py-3 text-sm font-semibold text-primary-700 transition hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary-600"

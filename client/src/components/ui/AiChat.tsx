@@ -57,7 +57,7 @@ export default function AiChat({ welcomeMessage }: AiChatProps) {
     <>
       {/* Chat window */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-50 flex w-80 flex-col rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900 sm:w-96">
+        <div className="fixed bottom-20 right-3 z-50 flex w-[calc(100vw-1.5rem)] flex-col rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900 sm:bottom-24 sm:right-6 sm:w-80 md:w-96">
           {/* Header */}
           <div className="flex items-center justify-between rounded-t-2xl bg-gray-900 px-4 py-3 dark:bg-gray-950">
             <div className="flex items-center gap-2 text-white">
@@ -124,11 +124,11 @@ export default function AiChat({ welcomeMessage }: AiChatProps) {
       )}
 
       {/* Bubble toggle */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-4 right-4 z-50 sm:bottom-6 sm:right-6">
         <button
           onClick={() => setOpen((v) => !v)}
           aria-label="Open AI chat"
-          className="relative flex h-14 w-14 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg transition hover:bg-violet-700 hover:scale-110"
+          className="relative flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg transition hover:bg-violet-700 hover:scale-110 sm:h-14 sm:w-14"
         >
           {open ? <X className="h-6 w-6" /> : <Bot className="h-6 w-6" />}
           {!open && (
