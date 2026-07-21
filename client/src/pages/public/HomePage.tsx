@@ -101,6 +101,11 @@ export default function HomePage() {
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
+    if (date < today) {
+      setDateError('Please select today or a future date.')
+      setDate(today)
+      return
+    }
     const p = new URLSearchParams()
     if (origin) p.set('origin', origin)
     if (destination) p.set('destination', destination)

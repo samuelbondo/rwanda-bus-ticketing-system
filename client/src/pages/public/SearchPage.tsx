@@ -58,6 +58,11 @@ export default function SearchPage() {
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
+    if (date && date < today) {
+      setDateError('Please select today or a future date.')
+      setDate(today)
+      return
+    }
     setSubmitted(true)
   }
 
