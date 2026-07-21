@@ -1,5 +1,7 @@
 import QRCode from 'qrcode'
+import { env } from '../config/env.js'
 
 export async function generateQrCode(ticketNumber: string): Promise<string> {
-  return QRCode.toDataURL(ticketNumber)
+  const url = `${env.CLIENT_URL}/agent/verify?ticket=${encodeURIComponent(ticketNumber)}`
+  return QRCode.toDataURL(url)
 }

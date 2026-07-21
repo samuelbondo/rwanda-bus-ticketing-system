@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import api from '@/services/api'
 import { Button, Input, Card, CardBody, Badge } from '@/components/ui'
@@ -6,16 +7,17 @@ import { CheckCircle, XCircle } from 'lucide-react'
 import type { Booking } from '@/types'
 
 export default function VerifyTicketPage() {
-  const [ticketNumber, setTicketNumber] = useState('')
+  const [searchParams] = useSearchParams()
+  const [ticketNumber, setTicketNumber] = useState(searchParams.get('ticket') ?? '')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{ valid: boolean; message: string; data?: Booking } | null>(null)
 
-  async function handleVerify() {
-    if (!ticketNumber.trim()) return
+  async function handleVerify(ticket = ticketNumber) {
+    if (!ticket.trim()) return
     setLoading(true)
     setResult(null)
     try {
-      const { data } = await api.post('/verify', { ticketNumber: ticketNumber.trim() })
+      const { data } = await api.post('/verify', { ticketNumber: ticket.trim() })
       setResult(data)
       toast.success('Ticket verified')
     } catch (err: unknown) {
@@ -26,6 +28,12 @@ export default function VerifyTicketPage() {
       setLoading(false)
     }
   }
+
+  // Auto-verify when arriving via QR code scan
+  useEffect(() => {
+    const ticket = searchParams.get('ticket')
+    if (ticket) handleVerify(ticket)
+  }, [])
 
   return (
     <div className="space-y-6">
@@ -39,7 +47,7 @@ export default function VerifyTicketPage() {
             onChange={(e) => setTicketNumber(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
           />
-          <Button onClick={handleVerify} loading={loading} className="w-full">Verify</Button>
+          <Button onClick={() => handleVerify()} loading={loading} className="w-full">Verify</Button>
         </CardBody>
       </Card>
 
