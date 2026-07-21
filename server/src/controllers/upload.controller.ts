@@ -15,14 +15,14 @@ export async function uploadFile(req: Request, res: Response, next: NextFunction
     }
 
     const folder = (req.query.folder as string) || 'general'
-    const allowed = ['buses', 'avatars', 'general', 'slideshow']
+    const allowed = ['buses', 'avatars', 'general', 'slideshow', 'payment-proofs']
     if (!allowed.includes(folder)) {
       res.status(400).json({ message: 'Invalid folder' })
       return
     }
 
     const result = await uploadImage(req.file.buffer, folder)
-    res.json({ data: { url: result.url, publicId: result.publicId } })
+    res.json({ url: result.url, publicId: result.publicId })
   } catch (err) {
     next(err)
   }

@@ -174,7 +174,7 @@ export async function listBookings(userId: string, role: string) {
   if (role === 'ADMIN') {
     return prisma.booking.findMany({
       include: { schedule: { include: { route: true, bus: true } }, seat: true, user: { select: { id: true, name: true, email: true } }, payment: true },
-      orderBy: { bookedAt: 'desc' },
+      orderBy: [{ status: 'asc' }, { bookedAt: 'desc' }],
     })
   }
   if (role === 'AGENT') {
